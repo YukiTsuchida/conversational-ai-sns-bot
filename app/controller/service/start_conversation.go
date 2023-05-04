@@ -53,3 +53,7 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 
 	return nil
 }
+
+func NewStartConversationService(sns sns.SNS, cmd cmd.Cmd, ai ai.AI) *StartConversationService {
+	return &StartConversationService{sns, cmd, ai}
+}
