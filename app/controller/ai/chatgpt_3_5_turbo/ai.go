@@ -20,6 +20,6 @@ func (ai *aiChatGPT3_0TurboImpl) SaveMessageLog(ctx context.Context, message str
 	return nil
 }
 
-func NewAIChatGPT3_0TurboImpl() *aiChatGPT3_0TurboImpl {
+func NewAIChatGPT3_0TurboImpl() ai.AI {
 	return &aiChatGPT3_0TurboImpl{}
 }

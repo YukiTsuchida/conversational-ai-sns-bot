@@ -30,6 +30,6 @@ func (sns *snsTwitterImpl) DoCmd(context context.Context, cmd *cmd.Command) (*sn
 	return nil, nil
 }
 
-func NewSNSTwitterImpl() *snsTwitterImpl {
+func NewSNSTwitterImpl() sns.SNS {
 	return &snsTwitterImpl{}
 }

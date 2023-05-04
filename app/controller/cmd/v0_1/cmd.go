@@ -20,3 +20,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessage(snsResponse *sns.Response) *string {
 func (cmd *cmdV0_1Impl) ParseCmdByMessage(message string) *cmd_model.Command {
 	return nil
 }
+
+func NewCmdV0_1Impl() cmd.Cmd {
+	return &cmdV0_1Impl{}
+}
