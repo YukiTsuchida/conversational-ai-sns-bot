@@ -2,11 +2,11 @@ package ai
 
 import (
 	"context"
-
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/ai"
 )
 
 type AI interface {
-	SendRequest(ctx context.Context, conversationId string) error
-	SaveMessageLog(ctx context.Context, message string, role ai.MessageRole) error
+	SendRequest(ctx context.Context, conversationID string) error
+	AppendSystemMessage(ctx context.Context, conversationID string, message string) error
+	AppendUserMessage(ctx context.Context, conversationID string, message string) error
+	AppendAIMessage(ctx context.Context, conversationID string, message string, purpose string) error
 }

@@ -14,15 +14,15 @@ var _ sns.SNS = (*snsTwitterImpl)(nil)
 type snsTwitterImpl struct {
 }
 
-func (sns *snsTwitterImpl) GetAccountById(ctx context.Context, accountId string) (*sns_model.Account, error) {
+func (sns *snsTwitterImpl) FetchAccountByID(ctx context.Context, accountID string) (*sns_model.Account, error) {
 	return nil, nil
 }
 
-func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountId string, credential string) error {
+func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential string) error {
 	return nil
 }
 
-func (sns *snsTwitterImpl) GiveAccountConversationId(ctx context.Context, conversationId string) error {
+func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, conversationID string) error {
 	return nil
 }
 

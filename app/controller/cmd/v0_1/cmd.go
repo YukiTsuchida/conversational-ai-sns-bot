@@ -17,7 +17,7 @@ func (cmd *cmdV0_1Impl) BuildFirstMessage() string {
 func (cmd *cmdV0_1Impl) BuildNextMessage(snsResponse *sns.Response) string {
 	return ""
 }
-func (cmd *cmdV0_1Impl) ParseCmdByMessage(message string) *cmd_model.Command {
+func (cmd *cmdV0_1Impl) ParseCmdByMessage(message string) []cmd_model.Command {
 	return nil
 }
 

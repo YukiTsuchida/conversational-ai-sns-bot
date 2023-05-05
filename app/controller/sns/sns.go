@@ -8,8 +8,8 @@ import (
 )
 
 type SNS interface {
-	GetAccountById(ctx context.Context, accountId string) (*sns.Account, error)
-	CreateAccount(ctx context.Context, accountId string, credential string) error // このinterfaceもうちょっとなんとかしたい
-	GiveAccountConversationId(ctx context.Context, conversationId string) error
+	FetchAccountByID(ctx context.Context, accountID string) (*sns.Account, error)
+	CreateAccount(ctx context.Context, accountID string, credential string) error // このinterfaceもうちょっとなんとかしたい
+	GiveAccountConversationID(ctx context.Context, conversationID string) error
 	ExecuteCmd(ctx context.Context, cmd *cmd.Command) (*sns.Response, error)
 }

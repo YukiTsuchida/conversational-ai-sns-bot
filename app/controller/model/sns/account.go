@@ -3,11 +3,11 @@ package sns
 // credentialは入れない
 type Account struct {
 	id             string
-	conversationId string
+	conversationID string
 }
 
 func (account Account) IsInConversations() bool {
-	if account.conversationId == "" {
+	if account.conversationID == "" {
 		return false
 	}
 	return true
