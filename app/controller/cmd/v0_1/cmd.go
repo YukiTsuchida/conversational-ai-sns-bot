@@ -14,7 +14,7 @@ type cmdV0_1Impl struct {
 func (cmd *cmdV0_1Impl) BuildFirstMessage() string {
 	return ""
 }
-func (cmd *cmdV0_1Impl) BuildNextMessage(snsResponse *sns.Response) string {
+func (cmd *cmdV0_1Impl) BuildNextMessage(req *cmd_model.Command, res *sns.Response) string {
 	return ""
 }
 func (cmd *cmdV0_1Impl) ParseCmdsByMessage(message string) []cmd_model.Command {

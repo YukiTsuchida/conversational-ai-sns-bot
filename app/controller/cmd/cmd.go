@@ -7,6 +7,6 @@ import (
 
 type Cmd interface {
 	BuildFirstMessage() string
-	BuildNextMessage(snsResponse *sns.Response) string
+	BuildNextMessage(cmd *cmd.Command, snsResponse *sns.Response) string
 	ParseCmdsByMessage(message string) []cmd.Command
 }
