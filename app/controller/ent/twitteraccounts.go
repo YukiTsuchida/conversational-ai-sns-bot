@@ -28,8 +28,9 @@ type TwitterAccounts struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TwitterAccountsQuery when eager-loading is set.
-	Edges        TwitterAccountsEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                         TwitterAccountsEdges `json:"edges"`
+	twitter_accounts_conversation *int
+	selectValues                  sql.SelectValues
 }
 
 // TwitterAccountsEdges holds the relations/edges for other nodes in the graph.
@@ -65,6 +66,8 @@ func (*TwitterAccounts) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case twitteraccounts.FieldCreatedAt, twitteraccounts.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case twitteraccounts.ForeignKeys[0]: // twitter_accounts_conversation
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -109,6 +112,13 @@ func (ta *TwitterAccounts) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				ta.UpdatedAt = value.Time
+			}
+		case twitteraccounts.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field twitter_accounts_conversation", value)
+			} else if value.Valid {
+				ta.twitter_accounts_conversation = new(int)
+				*ta.twitter_accounts_conversation = int(value.Int64)
 			}
 		default:
 			ta.selectValues.Set(columns[i], values[i])

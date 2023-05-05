@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
@@ -74,8 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			conversations.Table:   conversations.ValidColumn,
-			twitteraccounts.Table: twitteraccounts.ValidColumn,
+			chatgpt35turboconversationlog.Table: chatgpt35turboconversationlog.ValidColumn,
+			conversations.Table:                 conversations.ValidColumn,
+			twitteraccounts.Table:               twitteraccounts.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

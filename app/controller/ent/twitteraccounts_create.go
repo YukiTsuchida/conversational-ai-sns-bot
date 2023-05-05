@@ -193,7 +193,7 @@ func (tac *TwitterAccountsCreate) createSpec() (*TwitterAccounts, *sqlgraph.Crea
 	}
 	if nodes := tac.mutation.ConversationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
 			Table:   twitteraccounts.ConversationTable,
 			Columns: []string{twitteraccounts.ConversationColumn},
@@ -205,6 +205,7 @@ func (tac *TwitterAccountsCreate) createSpec() (*TwitterAccounts, *sqlgraph.Crea
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.twitter_accounts_conversation = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -26,6 +26,7 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 	r.Post("/accounts/twitter", handler.RegisterTwitterAccountHandler(db))
+	r.Post("/conversations/twitter", handler.StartTwitterConversationHandler(db))
 	http.ListenAndServe(":8080", r)
 }
 

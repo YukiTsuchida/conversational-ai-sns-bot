@@ -5,7 +5,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -31,7 +30,5 @@ func (Conversations) Fields() []ent.Field {
 
 // Edges of the Conversations.
 func (Conversations) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("twitter_account", TwitterAccounts.Type).Ref("conversation").Unique(),
-	}
+	return nil
 }

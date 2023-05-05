@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
@@ -23,6 +24,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Chatgpt35TurboConversationLog is the client for interacting with the Chatgpt35TurboConversationLog builders.
+	Chatgpt35TurboConversationLog *Chatgpt35TurboConversationLogClient
 	// Conversations is the client for interacting with the Conversations builders.
 	Conversations *ConversationsClient
 	// TwitterAccounts is the client for interacting with the TwitterAccounts builders.
@@ -40,6 +43,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Chatgpt35TurboConversationLog = NewChatgpt35TurboConversationLogClient(c.config)
 	c.Conversations = NewConversationsClient(c.config)
 	c.TwitterAccounts = NewTwitterAccountsClient(c.config)
 }
@@ -122,10 +126,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		Conversations:   NewConversationsClient(cfg),
-		TwitterAccounts: NewTwitterAccountsClient(cfg),
+		ctx:                           ctx,
+		config:                        cfg,
+		Chatgpt35TurboConversationLog: NewChatgpt35TurboConversationLogClient(cfg),
+		Conversations:                 NewConversationsClient(cfg),
+		TwitterAccounts:               NewTwitterAccountsClient(cfg),
 	}, nil
 }
 
@@ -143,17 +148,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:             ctx,
-		config:          cfg,
-		Conversations:   NewConversationsClient(cfg),
-		TwitterAccounts: NewTwitterAccountsClient(cfg),
+		ctx:                           ctx,
+		config:                        cfg,
+		Chatgpt35TurboConversationLog: NewChatgpt35TurboConversationLogClient(cfg),
+		Conversations:                 NewConversationsClient(cfg),
+		TwitterAccounts:               NewTwitterAccountsClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Conversations.
+//		Chatgpt35TurboConversationLog.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -175,6 +181,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Chatgpt35TurboConversationLog.Use(hooks...)
 	c.Conversations.Use(hooks...)
 	c.TwitterAccounts.Use(hooks...)
 }
@@ -182,6 +189,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Chatgpt35TurboConversationLog.Intercept(interceptors...)
 	c.Conversations.Intercept(interceptors...)
 	c.TwitterAccounts.Intercept(interceptors...)
 }
@@ -189,12 +197,148 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *Chatgpt35TurboConversationLogMutation:
+		return c.Chatgpt35TurboConversationLog.mutate(ctx, m)
 	case *ConversationsMutation:
 		return c.Conversations.mutate(ctx, m)
 	case *TwitterAccountsMutation:
 		return c.TwitterAccounts.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// Chatgpt35TurboConversationLogClient is a client for the Chatgpt35TurboConversationLog schema.
+type Chatgpt35TurboConversationLogClient struct {
+	config
+}
+
+// NewChatgpt35TurboConversationLogClient returns a client for the Chatgpt35TurboConversationLog from the given config.
+func NewChatgpt35TurboConversationLogClient(c config) *Chatgpt35TurboConversationLogClient {
+	return &Chatgpt35TurboConversationLogClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `chatgpt35turboconversationlog.Hooks(f(g(h())))`.
+func (c *Chatgpt35TurboConversationLogClient) Use(hooks ...Hook) {
+	c.hooks.Chatgpt35TurboConversationLog = append(c.hooks.Chatgpt35TurboConversationLog, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `chatgpt35turboconversationlog.Intercept(f(g(h())))`.
+func (c *Chatgpt35TurboConversationLogClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Chatgpt35TurboConversationLog = append(c.inters.Chatgpt35TurboConversationLog, interceptors...)
+}
+
+// Create returns a builder for creating a Chatgpt35TurboConversationLog entity.
+func (c *Chatgpt35TurboConversationLogClient) Create() *Chatgpt35TurboConversationLogCreate {
+	mutation := newChatgpt35TurboConversationLogMutation(c.config, OpCreate)
+	return &Chatgpt35TurboConversationLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Chatgpt35TurboConversationLog entities.
+func (c *Chatgpt35TurboConversationLogClient) CreateBulk(builders ...*Chatgpt35TurboConversationLogCreate) *Chatgpt35TurboConversationLogCreateBulk {
+	return &Chatgpt35TurboConversationLogCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Chatgpt35TurboConversationLog.
+func (c *Chatgpt35TurboConversationLogClient) Update() *Chatgpt35TurboConversationLogUpdate {
+	mutation := newChatgpt35TurboConversationLogMutation(c.config, OpUpdate)
+	return &Chatgpt35TurboConversationLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *Chatgpt35TurboConversationLogClient) UpdateOne(ccl *Chatgpt35TurboConversationLog) *Chatgpt35TurboConversationLogUpdateOne {
+	mutation := newChatgpt35TurboConversationLogMutation(c.config, OpUpdateOne, withChatgpt35TurboConversationLog(ccl))
+	return &Chatgpt35TurboConversationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *Chatgpt35TurboConversationLogClient) UpdateOneID(id int) *Chatgpt35TurboConversationLogUpdateOne {
+	mutation := newChatgpt35TurboConversationLogMutation(c.config, OpUpdateOne, withChatgpt35TurboConversationLogID(id))
+	return &Chatgpt35TurboConversationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Chatgpt35TurboConversationLog.
+func (c *Chatgpt35TurboConversationLogClient) Delete() *Chatgpt35TurboConversationLogDelete {
+	mutation := newChatgpt35TurboConversationLogMutation(c.config, OpDelete)
+	return &Chatgpt35TurboConversationLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *Chatgpt35TurboConversationLogClient) DeleteOne(ccl *Chatgpt35TurboConversationLog) *Chatgpt35TurboConversationLogDeleteOne {
+	return c.DeleteOneID(ccl.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *Chatgpt35TurboConversationLogClient) DeleteOneID(id int) *Chatgpt35TurboConversationLogDeleteOne {
+	builder := c.Delete().Where(chatgpt35turboconversationlog.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &Chatgpt35TurboConversationLogDeleteOne{builder}
+}
+
+// Query returns a query builder for Chatgpt35TurboConversationLog.
+func (c *Chatgpt35TurboConversationLogClient) Query() *Chatgpt35TurboConversationLogQuery {
+	return &Chatgpt35TurboConversationLogQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeChatgpt35TurboConversationLog},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Chatgpt35TurboConversationLog entity by its id.
+func (c *Chatgpt35TurboConversationLogClient) Get(ctx context.Context, id int) (*Chatgpt35TurboConversationLog, error) {
+	return c.Query().Where(chatgpt35turboconversationlog.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *Chatgpt35TurboConversationLogClient) GetX(ctx context.Context, id int) *Chatgpt35TurboConversationLog {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryConversation queries the conversation edge of a Chatgpt35TurboConversationLog.
+func (c *Chatgpt35TurboConversationLogClient) QueryConversation(ccl *Chatgpt35TurboConversationLog) *ConversationsQuery {
+	query := (&ConversationsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ccl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(chatgpt35turboconversationlog.Table, chatgpt35turboconversationlog.FieldID, id),
+			sqlgraph.To(conversations.Table, conversations.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, chatgpt35turboconversationlog.ConversationTable, chatgpt35turboconversationlog.ConversationColumn),
+		)
+		fromV = sqlgraph.Neighbors(ccl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *Chatgpt35TurboConversationLogClient) Hooks() []Hook {
+	return c.hooks.Chatgpt35TurboConversationLog
+}
+
+// Interceptors returns the client interceptors.
+func (c *Chatgpt35TurboConversationLogClient) Interceptors() []Interceptor {
+	return c.inters.Chatgpt35TurboConversationLog
+}
+
+func (c *Chatgpt35TurboConversationLogClient) mutate(ctx context.Context, m *Chatgpt35TurboConversationLogMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&Chatgpt35TurboConversationLogCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&Chatgpt35TurboConversationLogUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&Chatgpt35TurboConversationLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&Chatgpt35TurboConversationLogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Chatgpt35TurboConversationLog mutation op: %q", m.Op())
 	}
 }
 
@@ -289,22 +433,6 @@ func (c *ConversationsClient) GetX(ctx context.Context, id int) *Conversations {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryTwitterAccount queries the twitter_account edge of a Conversations.
-func (c *ConversationsClient) QueryTwitterAccount(co *Conversations) *TwitterAccountsQuery {
-	query := (&TwitterAccountsClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(conversations.Table, conversations.FieldID, id),
-			sqlgraph.To(twitteraccounts.Table, twitteraccounts.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, conversations.TwitterAccountTable, conversations.TwitterAccountColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.
@@ -433,7 +561,7 @@ func (c *TwitterAccountsClient) QueryConversation(ta *TwitterAccounts) *Conversa
 		step := sqlgraph.NewStep(
 			sqlgraph.From(twitteraccounts.Table, twitteraccounts.FieldID, id),
 			sqlgraph.To(conversations.Table, conversations.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, twitteraccounts.ConversationTable, twitteraccounts.ConversationColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, twitteraccounts.ConversationTable, twitteraccounts.ConversationColumn),
 		)
 		fromV = sqlgraph.Neighbors(ta.driver.Dialect(), step)
 		return fromV, nil
@@ -469,9 +597,9 @@ func (c *TwitterAccountsClient) mutate(ctx context.Context, m *TwitterAccountsMu
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Conversations, TwitterAccounts []ent.Hook
+		Chatgpt35TurboConversationLog, Conversations, TwitterAccounts []ent.Hook
 	}
 	inters struct {
-		Conversations, TwitterAccounts []ent.Interceptor
+		Chatgpt35TurboConversationLog, Conversations, TwitterAccounts []ent.Interceptor
 	}
 )

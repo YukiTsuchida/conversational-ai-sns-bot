@@ -21,3 +21,11 @@ func POSTGRES_PASSWORD() string {
 func POSTGRES_DB() string {
 	return os.Getenv("POSTGRES_DB")
 }
+
+func CLOUDTASKS_HOST() string {
+	return os.Getenv("CLOUDTASKS_HOST")
+}
+
+func CLOUDTASKS_PARENT() string {
+	return os.Getenv("CLOUDTASKS_PARENT")
+}

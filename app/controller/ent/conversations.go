@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
 
 // Conversations is the model entity for the Conversations schema.
@@ -27,34 +26,8 @@ type Conversations struct {
 	// IsAborted holds the value of the "is_aborted" field.
 	IsAborted bool `json:"is_aborted,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the ConversationsQuery when eager-loading is set.
-	Edges                         ConversationsEdges `json:"edges"`
-	twitter_accounts_conversation *int
-	selectValues                  sql.SelectValues
-}
-
-// ConversationsEdges holds the relations/edges for other nodes in the graph.
-type ConversationsEdges struct {
-	// TwitterAccount holds the value of the twitter_account edge.
-	TwitterAccount *TwitterAccounts `json:"twitter_account,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// TwitterAccountOrErr returns the TwitterAccount value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ConversationsEdges) TwitterAccountOrErr() (*TwitterAccounts, error) {
-	if e.loadedTypes[0] {
-		if e.TwitterAccount == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: twitteraccounts.Label}
-		}
-		return e.TwitterAccount, nil
-	}
-	return nil, &NotLoadedError{edge: "twitter_account"}
+	CreatedAt    time.Time `json:"created_at,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -70,8 +43,6 @@ func (*Conversations) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case conversations.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
-		case conversations.ForeignKeys[0]: // twitter_accounts_conversation
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -123,13 +94,6 @@ func (c *Conversations) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.CreatedAt = value.Time
 			}
-		case conversations.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field twitter_accounts_conversation", value)
-			} else if value.Valid {
-				c.twitter_accounts_conversation = new(int)
-				*c.twitter_accounts_conversation = int(value.Int64)
-			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
 		}
@@ -141,11 +105,6 @@ func (c *Conversations) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (c *Conversations) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
-}
-
-// QueryTwitterAccount queries the "twitter_account" edge of the Conversations entity.
-func (c *Conversations) QueryTwitterAccount() *TwitterAccountsQuery {
-	return NewConversationsClient(c.config).QueryTwitterAccount(c)
 }
 
 // Update returns a builder for updating this Conversations.

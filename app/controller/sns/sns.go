@@ -10,6 +10,6 @@ import (
 type SNS interface {
 	FetchAccountByID(ctx context.Context, accountID string) (*sns.Account, error)
 	CreateAccount(ctx context.Context, accountID string, credential string) error // このinterfaceもうちょっとなんとかしたい
-	GiveAccountConversationID(ctx context.Context, conversationID string) error
+	GiveAccountConversationID(ctx context.Context, accountID string, conversationID string) error
 	ExecuteCmd(ctx context.Context, cmd *cmd.Command) (*sns.Response, error)
 }

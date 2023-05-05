@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Chatgpt35TurboConversationLog is the client for interacting with the Chatgpt35TurboConversationLog builders.
+	Chatgpt35TurboConversationLog *Chatgpt35TurboConversationLogClient
 	// Conversations is the client for interacting with the Conversations builders.
 	Conversations *ConversationsClient
 	// TwitterAccounts is the client for interacting with the TwitterAccounts builders.
@@ -147,6 +149,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Chatgpt35TurboConversationLog = NewChatgpt35TurboConversationLogClient(tx.config)
 	tx.Conversations = NewConversationsClient(tx.config)
 	tx.TwitterAccounts = NewTwitterAccountsClient(tx.config)
 }
@@ -158,7 +161,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Conversations.QueryXXX(), the query will be executed
+// applies a query, for example: Chatgpt35TurboConversationLog.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

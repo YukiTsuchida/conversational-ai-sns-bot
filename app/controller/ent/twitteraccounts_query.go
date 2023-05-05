@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -24,6 +23,7 @@ type TwitterAccountsQuery struct {
 	inters           []Interceptor
 	predicates       []predicate.TwitterAccounts
 	withConversation *ConversationsQuery
+	withFKs          bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,7 +74,7 @@ func (taq *TwitterAccountsQuery) QueryConversation() *ConversationsQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(twitteraccounts.Table, twitteraccounts.FieldID, selector),
 			sqlgraph.To(conversations.Table, conversations.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, twitteraccounts.ConversationTable, twitteraccounts.ConversationColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, twitteraccounts.ConversationTable, twitteraccounts.ConversationColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(taq.driver.Dialect(), step)
 		return fromU, nil
@@ -369,11 +369,18 @@ func (taq *TwitterAccountsQuery) prepareQuery(ctx context.Context) error {
 func (taq *TwitterAccountsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TwitterAccounts, error) {
 	var (
 		nodes       = []*TwitterAccounts{}
+		withFKs     = taq.withFKs
 		_spec       = taq.querySpec()
 		loadedTypes = [1]bool{
 			taq.withConversation != nil,
 		}
 	)
+	if taq.withConversation != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, twitteraccounts.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*TwitterAccounts).scanValues(nil, columns)
 	}
@@ -402,30 +409,34 @@ func (taq *TwitterAccountsQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 }
 
 func (taq *TwitterAccountsQuery) loadConversation(ctx context.Context, query *ConversationsQuery, nodes []*TwitterAccounts, init func(*TwitterAccounts), assign func(*TwitterAccounts, *Conversations)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*TwitterAccounts)
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*TwitterAccounts)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].twitter_accounts_conversation == nil {
+			continue
+		}
+		fk := *nodes[i].twitter_accounts_conversation
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.withFKs = true
-	query.Where(predicate.Conversations(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(twitteraccounts.ConversationColumn), fks...))
-	}))
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(conversations.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.twitter_accounts_conversation
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "twitter_accounts_conversation" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "twitter_accounts_conversation" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "twitter_accounts_conversation" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }

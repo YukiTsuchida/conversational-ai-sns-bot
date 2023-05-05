@@ -5,7 +5,7 @@ services:
     build:
       context: .
       # Correct the path to your Dockerfile
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.controller
     ports:
       - 8080:8080
     # Important to bind/mount your codebase dir to /app dir for live reload
@@ -17,6 +17,13 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db
+      CLOUDTASKS_HOST: gcloud-tasks-emulator
+      CLOUDTASKS_PARENT: projects/dev/locations/here
+  gcloud-tasks-emulator:
+    image: ghcr.io/aertje/cloud-tasks-emulator:latest
+    command: -host 0.0.0.0 -port 8123 -queue "projects/dev/locations/here/queues/anotherq"
+    ports:
+      - "${TASKS_PORT:-8123}:8123"
   postgresql:
     image: postgres:14.0-alpine
     ports:

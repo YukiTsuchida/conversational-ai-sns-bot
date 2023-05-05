@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
@@ -9,12 +12,13 @@ import (
 )
 
 type StartConversationService struct {
-	sns sns.SNS
-	cmd cmd.Cmd
-	ai  ai.AI
+	sns              sns.SNS
+	cmd              cmd.Cmd
+	ai               ai.AI
+	conversationRepo conversation.ConversationRepository
 }
 
-func (svc *StartConversationService) StartConversation(ctx context.Context, accountID string) error {
+func (svc *StartConversationService) StartConversation(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
 	// accountが存在するか確認
 	account, err := svc.sns.FetchAccountByID(ctx, accountID)
 	if err != nil {
@@ -23,14 +27,17 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 
 	// accountが会話中でないか確認
 	if account.IsInConversations() {
-		return nil // ToDo: 既に会話中ですよエラーを返す
+		return fmt.Errorf("this account is now in the conversation. if you want to restart, please abort.")
 	}
 
-	// Todo: conversationを新規作成する
-	conversationID := "test"
+	// conversationを新規作成する
+	conversationID, err := svc.conversationRepo.Create(ctx, aiModel, snsType, cmdVersion)
+	if err != nil {
+		return err
+	}
 
 	// accountにconversation_idを付与する(accountとconversationを1:1対応させたいため)
-	err = svc.sns.GiveAccountConversationID(ctx, conversationID)
+	err = svc.sns.GiveAccountConversationID(ctx, accountID, conversationID)
 	if err != nil {
 		return err
 	}
@@ -53,6 +60,6 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	return nil
 }
 
-func NewStartConversationService(sns sns.SNS, cmd cmd.Cmd, ai ai.AI) *StartConversationService {
-	return &StartConversationService{sns, cmd, ai}
+func NewStartConversationService(sns sns.SNS, cmd cmd.Cmd, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversationService {
+	return &StartConversationService{sns, cmd, ai, conversationRepo}
 }

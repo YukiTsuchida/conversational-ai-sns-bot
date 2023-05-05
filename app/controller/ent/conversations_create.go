@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
 
 // ConversationsCreate is the builder for creating a Conversations entity.
@@ -65,25 +64,6 @@ func (cc *ConversationsCreate) SetNillableCreatedAt(t *time.Time) *Conversations
 		cc.SetCreatedAt(*t)
 	}
 	return cc
-}
-
-// SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID.
-func (cc *ConversationsCreate) SetTwitterAccountID(id int) *ConversationsCreate {
-	cc.mutation.SetTwitterAccountID(id)
-	return cc
-}
-
-// SetNillableTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID if the given value is not nil.
-func (cc *ConversationsCreate) SetNillableTwitterAccountID(id *int) *ConversationsCreate {
-	if id != nil {
-		cc = cc.SetTwitterAccountID(*id)
-	}
-	return cc
-}
-
-// SetTwitterAccount sets the "twitter_account" edge to the TwitterAccounts entity.
-func (cc *ConversationsCreate) SetTwitterAccount(t *TwitterAccounts) *ConversationsCreate {
-	return cc.SetTwitterAccountID(t.ID)
 }
 
 // Mutation returns the ConversationsMutation object of the builder.
@@ -208,23 +188,6 @@ func (cc *ConversationsCreate) createSpec() (*Conversations, *sqlgraph.CreateSpe
 	if value, ok := cc.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
-	}
-	if nodes := cc.mutation.TwitterAccountIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   conversations.TwitterAccountTable,
-			Columns: []string{conversations.TwitterAccountColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twitteraccounts.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.twitter_accounts_conversation = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
