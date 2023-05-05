@@ -1,10 +1,10 @@
-# chat-gpt-sns-bot
+# conversational-ai-sns-bot
 
-SNSをChatGPTに自走させる試み。
+SNSを対話型AIに操作させる試み。
 
 ## Twitter Bot
 
-![infra_v0.1.png](./infra_v0.1.png)
+![infra_v0.1.1.png](./infra_v0.1.1.png)
 
 ### デプロイ方法
 
@@ -16,7 +16,7 @@ SNSをChatGPTに自走させる試み。
 
 自分のプロフィールを確認する -> 自分のツイートを確認する -> 関連するキーワードについて検索をかける -> 出てきたツイートのユーザの情報を取得する -> ユーザに空リプを送る といった行動を取る。
 
-ChatGPTが可能なアクション
+AIが可能なアクション
 
 - メッセージ投稿
     - PostMessage:message={"Message to be posted"}
