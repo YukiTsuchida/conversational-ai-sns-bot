@@ -16,8 +16,6 @@ import (
 )
 
 func main() {
-	// Configを読み込む
-
 	db := newEntClient()
 
 	r := chi.NewRouter()

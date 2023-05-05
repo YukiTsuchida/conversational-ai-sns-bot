@@ -20,7 +20,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
 )
 
-const modelName = "chatgpt-3.5-turbo"
+const modelName = "gpt-3.5-turbo"
 
 var _ ai.AI = (*aiChatGPT3_5TurboImpl)(nil)
 
@@ -28,6 +28,7 @@ type aiChatGPT3_5TurboImpl struct {
 	db *ent.Client
 }
 
+// CloudTasksに積むhttpリクエストのbody
 type Request struct {
 	CallBackUrl string    `json:"call_back_url"`
 	AIModel     string    `json:"ai_model"`
@@ -75,9 +76,10 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			// queueが存在しなければ作る
+			fmt.Println(config.CONVERSATION_RATE_PER_SECOND())
 			createQueueRequest := taskspb.CreateQueueRequest{
 				Parent: cloudtasksParent,
-				Queue:  &taskspb.Queue{Name: queuePath},
+				Queue:  &taskspb.Queue{Name: queuePath, RateLimits: &taskspb.RateLimits{MaxDispatchesPerSecond: config.CONVERSATION_RATE_PER_SECOND()}},
 			}
 			_, err = client.CreateQueue(ctx, &createQueueRequest)
 			if err != nil {
@@ -98,7 +100,7 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	}
 
 	request := Request{
-		CallBackUrl: "http://controller:8080/ai/chatgpt_3_5_turbo/callback",
+		CallBackUrl: config.SELF_HOST() + "/conversations/" + conversationID + "/reply",
 		AIModel:     modelName,
 		Temperature: "1.0",
 		Messages:    messages,
@@ -109,8 +111,6 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 		return err
 	}
 
-	fmt.Println(string(body))
-
 	createTaskRequest := taskspb.CreateTaskRequest{
 		Parent: queuePath,
 		Task: &taskspb.Task{
@@ -118,7 +118,7 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
 					HttpMethod: taskspb.HttpMethod_POST,
-					Url:        "http://controller:8080/health",
+					Url:        config.REQUESTOR_HOST() + "/openai_chat_gpt",
 					Body:       body,
 				},
 			},

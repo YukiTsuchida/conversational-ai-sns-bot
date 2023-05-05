@@ -60,7 +60,7 @@ type AiModel string
 
 // AiModel values.
 const (
-	AiModelChatgpt35Turbo AiModel = "chatgpt-3_5-turbo"
+	AiModelGpt35Turbo AiModel = "gpt-3_5-turbo"
 )
 
 func (am AiModel) String() string {
@@ -70,7 +70,7 @@ func (am AiModel) String() string {
 // AiModelValidator is a validator for the "ai_model" field enum values. It is called by the builders before save.
 func AiModelValidator(am AiModel) error {
 	switch am {
-	case AiModelChatgpt35Turbo:
+	case AiModelGpt35Turbo:
 		return nil
 	default:
 		return fmt.Errorf("conversations: invalid enum value for ai_model field: %q", am)

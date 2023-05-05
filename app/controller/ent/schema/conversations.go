@@ -16,7 +16,7 @@ type Conversations struct {
 // Fields of the Conversations.
 func (Conversations) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("ai_model").Values("chatgpt-3_5-turbo"),
+		field.Enum("ai_model").Values("gpt-3_5-turbo"),
 		field.Enum("sns_type").Values("twitter"),
 		field.Enum("cmd_version").Values("v0_1"),
 		field.Bool("is_aborted").Default(false),

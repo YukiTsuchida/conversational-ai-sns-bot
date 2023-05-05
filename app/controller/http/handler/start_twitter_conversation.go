@@ -53,7 +53,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 		var sns sns.SNS = twitter.NewSNSTwitterImpl(db)
 		var ai ai.AI
 		var cmd cmd.Cmd
-		if req.AIModel == "chatgpt-3.5-turbo" {
+		if req.AIModel == "gpt-3.5-turbo" {
 			ai = chatgpt_3_5_turbo.NewAIChatGPT3_5TurboImpl(db)
 		} else {
 			http.Error(w, "invalid request body param: ai_model", http.StatusBadRequest)

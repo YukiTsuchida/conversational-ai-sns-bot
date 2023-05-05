@@ -34,7 +34,7 @@ var (
 	// ConversationsColumns holds the columns for the "conversations" table.
 	ConversationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "ai_model", Type: field.TypeEnum, Enums: []string{"chatgpt-3_5-turbo"}},
+		{Name: "ai_model", Type: field.TypeEnum, Enums: []string{"gpt-3_5-turbo"}},
 		{Name: "sns_type", Type: field.TypeEnum, Enums: []string{"twitter"}},
 		{Name: "cmd_version", Type: field.TypeEnum, Enums: []string{"v0_1"}},
 		{Name: "is_aborted", Type: field.TypeBool, Default: false},
