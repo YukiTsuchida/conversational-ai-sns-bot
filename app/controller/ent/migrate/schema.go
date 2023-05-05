@@ -16,7 +16,6 @@ var (
 		{Name: "cmd_version", Type: field.TypeEnum, Enums: []string{"v0_1"}},
 		{Name: "is_aborted", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "twitter_accounts_conversation", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
 	// ConversationsTable holds the schema information for the "conversations" table.
@@ -27,7 +26,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "conversations_twitter_accounts_conversation",
-				Columns:    []*schema.Column{ConversationsColumns[7]},
+				Columns:    []*schema.Column{ConversationsColumns[6]},
 				RefColumns: []*schema.Column{TwitterAccountsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

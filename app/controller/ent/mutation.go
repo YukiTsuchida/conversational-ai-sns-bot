@@ -40,7 +40,6 @@ type ConversationsMutation struct {
 	cmd_version            *conversations.CmdVersion
 	is_aborted             *bool
 	created_at             *time.Time
-	updated_at             *time.Time
 	clearedFields          map[string]struct{}
 	twitter_account        *int
 	clearedtwitter_account bool
@@ -327,42 +326,6 @@ func (m *ConversationsMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (m *ConversationsMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *ConversationsMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the Conversations entity.
-// If the Conversations object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ConversationsMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *ConversationsMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
 // SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by id.
 func (m *ConversationsMutation) SetTwitterAccountID(id int) {
 	m.twitter_account = &id
@@ -436,7 +399,7 @@ func (m *ConversationsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConversationsMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 5)
 	if m.ai_model != nil {
 		fields = append(fields, conversations.FieldAiModel)
 	}
@@ -451,9 +414,6 @@ func (m *ConversationsMutation) Fields() []string {
 	}
 	if m.created_at != nil {
 		fields = append(fields, conversations.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, conversations.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -473,8 +433,6 @@ func (m *ConversationsMutation) Field(name string) (ent.Value, bool) {
 		return m.IsAborted()
 	case conversations.FieldCreatedAt:
 		return m.CreatedAt()
-	case conversations.FieldUpdatedAt:
-		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -494,8 +452,6 @@ func (m *ConversationsMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldIsAborted(ctx)
 	case conversations.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
-	case conversations.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Conversations field %s", name)
 }
@@ -539,13 +495,6 @@ func (m *ConversationsMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
-		return nil
-	case conversations.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Conversations field %s", name)
@@ -610,9 +559,6 @@ func (m *ConversationsMutation) ResetField(name string) error {
 		return nil
 	case conversations.FieldCreatedAt:
 		m.ResetCreatedAt()
-		return nil
-	case conversations.FieldUpdatedAt:
-		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversations field %s", name)

@@ -28,8 +28,6 @@ type Conversations struct {
 	IsAborted bool `json:"is_aborted,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConversationsQuery when eager-loading is set.
 	Edges                         ConversationsEdges `json:"edges"`
@@ -70,7 +68,7 @@ func (*Conversations) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case conversations.FieldAiModel, conversations.FieldSnsType, conversations.FieldCmdVersion:
 			values[i] = new(sql.NullString)
-		case conversations.FieldCreatedAt, conversations.FieldUpdatedAt:
+		case conversations.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
 		case conversations.ForeignKeys[0]: // twitter_accounts_conversation
 			values[i] = new(sql.NullInt64)
@@ -124,12 +122,6 @@ func (c *Conversations) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				c.CreatedAt = value.Time
-			}
-		case conversations.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				c.UpdatedAt = value.Time
 			}
 		case conversations.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -193,9 +185,6 @@ func (c *Conversations) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(c.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(c.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

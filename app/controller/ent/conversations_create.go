@@ -67,20 +67,6 @@ func (cc *ConversationsCreate) SetNillableCreatedAt(t *time.Time) *Conversations
 	return cc
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (cc *ConversationsCreate) SetUpdatedAt(t time.Time) *ConversationsCreate {
-	cc.mutation.SetUpdatedAt(t)
-	return cc
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cc *ConversationsCreate) SetNillableUpdatedAt(t *time.Time) *ConversationsCreate {
-	if t != nil {
-		cc.SetUpdatedAt(*t)
-	}
-	return cc
-}
-
 // SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID.
 func (cc *ConversationsCreate) SetTwitterAccountID(id int) *ConversationsCreate {
 	cc.mutation.SetTwitterAccountID(id)
@@ -143,10 +129,6 @@ func (cc *ConversationsCreate) defaults() {
 		v := conversations.DefaultCreatedAt()
 		cc.mutation.SetCreatedAt(v)
 	}
-	if _, ok := cc.mutation.UpdatedAt(); !ok {
-		v := conversations.DefaultUpdatedAt()
-		cc.mutation.SetUpdatedAt(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -180,9 +162,6 @@ func (cc *ConversationsCreate) check() error {
 	}
 	if _, ok := cc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Conversations.created_at"`)}
-	}
-	if _, ok := cc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Conversations.updated_at"`)}
 	}
 	return nil
 }
@@ -229,10 +208,6 @@ func (cc *ConversationsCreate) createSpec() (*Conversations, *sqlgraph.CreateSpe
 	if value, ok := cc.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
-	}
-	if value, ok := cc.mutation.UpdatedAt(); ok {
-		_spec.SetField(conversations.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
 	}
 	if nodes := cc.mutation.TwitterAccountIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -26,11 +26,6 @@ func (Conversations) Fields() []ent.Field {
 			Annotations(
 				entsql.Default("CURRENT_TIMESTAMP"),
 			),
-		field.Time("updated_at").
-			Default(time.Now).
-			Annotations(
-				entsql.Default("CURRENT_TIMESTAMP"),
-			),
 	}
 }
 

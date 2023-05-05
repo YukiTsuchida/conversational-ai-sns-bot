@@ -75,20 +75,6 @@ func (cu *ConversationsUpdate) SetNillableCreatedAt(t *time.Time) *Conversations
 	return cu
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (cu *ConversationsUpdate) SetUpdatedAt(t time.Time) *ConversationsUpdate {
-	cu.mutation.SetUpdatedAt(t)
-	return cu
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cu *ConversationsUpdate) SetNillableUpdatedAt(t *time.Time) *ConversationsUpdate {
-	if t != nil {
-		cu.SetUpdatedAt(*t)
-	}
-	return cu
-}
-
 // SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID.
 func (cu *ConversationsUpdate) SetTwitterAccountID(id int) *ConversationsUpdate {
 	cu.mutation.SetTwitterAccountID(id)
@@ -193,9 +179,6 @@ func (cu *ConversationsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
 	}
-	if value, ok := cu.mutation.UpdatedAt(); ok {
-		_spec.SetField(conversations.FieldUpdatedAt, field.TypeTime, value)
-	}
 	if cu.mutation.TwitterAccountCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -287,20 +270,6 @@ func (cuo *ConversationsUpdateOne) SetCreatedAt(t time.Time) *ConversationsUpdat
 func (cuo *ConversationsUpdateOne) SetNillableCreatedAt(t *time.Time) *ConversationsUpdateOne {
 	if t != nil {
 		cuo.SetCreatedAt(*t)
-	}
-	return cuo
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (cuo *ConversationsUpdateOne) SetUpdatedAt(t time.Time) *ConversationsUpdateOne {
-	cuo.mutation.SetUpdatedAt(t)
-	return cuo
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (cuo *ConversationsUpdateOne) SetNillableUpdatedAt(t *time.Time) *ConversationsUpdateOne {
-	if t != nil {
-		cuo.SetUpdatedAt(*t)
 	}
 	return cuo
 }
@@ -438,9 +407,6 @@ func (cuo *ConversationsUpdateOne) sqlSave(ctx context.Context) (_node *Conversa
 	}
 	if value, ok := cuo.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := cuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(conversations.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if cuo.mutation.TwitterAccountCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -24,10 +24,6 @@ func init() {
 	conversationsDescCreatedAt := conversationsFields[4].Descriptor()
 	// conversations.DefaultCreatedAt holds the default value on creation for the created_at field.
 	conversations.DefaultCreatedAt = conversationsDescCreatedAt.Default.(func() time.Time)
-	// conversationsDescUpdatedAt is the schema descriptor for updated_at field.
-	conversationsDescUpdatedAt := conversationsFields[5].Descriptor()
-	// conversations.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	conversations.DefaultUpdatedAt = conversationsDescUpdatedAt.Default.(func() time.Time)
 	twitteraccountsFields := schema.TwitterAccounts{}.Fields()
 	_ = twitteraccountsFields
 	// twitteraccountsDescTwitterAccountID is the schema descriptor for twitter_account_id field.
