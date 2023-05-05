@@ -76,7 +76,6 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			// queueが存在しなければ作る
-			fmt.Println(config.CONVERSATION_RATE_PER_SECOND())
 			createQueueRequest := taskspb.CreateQueueRequest{
 				Parent: cloudtasksParent,
 				Queue:  &taskspb.Queue{Name: queuePath, RateLimits: &taskspb.RateLimits{MaxDispatchesPerSecond: config.CONVERSATION_RATE_PER_SECOND()}},
@@ -92,6 +91,7 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	}
 
 	messages := []Message{}
+	// ToDo: トークン数を計算して古いMessageを載せないようにする
 	for _, log := range logs {
 		messages = append(messages, Message{
 			Role:    log.Role.String(),

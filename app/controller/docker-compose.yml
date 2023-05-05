@@ -21,7 +21,7 @@ services:
       CLOUDTASKS_PARENT: projects/dev/locations/here
       CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する
       SELF_HOST: http://controller:8080
-      REQUESTOR_HOST: http://a-requestor:8080
+      REQUESTOR_HOST: http://ai-requestor:8080
   ai-requestor:
     build:
       context: .
