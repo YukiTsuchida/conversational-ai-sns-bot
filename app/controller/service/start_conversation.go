@@ -40,7 +40,7 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	msg := svc.cmd.BuildFirstMessage()
 
 	// 会話履歴をDBに積む
-	err = svc.ai.SaveMessageLog(ctx, *msg, ai_model.System)
+	err = svc.ai.SaveMessageLog(ctx, msg, ai_model.System)
 	if err != nil {
 		return err
 	}

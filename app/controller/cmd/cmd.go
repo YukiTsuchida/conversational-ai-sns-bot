@@ -6,7 +6,7 @@ import (
 )
 
 type Cmd interface {
-	BuildFirstMessage() *string
-	BuildNextMessage(snsResponse *sns.Response) *string
+	BuildFirstMessage() string
+	BuildNextMessage(snsResponse *sns.Response) string
 	ParseCmdByMessage(message string) *cmd.Command
 }
