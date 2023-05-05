@@ -8,5 +8,5 @@ import (
 type Cmd interface {
 	BuildFirstMessage() string
 	BuildNextMessage(snsResponse *sns.Response) string
-	ParseCmdByMessage(message string) []cmd.Command
+	ParseCmdsByMessage(message string) []cmd.Command
 }
