@@ -11,6 +11,12 @@ services:
     # Important to bind/mount your codebase dir to /app dir for live reload
     volumes:
       - ./:/app
+    environment:
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db
   postgresql:
     image: postgres:14.0-alpine
     ports:

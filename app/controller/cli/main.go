@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
+
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/http/handler"
 
@@ -28,7 +30,8 @@ func main() {
 }
 
 func newEntClient() *ent.Client {
-	client, err := ent.Open("postgres", "postgresql://admin:admin@postgresql:5432/db?sslmode=disable")
+	dsn := "postgresql://" + config.POSTGRES_USER() + ":" + config.POSTGRES_PASSWORD() + "@" + config.POSTGRES_HOST() + ":" + config.POSTGRES_PORT() + "/" + config.POSTGRES_DB() + "?sslmode=disable"
+	client, err := ent.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("creating client: %v", err)
 	}
