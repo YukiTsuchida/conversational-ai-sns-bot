@@ -27,9 +27,15 @@ func (tac *TwitterAccountsCreate) SetTwitterAccountID(s string) *TwitterAccounts
 	return tac
 }
 
-// SetBearerToken sets the "bearer_token" field.
-func (tac *TwitterAccountsCreate) SetBearerToken(s string) *TwitterAccountsCreate {
-	tac.mutation.SetBearerToken(s)
+// SetAccessToken sets the "access_token" field.
+func (tac *TwitterAccountsCreate) SetAccessToken(s string) *TwitterAccountsCreate {
+	tac.mutation.SetAccessToken(s)
+	return tac
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (tac *TwitterAccountsCreate) SetRefreshToken(s string) *TwitterAccountsCreate {
+	tac.mutation.SetRefreshToken(s)
 	return tac
 }
 
@@ -135,12 +141,20 @@ func (tac *TwitterAccountsCreate) check() error {
 			return &ValidationError{Name: "twitter_account_id", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.twitter_account_id": %w`, err)}
 		}
 	}
-	if _, ok := tac.mutation.BearerToken(); !ok {
-		return &ValidationError{Name: "bearer_token", err: errors.New(`ent: missing required field "TwitterAccounts.bearer_token"`)}
+	if _, ok := tac.mutation.AccessToken(); !ok {
+		return &ValidationError{Name: "access_token", err: errors.New(`ent: missing required field "TwitterAccounts.access_token"`)}
 	}
-	if v, ok := tac.mutation.BearerToken(); ok {
-		if err := twitteraccounts.BearerTokenValidator(v); err != nil {
-			return &ValidationError{Name: "bearer_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.bearer_token": %w`, err)}
+	if v, ok := tac.mutation.AccessToken(); ok {
+		if err := twitteraccounts.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.access_token": %w`, err)}
+		}
+	}
+	if _, ok := tac.mutation.RefreshToken(); !ok {
+		return &ValidationError{Name: "refresh_token", err: errors.New(`ent: missing required field "TwitterAccounts.refresh_token"`)}
+	}
+	if v, ok := tac.mutation.RefreshToken(); ok {
+		if err := twitteraccounts.RefreshTokenValidator(v); err != nil {
+			return &ValidationError{Name: "refresh_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.refresh_token": %w`, err)}
 		}
 	}
 	if _, ok := tac.mutation.CreatedAt(); !ok {
@@ -179,9 +193,13 @@ func (tac *TwitterAccountsCreate) createSpec() (*TwitterAccounts, *sqlgraph.Crea
 		_spec.SetField(twitteraccounts.FieldTwitterAccountID, field.TypeString, value)
 		_node.TwitterAccountID = value
 	}
-	if value, ok := tac.mutation.BearerToken(); ok {
-		_spec.SetField(twitteraccounts.FieldBearerToken, field.TypeString, value)
-		_node.BearerToken = value
+	if value, ok := tac.mutation.AccessToken(); ok {
+		_spec.SetField(twitteraccounts.FieldAccessToken, field.TypeString, value)
+		_node.AccessToken = value
+	}
+	if value, ok := tac.mutation.RefreshToken(); ok {
+		_spec.SetField(twitteraccounts.FieldRefreshToken, field.TypeString, value)
+		_node.RefreshToken = value
 	}
 	if value, ok := tac.mutation.CreatedAt(); ok {
 		_spec.SetField(twitteraccounts.FieldCreatedAt, field.TypeTime, value)

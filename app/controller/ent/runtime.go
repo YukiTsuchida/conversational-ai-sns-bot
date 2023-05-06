@@ -41,16 +41,20 @@ func init() {
 	twitteraccountsDescTwitterAccountID := twitteraccountsFields[0].Descriptor()
 	// twitteraccounts.TwitterAccountIDValidator is a validator for the "twitter_account_id" field. It is called by the builders before save.
 	twitteraccounts.TwitterAccountIDValidator = twitteraccountsDescTwitterAccountID.Validators[0].(func(string) error)
-	// twitteraccountsDescBearerToken is the schema descriptor for bearer_token field.
-	twitteraccountsDescBearerToken := twitteraccountsFields[1].Descriptor()
-	// twitteraccounts.BearerTokenValidator is a validator for the "bearer_token" field. It is called by the builders before save.
-	twitteraccounts.BearerTokenValidator = twitteraccountsDescBearerToken.Validators[0].(func(string) error)
+	// twitteraccountsDescAccessToken is the schema descriptor for access_token field.
+	twitteraccountsDescAccessToken := twitteraccountsFields[1].Descriptor()
+	// twitteraccounts.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
+	twitteraccounts.AccessTokenValidator = twitteraccountsDescAccessToken.Validators[0].(func(string) error)
+	// twitteraccountsDescRefreshToken is the schema descriptor for refresh_token field.
+	twitteraccountsDescRefreshToken := twitteraccountsFields[2].Descriptor()
+	// twitteraccounts.RefreshTokenValidator is a validator for the "refresh_token" field. It is called by the builders before save.
+	twitteraccounts.RefreshTokenValidator = twitteraccountsDescRefreshToken.Validators[0].(func(string) error)
 	// twitteraccountsDescCreatedAt is the schema descriptor for created_at field.
-	twitteraccountsDescCreatedAt := twitteraccountsFields[2].Descriptor()
+	twitteraccountsDescCreatedAt := twitteraccountsFields[3].Descriptor()
 	// twitteraccounts.DefaultCreatedAt holds the default value on creation for the created_at field.
 	twitteraccounts.DefaultCreatedAt = twitteraccountsDescCreatedAt.Default.(func() time.Time)
 	// twitteraccountsDescUpdatedAt is the schema descriptor for updated_at field.
-	twitteraccountsDescUpdatedAt := twitteraccountsFields[3].Descriptor()
+	twitteraccountsDescUpdatedAt := twitteraccountsFields[4].Descriptor()
 	// twitteraccounts.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	twitteraccounts.DefaultUpdatedAt = twitteraccountsDescUpdatedAt.Default.(func() time.Time)
 }

@@ -11,8 +11,5 @@ func NewAccount(id string, conversationID string) *Account {
 }
 
 func (account Account) IsInConversations() bool {
-	if account.conversationID == "" {
-		return false
-	}
-	return true
+	return account.conversationID != "" 
 }

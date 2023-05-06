@@ -50,7 +50,8 @@ var (
 	TwitterAccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "twitter_account_id", Type: field.TypeString, Unique: true},
-		{Name: "bearer_token", Type: field.TypeString},
+		{Name: "access_token", Type: field.TypeString},
+		{Name: "refresh_token", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "twitter_accounts_conversation", Type: field.TypeInt, Nullable: true},
@@ -63,7 +64,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "twitter_accounts_conversations_conversation",
-				Columns:    []*schema.Column{TwitterAccountsColumns[5]},
+				Columns:    []*schema.Column{TwitterAccountsColumns[6]},
 				RefColumns: []*schema.Column{ConversationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

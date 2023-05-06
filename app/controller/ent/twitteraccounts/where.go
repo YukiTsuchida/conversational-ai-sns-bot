@@ -60,9 +60,14 @@ func TwitterAccountID(v string) predicate.TwitterAccounts {
 	return predicate.TwitterAccounts(sql.FieldEQ(FieldTwitterAccountID, v))
 }
 
-// BearerToken applies equality check predicate on the "bearer_token" field. It's identical to BearerTokenEQ.
-func BearerToken(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldEQ(FieldBearerToken, v))
+// AccessToken applies equality check predicate on the "access_token" field. It's identical to AccessTokenEQ.
+func AccessToken(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEQ(FieldAccessToken, v))
+}
+
+// RefreshToken applies equality check predicate on the "refresh_token" field. It's identical to RefreshTokenEQ.
+func RefreshToken(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEQ(FieldRefreshToken, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -140,69 +145,134 @@ func TwitterAccountIDContainsFold(v string) predicate.TwitterAccounts {
 	return predicate.TwitterAccounts(sql.FieldContainsFold(FieldTwitterAccountID, v))
 }
 
-// BearerTokenEQ applies the EQ predicate on the "bearer_token" field.
-func BearerTokenEQ(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldEQ(FieldBearerToken, v))
+// AccessTokenEQ applies the EQ predicate on the "access_token" field.
+func AccessTokenEQ(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEQ(FieldAccessToken, v))
 }
 
-// BearerTokenNEQ applies the NEQ predicate on the "bearer_token" field.
-func BearerTokenNEQ(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldNEQ(FieldBearerToken, v))
+// AccessTokenNEQ applies the NEQ predicate on the "access_token" field.
+func AccessTokenNEQ(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldNEQ(FieldAccessToken, v))
 }
 
-// BearerTokenIn applies the In predicate on the "bearer_token" field.
-func BearerTokenIn(vs ...string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldIn(FieldBearerToken, vs...))
+// AccessTokenIn applies the In predicate on the "access_token" field.
+func AccessTokenIn(vs ...string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldIn(FieldAccessToken, vs...))
 }
 
-// BearerTokenNotIn applies the NotIn predicate on the "bearer_token" field.
-func BearerTokenNotIn(vs ...string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldNotIn(FieldBearerToken, vs...))
+// AccessTokenNotIn applies the NotIn predicate on the "access_token" field.
+func AccessTokenNotIn(vs ...string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldNotIn(FieldAccessToken, vs...))
 }
 
-// BearerTokenGT applies the GT predicate on the "bearer_token" field.
-func BearerTokenGT(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldGT(FieldBearerToken, v))
+// AccessTokenGT applies the GT predicate on the "access_token" field.
+func AccessTokenGT(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldGT(FieldAccessToken, v))
 }
 
-// BearerTokenGTE applies the GTE predicate on the "bearer_token" field.
-func BearerTokenGTE(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldGTE(FieldBearerToken, v))
+// AccessTokenGTE applies the GTE predicate on the "access_token" field.
+func AccessTokenGTE(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldGTE(FieldAccessToken, v))
 }
 
-// BearerTokenLT applies the LT predicate on the "bearer_token" field.
-func BearerTokenLT(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldLT(FieldBearerToken, v))
+// AccessTokenLT applies the LT predicate on the "access_token" field.
+func AccessTokenLT(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldLT(FieldAccessToken, v))
 }
 
-// BearerTokenLTE applies the LTE predicate on the "bearer_token" field.
-func BearerTokenLTE(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldLTE(FieldBearerToken, v))
+// AccessTokenLTE applies the LTE predicate on the "access_token" field.
+func AccessTokenLTE(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldLTE(FieldAccessToken, v))
 }
 
-// BearerTokenContains applies the Contains predicate on the "bearer_token" field.
-func BearerTokenContains(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldContains(FieldBearerToken, v))
+// AccessTokenContains applies the Contains predicate on the "access_token" field.
+func AccessTokenContains(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldContains(FieldAccessToken, v))
 }
 
-// BearerTokenHasPrefix applies the HasPrefix predicate on the "bearer_token" field.
-func BearerTokenHasPrefix(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldHasPrefix(FieldBearerToken, v))
+// AccessTokenHasPrefix applies the HasPrefix predicate on the "access_token" field.
+func AccessTokenHasPrefix(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldHasPrefix(FieldAccessToken, v))
 }
 
-// BearerTokenHasSuffix applies the HasSuffix predicate on the "bearer_token" field.
-func BearerTokenHasSuffix(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldHasSuffix(FieldBearerToken, v))
+// AccessTokenHasSuffix applies the HasSuffix predicate on the "access_token" field.
+func AccessTokenHasSuffix(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldHasSuffix(FieldAccessToken, v))
 }
 
-// BearerTokenEqualFold applies the EqualFold predicate on the "bearer_token" field.
-func BearerTokenEqualFold(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldEqualFold(FieldBearerToken, v))
+// AccessTokenEqualFold applies the EqualFold predicate on the "access_token" field.
+func AccessTokenEqualFold(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEqualFold(FieldAccessToken, v))
 }
 
-// BearerTokenContainsFold applies the ContainsFold predicate on the "bearer_token" field.
-func BearerTokenContainsFold(v string) predicate.TwitterAccounts {
-	return predicate.TwitterAccounts(sql.FieldContainsFold(FieldBearerToken, v))
+// AccessTokenContainsFold applies the ContainsFold predicate on the "access_token" field.
+func AccessTokenContainsFold(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldContainsFold(FieldAccessToken, v))
+}
+
+// RefreshTokenEQ applies the EQ predicate on the "refresh_token" field.
+func RefreshTokenEQ(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEQ(FieldRefreshToken, v))
+}
+
+// RefreshTokenNEQ applies the NEQ predicate on the "refresh_token" field.
+func RefreshTokenNEQ(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldNEQ(FieldRefreshToken, v))
+}
+
+// RefreshTokenIn applies the In predicate on the "refresh_token" field.
+func RefreshTokenIn(vs ...string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldIn(FieldRefreshToken, vs...))
+}
+
+// RefreshTokenNotIn applies the NotIn predicate on the "refresh_token" field.
+func RefreshTokenNotIn(vs ...string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldNotIn(FieldRefreshToken, vs...))
+}
+
+// RefreshTokenGT applies the GT predicate on the "refresh_token" field.
+func RefreshTokenGT(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldGT(FieldRefreshToken, v))
+}
+
+// RefreshTokenGTE applies the GTE predicate on the "refresh_token" field.
+func RefreshTokenGTE(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldGTE(FieldRefreshToken, v))
+}
+
+// RefreshTokenLT applies the LT predicate on the "refresh_token" field.
+func RefreshTokenLT(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldLT(FieldRefreshToken, v))
+}
+
+// RefreshTokenLTE applies the LTE predicate on the "refresh_token" field.
+func RefreshTokenLTE(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldLTE(FieldRefreshToken, v))
+}
+
+// RefreshTokenContains applies the Contains predicate on the "refresh_token" field.
+func RefreshTokenContains(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldContains(FieldRefreshToken, v))
+}
+
+// RefreshTokenHasPrefix applies the HasPrefix predicate on the "refresh_token" field.
+func RefreshTokenHasPrefix(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldHasPrefix(FieldRefreshToken, v))
+}
+
+// RefreshTokenHasSuffix applies the HasSuffix predicate on the "refresh_token" field.
+func RefreshTokenHasSuffix(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldHasSuffix(FieldRefreshToken, v))
+}
+
+// RefreshTokenEqualFold applies the EqualFold predicate on the "refresh_token" field.
+func RefreshTokenEqualFold(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldEqualFold(FieldRefreshToken, v))
+}
+
+// RefreshTokenContainsFold applies the ContainsFold predicate on the "refresh_token" field.
+func RefreshTokenContainsFold(v string) predicate.TwitterAccounts {
+	return predicate.TwitterAccounts(sql.FieldContainsFold(FieldRefreshToken, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

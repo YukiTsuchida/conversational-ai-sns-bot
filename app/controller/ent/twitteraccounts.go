@@ -20,8 +20,10 @@ type TwitterAccounts struct {
 	ID int `json:"id,omitempty"`
 	// TwitterAccountID holds the value of the "twitter_account_id" field.
 	TwitterAccountID string `json:"twitter_account_id,omitempty"`
-	// BearerToken holds the value of the "bearer_token" field.
-	BearerToken string `json:"bearer_token,omitempty"`
+	// AccessToken holds the value of the "access_token" field.
+	AccessToken string `json:"access_token,omitempty"`
+	// RefreshToken holds the value of the "refresh_token" field.
+	RefreshToken string `json:"refresh_token,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -62,7 +64,7 @@ func (*TwitterAccounts) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case twitteraccounts.FieldID:
 			values[i] = new(sql.NullInt64)
-		case twitteraccounts.FieldTwitterAccountID, twitteraccounts.FieldBearerToken:
+		case twitteraccounts.FieldTwitterAccountID, twitteraccounts.FieldAccessToken, twitteraccounts.FieldRefreshToken:
 			values[i] = new(sql.NullString)
 		case twitteraccounts.FieldCreatedAt, twitteraccounts.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -95,11 +97,17 @@ func (ta *TwitterAccounts) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ta.TwitterAccountID = value.String
 			}
-		case twitteraccounts.FieldBearerToken:
+		case twitteraccounts.FieldAccessToken:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field bearer_token", values[i])
+				return fmt.Errorf("unexpected type %T for field access_token", values[i])
 			} else if value.Valid {
-				ta.BearerToken = value.String
+				ta.AccessToken = value.String
+			}
+		case twitteraccounts.FieldRefreshToken:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field refresh_token", values[i])
+			} else if value.Valid {
+				ta.RefreshToken = value.String
 			}
 		case twitteraccounts.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -164,8 +172,11 @@ func (ta *TwitterAccounts) String() string {
 	builder.WriteString("twitter_account_id=")
 	builder.WriteString(ta.TwitterAccountID)
 	builder.WriteString(", ")
-	builder.WriteString("bearer_token=")
-	builder.WriteString(ta.BearerToken)
+	builder.WriteString("access_token=")
+	builder.WriteString(ta.AccessToken)
+	builder.WriteString(", ")
+	builder.WriteString("refresh_token=")
+	builder.WriteString(ta.RefreshToken)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(ta.CreatedAt.Format(time.ANSIC))

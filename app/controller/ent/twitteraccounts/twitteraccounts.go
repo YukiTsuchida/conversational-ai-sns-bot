@@ -16,8 +16,10 @@ const (
 	FieldID = "id"
 	// FieldTwitterAccountID holds the string denoting the twitter_account_id field in the database.
 	FieldTwitterAccountID = "twitter_account_id"
-	// FieldBearerToken holds the string denoting the bearer_token field in the database.
-	FieldBearerToken = "bearer_token"
+	// FieldAccessToken holds the string denoting the access_token field in the database.
+	FieldAccessToken = "access_token"
+	// FieldRefreshToken holds the string denoting the refresh_token field in the database.
+	FieldRefreshToken = "refresh_token"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -39,7 +41,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldTwitterAccountID,
-	FieldBearerToken,
+	FieldAccessToken,
+	FieldRefreshToken,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -68,8 +71,10 @@ func ValidColumn(column string) bool {
 var (
 	// TwitterAccountIDValidator is a validator for the "twitter_account_id" field. It is called by the builders before save.
 	TwitterAccountIDValidator func(string) error
-	// BearerTokenValidator is a validator for the "bearer_token" field. It is called by the builders before save.
-	BearerTokenValidator func(string) error
+	// AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
+	AccessTokenValidator func(string) error
+	// RefreshTokenValidator is a validator for the "refresh_token" field. It is called by the builders before save.
+	RefreshTokenValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -89,9 +94,14 @@ func ByTwitterAccountID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTwitterAccountID, opts...).ToFunc()
 }
 
-// ByBearerToken orders the results by the bearer_token field.
-func ByBearerToken(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBearerToken, opts...).ToFunc()
+// ByAccessToken orders the results by the access_token field.
+func ByAccessToken(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccessToken, opts...).ToFunc()
+}
+
+// ByRefreshToken orders the results by the refresh_token field.
+func ByRefreshToken(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRefreshToken, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

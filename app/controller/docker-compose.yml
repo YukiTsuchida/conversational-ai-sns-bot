@@ -22,6 +22,9 @@ services:
       CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する
       SELF_HOST: http://controller:8080
       REQUESTOR_HOST: http://ai-requestor:8080
+      TWITTER_CALLBACK_URL: http://localhost:8080/accounts/twitter_callback
+      TWITTER_CLIENT_ID: NjluVXRqWnJaTmxybHV1cm9uTWs6MTpjaQ
+      TWITTER_CLIENT_SECRET: S8-QhnuJH69FiOY2A9oy1XARmTBzklODnog5qt16hY-cKYXJAo
   ai-requestor:
     build:
       context: .

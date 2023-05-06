@@ -24,6 +24,7 @@ func main() {
 		schema.WithDir(dir),
 		schema.WithMigrationMode(schema.ModeReplay),
 		schema.WithDialect(dialect.Postgres),
+		schema.WithDropColumn(true),
 	}
 	if len(os.Args) != 2 {
 		log.Fatalln("migration name is required. Use: 'go run -mod=mod ent/migrate/main.go <name>'")

@@ -1157,7 +1157,8 @@ type TwitterAccountsMutation struct {
 	typ                 string
 	id                  *int
 	twitter_account_id  *string
-	bearer_token        *string
+	access_token        *string
+	refresh_token       *string
 	created_at          *time.Time
 	updated_at          *time.Time
 	clearedFields       map[string]struct{}
@@ -1302,40 +1303,76 @@ func (m *TwitterAccountsMutation) ResetTwitterAccountID() {
 	m.twitter_account_id = nil
 }
 
-// SetBearerToken sets the "bearer_token" field.
-func (m *TwitterAccountsMutation) SetBearerToken(s string) {
-	m.bearer_token = &s
+// SetAccessToken sets the "access_token" field.
+func (m *TwitterAccountsMutation) SetAccessToken(s string) {
+	m.access_token = &s
 }
 
-// BearerToken returns the value of the "bearer_token" field in the mutation.
-func (m *TwitterAccountsMutation) BearerToken() (r string, exists bool) {
-	v := m.bearer_token
+// AccessToken returns the value of the "access_token" field in the mutation.
+func (m *TwitterAccountsMutation) AccessToken() (r string, exists bool) {
+	v := m.access_token
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBearerToken returns the old "bearer_token" field's value of the TwitterAccounts entity.
+// OldAccessToken returns the old "access_token" field's value of the TwitterAccounts entity.
 // If the TwitterAccounts object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TwitterAccountsMutation) OldBearerToken(ctx context.Context) (v string, err error) {
+func (m *TwitterAccountsMutation) OldAccessToken(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBearerToken is only allowed on UpdateOne operations")
+		return v, errors.New("OldAccessToken is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBearerToken requires an ID field in the mutation")
+		return v, errors.New("OldAccessToken requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBearerToken: %w", err)
+		return v, fmt.Errorf("querying old value for OldAccessToken: %w", err)
 	}
-	return oldValue.BearerToken, nil
+	return oldValue.AccessToken, nil
 }
 
-// ResetBearerToken resets all changes to the "bearer_token" field.
-func (m *TwitterAccountsMutation) ResetBearerToken() {
-	m.bearer_token = nil
+// ResetAccessToken resets all changes to the "access_token" field.
+func (m *TwitterAccountsMutation) ResetAccessToken() {
+	m.access_token = nil
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (m *TwitterAccountsMutation) SetRefreshToken(s string) {
+	m.refresh_token = &s
+}
+
+// RefreshToken returns the value of the "refresh_token" field in the mutation.
+func (m *TwitterAccountsMutation) RefreshToken() (r string, exists bool) {
+	v := m.refresh_token
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRefreshToken returns the old "refresh_token" field's value of the TwitterAccounts entity.
+// If the TwitterAccounts object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TwitterAccountsMutation) OldRefreshToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRefreshToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRefreshToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefreshToken: %w", err)
+	}
+	return oldValue.RefreshToken, nil
+}
+
+// ResetRefreshToken resets all changes to the "refresh_token" field.
+func (m *TwitterAccountsMutation) ResetRefreshToken() {
+	m.refresh_token = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -1483,12 +1520,15 @@ func (m *TwitterAccountsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TwitterAccountsMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.twitter_account_id != nil {
 		fields = append(fields, twitteraccounts.FieldTwitterAccountID)
 	}
-	if m.bearer_token != nil {
-		fields = append(fields, twitteraccounts.FieldBearerToken)
+	if m.access_token != nil {
+		fields = append(fields, twitteraccounts.FieldAccessToken)
+	}
+	if m.refresh_token != nil {
+		fields = append(fields, twitteraccounts.FieldRefreshToken)
 	}
 	if m.created_at != nil {
 		fields = append(fields, twitteraccounts.FieldCreatedAt)
@@ -1506,8 +1546,10 @@ func (m *TwitterAccountsMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case twitteraccounts.FieldTwitterAccountID:
 		return m.TwitterAccountID()
-	case twitteraccounts.FieldBearerToken:
-		return m.BearerToken()
+	case twitteraccounts.FieldAccessToken:
+		return m.AccessToken()
+	case twitteraccounts.FieldRefreshToken:
+		return m.RefreshToken()
 	case twitteraccounts.FieldCreatedAt:
 		return m.CreatedAt()
 	case twitteraccounts.FieldUpdatedAt:
@@ -1523,8 +1565,10 @@ func (m *TwitterAccountsMutation) OldField(ctx context.Context, name string) (en
 	switch name {
 	case twitteraccounts.FieldTwitterAccountID:
 		return m.OldTwitterAccountID(ctx)
-	case twitteraccounts.FieldBearerToken:
-		return m.OldBearerToken(ctx)
+	case twitteraccounts.FieldAccessToken:
+		return m.OldAccessToken(ctx)
+	case twitteraccounts.FieldRefreshToken:
+		return m.OldRefreshToken(ctx)
 	case twitteraccounts.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case twitteraccounts.FieldUpdatedAt:
@@ -1545,12 +1589,19 @@ func (m *TwitterAccountsMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTwitterAccountID(v)
 		return nil
-	case twitteraccounts.FieldBearerToken:
+	case twitteraccounts.FieldAccessToken:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBearerToken(v)
+		m.SetAccessToken(v)
+		return nil
+	case twitteraccounts.FieldRefreshToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRefreshToken(v)
 		return nil
 	case twitteraccounts.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -1618,8 +1669,11 @@ func (m *TwitterAccountsMutation) ResetField(name string) error {
 	case twitteraccounts.FieldTwitterAccountID:
 		m.ResetTwitterAccountID()
 		return nil
-	case twitteraccounts.FieldBearerToken:
-		m.ResetBearerToken()
+	case twitteraccounts.FieldAccessToken:
+		m.ResetAccessToken()
+		return nil
+	case twitteraccounts.FieldRefreshToken:
+		m.ResetRefreshToken()
 		return nil
 	case twitteraccounts.FieldCreatedAt:
 		m.ResetCreatedAt()
