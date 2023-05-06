@@ -12,18 +12,15 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
 
 // ConversationsQuery is the builder for querying Conversations entities.
 type ConversationsQuery struct {
 	config
-	ctx                *QueryContext
-	order              []conversations.OrderOption
-	inters             []Interceptor
-	predicates         []predicate.Conversations
-	withTwitterAccount *TwitterAccountsQuery
-	withFKs            bool
+	ctx        *QueryContext
+	order      []conversations.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Conversations
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,28 +55,6 @@ func (cq *ConversationsQuery) Unique(unique bool) *ConversationsQuery {
 func (cq *ConversationsQuery) Order(o ...conversations.OrderOption) *ConversationsQuery {
 	cq.order = append(cq.order, o...)
 	return cq
-}
-
-// QueryTwitterAccount chains the current query on the "twitter_account" edge.
-func (cq *ConversationsQuery) QueryTwitterAccount() *TwitterAccountsQuery {
-	query := (&TwitterAccountsClient{config: cq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := cq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := cq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(conversations.Table, conversations.FieldID, selector),
-			sqlgraph.To(twitteraccounts.Table, twitteraccounts.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, conversations.TwitterAccountTable, conversations.TwitterAccountColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first Conversations entity from the query.
@@ -269,27 +244,15 @@ func (cq *ConversationsQuery) Clone() *ConversationsQuery {
 		return nil
 	}
 	return &ConversationsQuery{
-		config:             cq.config,
-		ctx:                cq.ctx.Clone(),
-		order:              append([]conversations.OrderOption{}, cq.order...),
-		inters:             append([]Interceptor{}, cq.inters...),
-		predicates:         append([]predicate.Conversations{}, cq.predicates...),
-		withTwitterAccount: cq.withTwitterAccount.Clone(),
+		config:     cq.config,
+		ctx:        cq.ctx.Clone(),
+		order:      append([]conversations.OrderOption{}, cq.order...),
+		inters:     append([]Interceptor{}, cq.inters...),
+		predicates: append([]predicate.Conversations{}, cq.predicates...),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
-}
-
-// WithTwitterAccount tells the query-builder to eager-load the nodes that are connected to
-// the "twitter_account" edge. The optional arguments are used to configure the query builder of the edge.
-func (cq *ConversationsQuery) WithTwitterAccount(opts ...func(*TwitterAccountsQuery)) *ConversationsQuery {
-	query := (&TwitterAccountsClient{config: cq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	cq.withTwitterAccount = query
-	return cq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -368,26 +331,15 @@ func (cq *ConversationsQuery) prepareQuery(ctx context.Context) error {
 
 func (cq *ConversationsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Conversations, error) {
 	var (
-		nodes       = []*Conversations{}
-		withFKs     = cq.withFKs
-		_spec       = cq.querySpec()
-		loadedTypes = [1]bool{
-			cq.withTwitterAccount != nil,
-		}
+		nodes = []*Conversations{}
+		_spec = cq.querySpec()
 	)
-	if cq.withTwitterAccount != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, conversations.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Conversations).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Conversations{config: cq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -399,46 +351,7 @@ func (cq *ConversationsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := cq.withTwitterAccount; query != nil {
-		if err := cq.loadTwitterAccount(ctx, query, nodes, nil,
-			func(n *Conversations, e *TwitterAccounts) { n.Edges.TwitterAccount = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (cq *ConversationsQuery) loadTwitterAccount(ctx context.Context, query *TwitterAccountsQuery, nodes []*Conversations, init func(*Conversations), assign func(*Conversations, *TwitterAccounts)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Conversations)
-	for i := range nodes {
-		if nodes[i].twitter_accounts_conversation == nil {
-			continue
-		}
-		fk := *nodes[i].twitter_accounts_conversation
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(twitteraccounts.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "twitter_accounts_conversation" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
 }
 
 func (cq *ConversationsQuery) sqlCount(ctx context.Context) (int, error) {

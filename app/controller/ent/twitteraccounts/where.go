@@ -290,7 +290,7 @@ func HasConversation() predicate.TwitterAccounts {
 	return predicate.TwitterAccounts(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, ConversationTable, ConversationColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, ConversationTable, ConversationColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

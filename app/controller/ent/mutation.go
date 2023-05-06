@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
@@ -25,27 +26,603 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeConversations   = "Conversations"
-	TypeTwitterAccounts = "TwitterAccounts"
+	TypeChatgpt35TurboConversationLog = "Chatgpt35TurboConversationLog"
+	TypeConversations                 = "Conversations"
+	TypeTwitterAccounts               = "TwitterAccounts"
 )
+
+// Chatgpt35TurboConversationLogMutation represents an operation that mutates the Chatgpt35TurboConversationLog nodes in the graph.
+type Chatgpt35TurboConversationLogMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *int
+	message             *string
+	purpose             *string
+	role                *chatgpt35turboconversationlog.Role
+	created_at          *time.Time
+	clearedFields       map[string]struct{}
+	conversation        *int
+	clearedconversation bool
+	done                bool
+	oldValue            func(context.Context) (*Chatgpt35TurboConversationLog, error)
+	predicates          []predicate.Chatgpt35TurboConversationLog
+}
+
+var _ ent.Mutation = (*Chatgpt35TurboConversationLogMutation)(nil)
+
+// chatgpt35turboconversationlogOption allows management of the mutation configuration using functional options.
+type chatgpt35turboconversationlogOption func(*Chatgpt35TurboConversationLogMutation)
+
+// newChatgpt35TurboConversationLogMutation creates new mutation for the Chatgpt35TurboConversationLog entity.
+func newChatgpt35TurboConversationLogMutation(c config, op Op, opts ...chatgpt35turboconversationlogOption) *Chatgpt35TurboConversationLogMutation {
+	m := &Chatgpt35TurboConversationLogMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeChatgpt35TurboConversationLog,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withChatgpt35TurboConversationLogID sets the ID field of the mutation.
+func withChatgpt35TurboConversationLogID(id int) chatgpt35turboconversationlogOption {
+	return func(m *Chatgpt35TurboConversationLogMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Chatgpt35TurboConversationLog
+		)
+		m.oldValue = func(ctx context.Context) (*Chatgpt35TurboConversationLog, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Chatgpt35TurboConversationLog.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withChatgpt35TurboConversationLog sets the old Chatgpt35TurboConversationLog of the mutation.
+func withChatgpt35TurboConversationLog(node *Chatgpt35TurboConversationLog) chatgpt35turboconversationlogOption {
+	return func(m *Chatgpt35TurboConversationLogMutation) {
+		m.oldValue = func(context.Context) (*Chatgpt35TurboConversationLog, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m Chatgpt35TurboConversationLogMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m Chatgpt35TurboConversationLogMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *Chatgpt35TurboConversationLogMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Chatgpt35TurboConversationLog.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetMessage sets the "message" field.
+func (m *Chatgpt35TurboConversationLogMutation) SetMessage(s string) {
+	m.message = &s
+}
+
+// Message returns the value of the "message" field in the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) Message() (r string, exists bool) {
+	v := m.message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMessage returns the old "message" field's value of the Chatgpt35TurboConversationLog entity.
+// If the Chatgpt35TurboConversationLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *Chatgpt35TurboConversationLogMutation) OldMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMessage: %w", err)
+	}
+	return oldValue.Message, nil
+}
+
+// ResetMessage resets all changes to the "message" field.
+func (m *Chatgpt35TurboConversationLogMutation) ResetMessage() {
+	m.message = nil
+}
+
+// SetPurpose sets the "purpose" field.
+func (m *Chatgpt35TurboConversationLogMutation) SetPurpose(s string) {
+	m.purpose = &s
+}
+
+// Purpose returns the value of the "purpose" field in the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) Purpose() (r string, exists bool) {
+	v := m.purpose
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPurpose returns the old "purpose" field's value of the Chatgpt35TurboConversationLog entity.
+// If the Chatgpt35TurboConversationLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *Chatgpt35TurboConversationLogMutation) OldPurpose(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPurpose is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPurpose requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPurpose: %w", err)
+	}
+	return oldValue.Purpose, nil
+}
+
+// ClearPurpose clears the value of the "purpose" field.
+func (m *Chatgpt35TurboConversationLogMutation) ClearPurpose() {
+	m.purpose = nil
+	m.clearedFields[chatgpt35turboconversationlog.FieldPurpose] = struct{}{}
+}
+
+// PurposeCleared returns if the "purpose" field was cleared in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) PurposeCleared() bool {
+	_, ok := m.clearedFields[chatgpt35turboconversationlog.FieldPurpose]
+	return ok
+}
+
+// ResetPurpose resets all changes to the "purpose" field.
+func (m *Chatgpt35TurboConversationLogMutation) ResetPurpose() {
+	m.purpose = nil
+	delete(m.clearedFields, chatgpt35turboconversationlog.FieldPurpose)
+}
+
+// SetRole sets the "role" field.
+func (m *Chatgpt35TurboConversationLogMutation) SetRole(c chatgpt35turboconversationlog.Role) {
+	m.role = &c
+}
+
+// Role returns the value of the "role" field in the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) Role() (r chatgpt35turboconversationlog.Role, exists bool) {
+	v := m.role
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRole returns the old "role" field's value of the Chatgpt35TurboConversationLog entity.
+// If the Chatgpt35TurboConversationLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *Chatgpt35TurboConversationLogMutation) OldRole(ctx context.Context) (v chatgpt35turboconversationlog.Role, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRole is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRole requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRole: %w", err)
+	}
+	return oldValue.Role, nil
+}
+
+// ResetRole resets all changes to the "role" field.
+func (m *Chatgpt35TurboConversationLogMutation) ResetRole() {
+	m.role = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *Chatgpt35TurboConversationLogMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Chatgpt35TurboConversationLog entity.
+// If the Chatgpt35TurboConversationLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *Chatgpt35TurboConversationLogMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *Chatgpt35TurboConversationLogMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetConversationID sets the "conversation" edge to the Conversations entity by id.
+func (m *Chatgpt35TurboConversationLogMutation) SetConversationID(id int) {
+	m.conversation = &id
+}
+
+// ClearConversation clears the "conversation" edge to the Conversations entity.
+func (m *Chatgpt35TurboConversationLogMutation) ClearConversation() {
+	m.clearedconversation = true
+}
+
+// ConversationCleared reports if the "conversation" edge to the Conversations entity was cleared.
+func (m *Chatgpt35TurboConversationLogMutation) ConversationCleared() bool {
+	return m.clearedconversation
+}
+
+// ConversationID returns the "conversation" edge ID in the mutation.
+func (m *Chatgpt35TurboConversationLogMutation) ConversationID() (id int, exists bool) {
+	if m.conversation != nil {
+		return *m.conversation, true
+	}
+	return
+}
+
+// ConversationIDs returns the "conversation" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ConversationID instead. It exists only for internal usage by the builders.
+func (m *Chatgpt35TurboConversationLogMutation) ConversationIDs() (ids []int) {
+	if id := m.conversation; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetConversation resets all changes to the "conversation" edge.
+func (m *Chatgpt35TurboConversationLogMutation) ResetConversation() {
+	m.conversation = nil
+	m.clearedconversation = false
+}
+
+// Where appends a list predicates to the Chatgpt35TurboConversationLogMutation builder.
+func (m *Chatgpt35TurboConversationLogMutation) Where(ps ...predicate.Chatgpt35TurboConversationLog) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the Chatgpt35TurboConversationLogMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *Chatgpt35TurboConversationLogMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Chatgpt35TurboConversationLog, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *Chatgpt35TurboConversationLogMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *Chatgpt35TurboConversationLogMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Chatgpt35TurboConversationLog).
+func (m *Chatgpt35TurboConversationLogMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *Chatgpt35TurboConversationLogMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.message != nil {
+		fields = append(fields, chatgpt35turboconversationlog.FieldMessage)
+	}
+	if m.purpose != nil {
+		fields = append(fields, chatgpt35turboconversationlog.FieldPurpose)
+	}
+	if m.role != nil {
+		fields = append(fields, chatgpt35turboconversationlog.FieldRole)
+	}
+	if m.created_at != nil {
+		fields = append(fields, chatgpt35turboconversationlog.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *Chatgpt35TurboConversationLogMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case chatgpt35turboconversationlog.FieldMessage:
+		return m.Message()
+	case chatgpt35turboconversationlog.FieldPurpose:
+		return m.Purpose()
+	case chatgpt35turboconversationlog.FieldRole:
+		return m.Role()
+	case chatgpt35turboconversationlog.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *Chatgpt35TurboConversationLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case chatgpt35turboconversationlog.FieldMessage:
+		return m.OldMessage(ctx)
+	case chatgpt35turboconversationlog.FieldPurpose:
+		return m.OldPurpose(ctx)
+	case chatgpt35turboconversationlog.FieldRole:
+		return m.OldRole(ctx)
+	case chatgpt35turboconversationlog.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Chatgpt35TurboConversationLog field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *Chatgpt35TurboConversationLogMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case chatgpt35turboconversationlog.FieldMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMessage(v)
+		return nil
+	case chatgpt35turboconversationlog.FieldPurpose:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPurpose(v)
+		return nil
+	case chatgpt35turboconversationlog.FieldRole:
+		v, ok := value.(chatgpt35turboconversationlog.Role)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRole(v)
+		return nil
+	case chatgpt35turboconversationlog.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *Chatgpt35TurboConversationLogMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *Chatgpt35TurboConversationLogMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *Chatgpt35TurboConversationLogMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(chatgpt35turboconversationlog.FieldPurpose) {
+		fields = append(fields, chatgpt35turboconversationlog.FieldPurpose)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *Chatgpt35TurboConversationLogMutation) ClearField(name string) error {
+	switch name {
+	case chatgpt35turboconversationlog.FieldPurpose:
+		m.ClearPurpose()
+		return nil
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *Chatgpt35TurboConversationLogMutation) ResetField(name string) error {
+	switch name {
+	case chatgpt35turboconversationlog.FieldMessage:
+		m.ResetMessage()
+		return nil
+	case chatgpt35turboconversationlog.FieldPurpose:
+		m.ResetPurpose()
+		return nil
+	case chatgpt35turboconversationlog.FieldRole:
+		m.ResetRole()
+		return nil
+	case chatgpt35turboconversationlog.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.conversation != nil {
+		edges = append(edges, chatgpt35turboconversationlog.EdgeConversation)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case chatgpt35turboconversationlog.EdgeConversation:
+		if id := m.conversation; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedconversation {
+		edges = append(edges, chatgpt35turboconversationlog.EdgeConversation)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *Chatgpt35TurboConversationLogMutation) EdgeCleared(name string) bool {
+	switch name {
+	case chatgpt35turboconversationlog.EdgeConversation:
+		return m.clearedconversation
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *Chatgpt35TurboConversationLogMutation) ClearEdge(name string) error {
+	switch name {
+	case chatgpt35turboconversationlog.EdgeConversation:
+		m.ClearConversation()
+		return nil
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *Chatgpt35TurboConversationLogMutation) ResetEdge(name string) error {
+	switch name {
+	case chatgpt35turboconversationlog.EdgeConversation:
+		m.ResetConversation()
+		return nil
+	}
+	return fmt.Errorf("unknown Chatgpt35TurboConversationLog edge %s", name)
+}
 
 // ConversationsMutation represents an operation that mutates the Conversations nodes in the graph.
 type ConversationsMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *int
-	ai_model               *conversations.AiModel
-	sns_type               *conversations.SnsType
-	cmd_version            *conversations.CmdVersion
-	is_aborted             *bool
-	created_at             *time.Time
-	clearedFields          map[string]struct{}
-	twitter_account        *int
-	clearedtwitter_account bool
-	done                   bool
-	oldValue               func(context.Context) (*Conversations, error)
-	predicates             []predicate.Conversations
+	op            Op
+	typ           string
+	id            *int
+	ai_model      *conversations.AiModel
+	sns_type      *conversations.SnsType
+	cmd_version   *conversations.CmdVersion
+	is_aborted    *bool
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Conversations, error)
+	predicates    []predicate.Conversations
 }
 
 var _ ent.Mutation = (*ConversationsMutation)(nil)
@@ -326,45 +903,6 @@ func (m *ConversationsMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
-// SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by id.
-func (m *ConversationsMutation) SetTwitterAccountID(id int) {
-	m.twitter_account = &id
-}
-
-// ClearTwitterAccount clears the "twitter_account" edge to the TwitterAccounts entity.
-func (m *ConversationsMutation) ClearTwitterAccount() {
-	m.clearedtwitter_account = true
-}
-
-// TwitterAccountCleared reports if the "twitter_account" edge to the TwitterAccounts entity was cleared.
-func (m *ConversationsMutation) TwitterAccountCleared() bool {
-	return m.clearedtwitter_account
-}
-
-// TwitterAccountID returns the "twitter_account" edge ID in the mutation.
-func (m *ConversationsMutation) TwitterAccountID() (id int, exists bool) {
-	if m.twitter_account != nil {
-		return *m.twitter_account, true
-	}
-	return
-}
-
-// TwitterAccountIDs returns the "twitter_account" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// TwitterAccountID instead. It exists only for internal usage by the builders.
-func (m *ConversationsMutation) TwitterAccountIDs() (ids []int) {
-	if id := m.twitter_account; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetTwitterAccount resets all changes to the "twitter_account" edge.
-func (m *ConversationsMutation) ResetTwitterAccount() {
-	m.twitter_account = nil
-	m.clearedtwitter_account = false
-}
-
 // Where appends a list predicates to the ConversationsMutation builder.
 func (m *ConversationsMutation) Where(ps ...predicate.Conversations) {
 	m.predicates = append(m.predicates, ps...)
@@ -566,28 +1104,19 @@ func (m *ConversationsMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ConversationsMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.twitter_account != nil {
-		edges = append(edges, conversations.EdgeTwitterAccount)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ConversationsMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case conversations.EdgeTwitterAccount:
-		if id := m.twitter_account; id != nil {
-			return []ent.Value{*id}
-		}
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ConversationsMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 0)
 	return edges
 }
 
@@ -599,42 +1128,25 @@ func (m *ConversationsMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ConversationsMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedtwitter_account {
-		edges = append(edges, conversations.EdgeTwitterAccount)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ConversationsMutation) EdgeCleared(name string) bool {
-	switch name {
-	case conversations.EdgeTwitterAccount:
-		return m.clearedtwitter_account
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ConversationsMutation) ClearEdge(name string) error {
-	switch name {
-	case conversations.EdgeTwitterAccount:
-		m.ClearTwitterAccount()
-		return nil
-	}
 	return fmt.Errorf("unknown Conversations unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ConversationsMutation) ResetEdge(name string) error {
-	switch name {
-	case conversations.EdgeTwitterAccount:
-		m.ResetTwitterAccount()
-		return nil
-	}
 	return fmt.Errorf("unknown Conversations edge %s", name)
 }
 

@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Chatgpt35TurboConversationLog is the predicate function for chatgpt35turboconversationlog builders.
+type Chatgpt35TurboConversationLog func(*sql.Selector)
+
 // Conversations is the predicate function for conversations builders.
 type Conversations func(*sql.Selector)
 

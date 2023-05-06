@@ -7,4 +7,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["air", "-c", ".air.toml"]
+CMD ["air", "-c", ".air.controller.toml"]

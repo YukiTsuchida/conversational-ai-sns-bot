@@ -9,6 +9,18 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
 )
 
+// The Chatgpt35TurboConversationLogFunc type is an adapter to allow the use of ordinary
+// function as Chatgpt35TurboConversationLog mutator.
+type Chatgpt35TurboConversationLogFunc func(context.Context, *ent.Chatgpt35TurboConversationLogMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f Chatgpt35TurboConversationLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.Chatgpt35TurboConversationLogMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.Chatgpt35TurboConversationLogMutation", m)
+}
+
 // The ConversationsFunc type is an adapter to allow the use of ordinary
 // function as Conversations mutator.
 type ConversationsFunc func(context.Context, *ent.ConversationsMutation) (ent.Value, error)

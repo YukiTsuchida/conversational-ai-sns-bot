@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -25,17 +24,8 @@ const (
 	FieldIsAborted = "is_aborted"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// EdgeTwitterAccount holds the string denoting the twitter_account edge name in mutations.
-	EdgeTwitterAccount = "twitter_account"
 	// Table holds the table name of the conversations in the database.
 	Table = "conversations"
-	// TwitterAccountTable is the table that holds the twitter_account relation/edge.
-	TwitterAccountTable = "conversations"
-	// TwitterAccountInverseTable is the table name for the TwitterAccounts entity.
-	// It exists in this package in order to avoid circular dependency with the "twitteraccounts" package.
-	TwitterAccountInverseTable = "twitter_accounts"
-	// TwitterAccountColumn is the table column denoting the twitter_account relation/edge.
-	TwitterAccountColumn = "twitter_accounts_conversation"
 )
 
 // Columns holds all SQL columns for conversations fields.
@@ -48,21 +38,10 @@ var Columns = []string{
 	FieldCreatedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "conversations"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"twitter_accounts_conversation",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -81,7 +60,7 @@ type AiModel string
 
 // AiModel values.
 const (
-	AiModelChatgpt35Turbo AiModel = "chatgpt-3_5-turbo"
+	AiModelGpt35Turbo AiModel = "gpt-3_5-turbo"
 )
 
 func (am AiModel) String() string {
@@ -91,7 +70,7 @@ func (am AiModel) String() string {
 // AiModelValidator is a validator for the "ai_model" field enum values. It is called by the builders before save.
 func AiModelValidator(am AiModel) error {
 	switch am {
-	case AiModelChatgpt35Turbo:
+	case AiModelGpt35Turbo:
 		return nil
 	default:
 		return fmt.Errorf("conversations: invalid enum value for ai_model field: %q", am)
@@ -173,18 +152,4 @@ func ByIsAborted(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByTwitterAccountField orders the results by twitter_account field.
-func ByTwitterAccountField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTwitterAccountStep(), sql.OrderByField(field, opts...))
-	}
-}
-func newTwitterAccountStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TwitterAccountInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, TwitterAccountTable, TwitterAccountColumn),
-	)
 }

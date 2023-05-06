@@ -5,7 +5,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -17,7 +16,7 @@ type Conversations struct {
 // Fields of the Conversations.
 func (Conversations) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("ai_model").Values("chatgpt-3_5-turbo"),
+		field.Enum("ai_model").Values("gpt-3_5-turbo"),
 		field.Enum("sns_type").Values("twitter"),
 		field.Enum("cmd_version").Values("v0_1"),
 		field.Bool("is_aborted").Default(false),
@@ -31,7 +30,5 @@ func (Conversations) Fields() []ent.Field {
 
 // Edges of the Conversations.
 func (Conversations) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("twitter_account", TwitterAccounts.Type).Ref("conversation").Unique(),
-	}
+	return nil
 }

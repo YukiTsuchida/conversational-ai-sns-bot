@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 )
 
 // ConversationsUpdate is the builder for updating Conversations entities.
@@ -75,34 +74,9 @@ func (cu *ConversationsUpdate) SetNillableCreatedAt(t *time.Time) *Conversations
 	return cu
 }
 
-// SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID.
-func (cu *ConversationsUpdate) SetTwitterAccountID(id int) *ConversationsUpdate {
-	cu.mutation.SetTwitterAccountID(id)
-	return cu
-}
-
-// SetNillableTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID if the given value is not nil.
-func (cu *ConversationsUpdate) SetNillableTwitterAccountID(id *int) *ConversationsUpdate {
-	if id != nil {
-		cu = cu.SetTwitterAccountID(*id)
-	}
-	return cu
-}
-
-// SetTwitterAccount sets the "twitter_account" edge to the TwitterAccounts entity.
-func (cu *ConversationsUpdate) SetTwitterAccount(t *TwitterAccounts) *ConversationsUpdate {
-	return cu.SetTwitterAccountID(t.ID)
-}
-
 // Mutation returns the ConversationsMutation object of the builder.
 func (cu *ConversationsUpdate) Mutation() *ConversationsMutation {
 	return cu.mutation
-}
-
-// ClearTwitterAccount clears the "twitter_account" edge to the TwitterAccounts entity.
-func (cu *ConversationsUpdate) ClearTwitterAccount() *ConversationsUpdate {
-	cu.mutation.ClearTwitterAccount()
-	return cu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -179,35 +153,6 @@ func (cu *ConversationsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
 	}
-	if cu.mutation.TwitterAccountCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   conversations.TwitterAccountTable,
-			Columns: []string{conversations.TwitterAccountColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twitteraccounts.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.TwitterAccountIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   conversations.TwitterAccountTable,
-			Columns: []string{conversations.TwitterAccountColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twitteraccounts.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{conversations.Label}
@@ -274,34 +219,9 @@ func (cuo *ConversationsUpdateOne) SetNillableCreatedAt(t *time.Time) *Conversat
 	return cuo
 }
 
-// SetTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID.
-func (cuo *ConversationsUpdateOne) SetTwitterAccountID(id int) *ConversationsUpdateOne {
-	cuo.mutation.SetTwitterAccountID(id)
-	return cuo
-}
-
-// SetNillableTwitterAccountID sets the "twitter_account" edge to the TwitterAccounts entity by ID if the given value is not nil.
-func (cuo *ConversationsUpdateOne) SetNillableTwitterAccountID(id *int) *ConversationsUpdateOne {
-	if id != nil {
-		cuo = cuo.SetTwitterAccountID(*id)
-	}
-	return cuo
-}
-
-// SetTwitterAccount sets the "twitter_account" edge to the TwitterAccounts entity.
-func (cuo *ConversationsUpdateOne) SetTwitterAccount(t *TwitterAccounts) *ConversationsUpdateOne {
-	return cuo.SetTwitterAccountID(t.ID)
-}
-
 // Mutation returns the ConversationsMutation object of the builder.
 func (cuo *ConversationsUpdateOne) Mutation() *ConversationsMutation {
 	return cuo.mutation
-}
-
-// ClearTwitterAccount clears the "twitter_account" edge to the TwitterAccounts entity.
-func (cuo *ConversationsUpdateOne) ClearTwitterAccount() *ConversationsUpdateOne {
-	cuo.mutation.ClearTwitterAccount()
-	return cuo
 }
 
 // Where appends a list predicates to the ConversationsUpdate builder.
@@ -407,35 +327,6 @@ func (cuo *ConversationsUpdateOne) sqlSave(ctx context.Context) (_node *Conversa
 	}
 	if value, ok := cuo.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
-	}
-	if cuo.mutation.TwitterAccountCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   conversations.TwitterAccountTable,
-			Columns: []string{conversations.TwitterAccountColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twitteraccounts.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.TwitterAccountIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   conversations.TwitterAccountTable,
-			Columns: []string{conversations.TwitterAccountColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(twitteraccounts.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Conversations{config: cuo.config}
 	_spec.Assign = _node.assignValues

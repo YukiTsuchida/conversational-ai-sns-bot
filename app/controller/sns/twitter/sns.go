@@ -2,6 +2,9 @@ package twitter
 
 import (
 	"context"
+	"strconv"
+
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
@@ -17,7 +20,20 @@ type snsTwitterImpl struct {
 }
 
 func (sns *snsTwitterImpl) FetchAccountByID(ctx context.Context, accountID string) (*sns_model.Account, error) {
-	return nil, nil
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conversationID, err := account.QueryConversation().FirstID(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// レコードが見つからないケースは問題ない
+			return sns_model.NewAccount(account.TwitterAccountID, ""), nil
+		}
+		return nil, err
+	}
+	conversationIDStr := strconv.Itoa(conversationID)
+	return sns_model.NewAccount(account.TwitterAccountID, conversationIDStr), nil
 }
 
 func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential string) error {
@@ -28,7 +44,15 @@ func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, 
 	return nil
 }
 
-func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, conversationID string) error {
+func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, accountID string, conversationID string) error {
+	conversationIDInt, err := strconv.Atoi(conversationID)
+	if err != nil {
+		return err
+	}
+	err = sns.db.TwitterAccounts.Update().SetConversationID(conversationIDInt).Where(twitteraccounts.TwitterAccountIDEQ(accountID)).Exec(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

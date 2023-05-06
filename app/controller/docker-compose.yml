@@ -5,7 +5,7 @@ services:
     build:
       context: .
       # Correct the path to your Dockerfile
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.controller
     ports:
       - 8080:8080
     # Important to bind/mount your codebase dir to /app dir for live reload
@@ -17,6 +17,28 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db
+      CLOUDTASKS_HOST: gcloud-tasks-emulator
+      CLOUDTASKS_PARENT: projects/dev/locations/here
+      CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する
+      SELF_HOST: http://controller:8080
+      REQUESTOR_HOST: http://ai-requestor:8080
+  ai-requestor:
+    build:
+      context: .
+      # Correct the path to your Dockerfile
+      dockerfile: Dockerfile.requestor
+    ports:
+      - 8081:8080
+    # Important to bind/mount your codebase dir to /app dir for live reload
+    volumes:
+      - ./:/app
+    environment:
+      CHATGPT_API_KEY: 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
+  gcloud-tasks-emulator:
+    image: ghcr.io/aertje/cloud-tasks-emulator:latest
+    command: -host 0.0.0.0 -port 8123 -queue "projects/dev/locations/here/queues/anotherq"
+    ports:
+      - "${TASKS_PORT:-8123}:8123"
   postgresql:
     image: postgres:14.0-alpine
     ports:

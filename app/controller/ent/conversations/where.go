@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
 )
 
@@ -173,29 +172,6 @@ func CreatedAtLT(v time.Time) predicate.Conversations {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Conversations {
 	return predicate.Conversations(sql.FieldLTE(FieldCreatedAt, v))
-}
-
-// HasTwitterAccount applies the HasEdge predicate on the "twitter_account" edge.
-func HasTwitterAccount() predicate.Conversations {
-	return predicate.Conversations(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, TwitterAccountTable, TwitterAccountColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTwitterAccountWith applies the HasEdge predicate on the "twitter_account" edge with a given conditions (other predicates).
-func HasTwitterAccountWith(preds ...predicate.TwitterAccounts) predicate.Conversations {
-	return predicate.Conversations(func(s *sql.Selector) {
-		step := newTwitterAccountStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

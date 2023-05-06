@@ -6,6 +6,10 @@ type Account struct {
 	conversationID string
 }
 
+func NewAccount(id string, conversationID string) *Account {
+	return &Account{id, conversationID}
+}
+
 func (account Account) IsInConversations() bool {
 	if account.conversationID == "" {
 		return false

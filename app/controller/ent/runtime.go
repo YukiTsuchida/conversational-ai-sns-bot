@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/schema"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
@@ -14,6 +15,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	chatgpt35turboconversationlogFields := schema.Chatgpt35TurboConversationLog{}.Fields()
+	_ = chatgpt35turboconversationlogFields
+	// chatgpt35turboconversationlogDescMessage is the schema descriptor for message field.
+	chatgpt35turboconversationlogDescMessage := chatgpt35turboconversationlogFields[0].Descriptor()
+	// chatgpt35turboconversationlog.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	chatgpt35turboconversationlog.MessageValidator = chatgpt35turboconversationlogDescMessage.Validators[0].(func(string) error)
+	// chatgpt35turboconversationlogDescCreatedAt is the schema descriptor for created_at field.
+	chatgpt35turboconversationlogDescCreatedAt := chatgpt35turboconversationlogFields[3].Descriptor()
+	// chatgpt35turboconversationlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chatgpt35turboconversationlog.DefaultCreatedAt = chatgpt35turboconversationlogDescCreatedAt.Default.(func() time.Time)
 	conversationsFields := schema.Conversations{}.Fields()
 	_ = conversationsFields
 	// conversationsDescIsAborted is the schema descriptor for is_aborted field.

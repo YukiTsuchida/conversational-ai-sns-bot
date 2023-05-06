@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 func POSTGRES_HOST() string {
 	return os.Getenv("POSTGRES_HOST")
@@ -20,4 +23,34 @@ func POSTGRES_PASSWORD() string {
 
 func POSTGRES_DB() string {
 	return os.Getenv("POSTGRES_DB")
+}
+
+func CLOUDTASKS_HOST() string {
+	return os.Getenv("CLOUDTASKS_HOST")
+}
+
+func CLOUDTASKS_PARENT() string {
+	return os.Getenv("CLOUDTASKS_PARENT")
+}
+
+func SELF_HOST() string {
+	return os.Getenv("SELF_HOST")
+}
+
+func REQUESTOR_HOST() string {
+	return os.Getenv("REQUESTOR_HOST")
+}
+
+// 1秒あたりの会話数、0.05に設定するとAIと1分間に3回の会話が可能
+func CONVERSATION_RATE_PER_SECOND() float64 {
+	tmp := os.Getenv("CONVERSATION_RATE_PER_SECOND")
+	v, err := strconv.ParseFloat(tmp, 64)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func CHATGPT_API_KEY() string {
+	return os.Getenv("CHATGPT_API_KEY")
 }
