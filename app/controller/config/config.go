@@ -66,3 +66,15 @@ func TWITTER_CALLBACK_URL() string {
 func TWITTER_CLIENT_SECRET() string {
 	return os.Getenv("TWITTER_CLIENT_SECRET")
 }
+
+func ENVIRONMENT() string {
+	return os.Getenv("ENVIRONMENT")
+}
+
+func IsDevelop() bool {
+	return ENVIRONMENT() == "develop"
+}
+
+func IsProd() bool {
+	return ENVIRONMENT() == "prod"
+}

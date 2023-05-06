@@ -18,16 +18,32 @@ func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r
 	sns := twitter.NewSNSTwitterImpl(db)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// stateの検証
-		if s := r.URL.Query().Get("state"); s != "abc" {
+		code := r.URL.Query().Get("code")
+
+		stateCookie,err := r.Cookie("state")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if s := r.URL.Query().Get("state"); s != stateCookie.Value {
 			http.Error(w, "state is not match", http.StatusBadRequest)
 			return
 		}
+		// cookieの削除
+		stateCookie.MaxAge = -1
+		http.SetCookie(w,stateCookie)
 
-		code := r.URL.Query().Get("code")
+		cvCookie,err := r.Cookie("code_verifier")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// cookieの削除
+		cvCookie.MaxAge = -1
+		http.SetCookie(w,cvCookie)
 
 		// codeとtokenの交換
-		tokenResp, err := getTwitterOAuth2Token(r.Context(), code)
+		tokenResp, err := getTwitterOAuth2Token(r.Context(), code, cvCookie.Value)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -41,6 +57,8 @@ func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r
 		}
 
 		credential := sns_model.NewOAuth2Credential(tokenResp.AccessToken, tokenResp.RefreshToken)
+
+		// DBに保存
 		if err := sns.CreateAccount(r.Context(), accountResp.Data.UserName, credential); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -57,18 +75,21 @@ type twitterOAuth2TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func getTwitterOAuth2Token(ctx context.Context, code string) (*twitterOAuth2TokenResponse, error) {
-	newParam := url.Values{}
+func getTwitterOAuth2Token(ctx context.Context, code ,codeVerifier string) (*twitterOAuth2TokenResponse, error) {
+	u,err := url.Parse("https://api.twitter.com/2/oauth2/token")
+	if err != nil {
+		return nil,err
+	}
 
-	newParam.Add("code", code)
-	newParam.Add("grant_type", "authorization_code")
-	newParam.Add("client_id", config.TWITTER_CLIENT_ID())
-	newParam.Add("redirect_uri", config.TWITTER_CALLBACK_URL())
-	newParam.Add("code_verifier", "aaa")
+	q := u.Query()
+	q.Add("code", code)
+	q.Add("grant_type", "authorization_code")
+	q.Add("client_id", config.TWITTER_CLIENT_ID())
+	q.Add("redirect_uri", config.TWITTER_CALLBACK_URL())
+	q.Add("code_verifier", codeVerifier)
+	u.RawQuery = q.Encode()
 
-	apiURL := "https://api.twitter.com/2/oauth2/token?" + newParam.Encode()
-
-	newReq, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, nil)
+	newReq, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
