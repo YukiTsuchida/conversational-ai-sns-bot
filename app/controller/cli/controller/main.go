@@ -27,8 +27,8 @@ func main() {
 	r.Post("/conversations/twitter", handler.StartTwitterConversationHandler(db))
 
 	// twitter auth
-	r.Get("/accounts/twitter_login",handler.LoginTwitterAccountHandler())
-	r.Get("/accounts/twitter_callback",handler.CallbackTwitterAccountHandler(db))
+	r.Get("/accounts/twitter_login", handler.LoginTwitterAccountHandler())
+	r.Get("/accounts/twitter_callback", handler.CallbackTwitterAccountHandler(db))
 
 	http.ListenAndServe(":8080", r)
 }

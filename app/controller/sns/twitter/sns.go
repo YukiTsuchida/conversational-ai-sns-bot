@@ -38,12 +38,12 @@ func (sns *snsTwitterImpl) FetchAccountByID(ctx context.Context, accountID strin
 }
 
 func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential any) error {
-	c,ok := credential.(*sns_model.OAuth2Credential)
+	c, ok := credential.(*sns_model.OAuth2Credential)
 	if !ok {
 		return fmt.Errorf("oauth2 credential parse failed")
 	}
 
-	accessToken,refreshToken := c.GetTokens()
+	accessToken, refreshToken := c.GetTokens()
 	_, err := sns.db.TwitterAccounts.Create().
 		SetTwitterAccountID(accountID).
 		SetAccessToken(accessToken).
