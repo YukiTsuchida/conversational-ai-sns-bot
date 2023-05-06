@@ -1,5 +1,7 @@
 package sns
 
+type Credential interface{}
+
 type OAuth2Credential struct {
 	accessToken  string
 	refreshToken string
