@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Command struct {
@@ -54,4 +55,16 @@ func (c *Command) Option(optionName string) (string, error) {
 		return "", fmt.Errorf("option %s is not found", optionName)
 	}
 	return v, nil
+}
+
+func (c *Command) OptionInInt(optionName string) (int, error) {
+	v, found := c.options[optionName]
+	if !found {
+		return 0, fmt.Errorf("option %s is not found", optionName)
+	}
+	vInt, err := strconv.Atoi(v)
+	if err != nil {
+		return 0, err
+	}
+	return vInt, nil
 }

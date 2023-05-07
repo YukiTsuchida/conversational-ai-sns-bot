@@ -78,31 +78,82 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 			}
 			nextMessage = svc.cmd.BuildNextMessagePostMessage(snsRes)
 		} else if cmd.IsGetMyMessages() {
-			cmd := cmd_model.NewGetMyMessagesCommand()
+			maxResults, err := cmd.OptionInInt("max_results")
+			if err != nil {
+				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
+				return err
+			}
+			cmd := cmd_model.NewGetMyMessagesCommand(maxResults)
 			snsRes, err := svc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
 			nextMessage = svc.cmd.BuildNextMessageGetMyMessages(snsRes)
 		} else if cmd.IsGetOtherMessages() {
-			message, err := cmd.Option("user_id")
+			userID, err := cmd.Option("user_id")
 			if err != nil {
 				return err
 			}
-			message, err := cmd.Option("message")
+			maxResults, err := cmd.OptionInInt("max_results")
+			if err != nil {
+				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
+				return err
+			}
+			cmd := cmd_model.NewGetOtherMessagesCommand(userID, maxResults)
+			snsRes, err := svc.sns.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			cmd := cmd_model.NewGetMyMessagesCommand()
-			snsRes, err := svc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
-			if err != nil {
-				return err
-			}
-			nextMessage = svc.cmd.BuildNextMessageGetMyMessages(snsRes)
+			nextMessage = svc.cmd.BuildNextMessageGetOtherMessages(snsRes)
 		} else if cmd.IsSearchMessage() {
+			query, err := cmd.Option("query")
+			if err != nil {
+				return err
+			}
+			maxResults, err := cmd.OptionInInt("max_results")
+			if err != nil {
+				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
+				return err
+			}
+			cmd := cmd_model.NewSearchMessageCommand(query, maxResults)
+			snsRes, err := svc.sns.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageSearchMessage(snsRes)
 		} else if cmd.IsGetMyProfile() {
+			cmd := cmd_model.NewGetMyProfileCommand()
+			snsRes, err := svc.sns.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageGetMyProfile(snsRes)
 		} else if cmd.IsGetOthersProfile() {
+			userID, err := cmd.Option("user_id")
+			if err != nil {
+				return err
+			}
+			cmd := cmd_model.NewGetOthersProfileCommand(userID)
+			snsRes, err := svc.sns.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageGetOthersProfile(snsRes)
 		} else if cmd.IsUpdateMyProfile() {
+			name, err := cmd.Option("name")
+			if err != nil {
+				return err
+			}
+			description, err := cmd.Option("description")
+			if err != nil {
+				return err
+			}
+			cmd := cmd_model.NewUpdateMyProfileCommand(name, description)
+			snsRes, err := svc.sns.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageUpdateMyProfile(snsRes)
 		} else {
 			// 存在しない
 			continue
