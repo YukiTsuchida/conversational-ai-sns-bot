@@ -50,9 +50,6 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	if err != nil {
 		return err
 	}
-	for _, log := range logs {
-		fmt.Println(log.Message)
-	}
 
 	cloudTasksHost := config.CLOUDTASKS_HOST()     // local環境ではエミュレータを使うので環境変数からhostを指定する
 	cloudtasksParent := config.CLOUDTASKS_PARENT() // 「projects/%s/locations/%s」の部分
