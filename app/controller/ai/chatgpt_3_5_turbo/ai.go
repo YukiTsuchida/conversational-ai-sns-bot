@@ -18,9 +18,12 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+
+	"github.com/pkoukk/tiktoken-go"
 )
 
 const modelName = "gpt-3.5-turbo"
+const tokenLimit = 4000 // 実際は4096だが、回答も含めて4096なので4000にしておく
 
 var _ ai.AI = (*aiChatGPT3_5TurboImpl)(nil)
 
@@ -90,12 +93,44 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 		}
 	}
 
+	// 送信するメッセージを作成
+	numTokens := 0
 	messages := []Message{}
-	// ToDo: トークン数を計算して古いMessageを載せないようにする
-	for _, log := range logs {
-		messages = append(messages, Message{
-			Role:    log.Role.String(),
-			Message: log.Message + log.CreatedAt.String(),
+
+	// systemメッセージを最初に載せる
+	messages = append(messages, Message{
+		Role:    "system",
+		Message: logs[0].Message,
+	})
+	if t, err := calcToken(logs[0].Message); err != nil {
+		return err
+	} else {
+		numTokens += t
+	}
+
+	insert := func(a []Message, index int, value Message) []Message {
+		if len(a) == index { // nil or empty slice or after last element
+			return append(a, value)
+		}
+		a = append(a[:index+1], a[index:]...) // index < len(a)
+		a[index] = value
+		return a
+	}
+
+	// logsを逆順にloop回す
+	for i := len(logs) - 1; i != 0; i-- { // systemメッセージは飛ばす
+		t, err := calcToken(logs[i].Message)
+		if err != nil {
+			return err
+		}
+		if numTokens+t > tokenLimit {
+			// トークン数超過したらbreak
+			break
+		}
+		numTokens += t
+		insert(messages, 1, Message{
+			Role:    logs[i].Role.String(),
+			Message: logs[i].Message,
 		})
 	}
 
@@ -129,6 +164,20 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	}
 
 	return nil
+}
+
+func calcToken(text string) (int, error) {
+	tkm, err := tiktoken.EncodingForModel(modelName)
+	if err != nil {
+		err = fmt.Errorf("getEncoding: %v", err)
+		return 0, err
+	}
+
+	// encode
+	token := tkm.Encode(text, nil, nil)
+
+	// num_tokens
+	return len(token), nil
 }
 
 func (ai *aiChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message string) error {
