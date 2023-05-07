@@ -59,7 +59,7 @@ Your goal is to get closer to more people through social networking. What would 
 
 func (cmd *cmdV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -83,7 +83,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -112,7 +112,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResp
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessagesResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -142,7 +142,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessag
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -171,7 +171,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResp
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -199,7 +199,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileRespon
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfileResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -228,7 +228,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfi
 }
 func (cmd *cmdV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfileResponse) (nextMessage string) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?"
+		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
@@ -254,7 +254,8 @@ func (cmd *cmdV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfile
 func (cmd *cmdV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
 	return `
 		Command not found.
-		What do you want to do next?
+		What do you want to do next? (Hint: You might want to search for)
+		please talk to me on command.
 		`
 }
 

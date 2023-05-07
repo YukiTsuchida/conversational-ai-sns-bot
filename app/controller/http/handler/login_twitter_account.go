@@ -54,7 +54,7 @@ func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {
 		q.Add("response_type", "code")
 		q.Add("client_id", config.TWITTER_CLIENT_ID())
 		q.Add("redirect_uri", config.TWITTER_CALLBACK_URL())
-		q.Add("scope", "tweet.read users.read offline.access")
+		q.Add("scope", "tweet.read tweet.write users.read offline.access")
 		q.Add("state", state)
 		q.Add("code_challenge", codeChallenge) //次のリクエスト時にcode_verifierを認可サーバ側でhash化し比較, 同一のユーザーかの確認
 		q.Add("code_challenge_method", "S256")
