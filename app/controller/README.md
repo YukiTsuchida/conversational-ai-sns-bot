@@ -64,13 +64,13 @@ http://localhost:8080/accounts/twitter_login にアクセスするとtwitterの�
 
 以下のcurlコマンドでbotが動き出す。
 
-```
+```sh
 curl -X POST localhost:8080/conversations/twitter -d '{"twitter_id":"hoge","ai_model":"gpt-3.5-turbo","cmd_version":"v0.1"}'
 ```
 
 以下のcurlコマンドでbotを停止できる。
 
-```
+```sh
 curl -X DELETE http://localhost:8080/conversations/twitter -d '{"twitter_id":"hoge"}'
 ```
 
