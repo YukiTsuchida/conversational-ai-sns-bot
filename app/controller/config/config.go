@@ -51,6 +51,15 @@ func CONVERSATION_RATE_PER_SECOND() float64 {
 	return v
 }
 
+func SLEEP_TIME_FOR_REPLY_SECONDS() int {
+	tmp := os.Getenv("SLEEP_TIME_FOR_REPLY_SECONDS")
+	v, err := strconv.Atoi(tmp)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 func CHATGPT_API_KEY() string {
 	return os.Getenv("CHATGPT_API_KEY")
 }

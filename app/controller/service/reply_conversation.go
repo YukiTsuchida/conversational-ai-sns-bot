@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
@@ -172,6 +175,8 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 			return err
 		}
 	}
+
+	time.Sleep(time.Duration(config.SLEEP_TIME_FOR_REPLY_SECONDS()) * time.Second)
 
 	// 会話履歴を結合して対話型AI用のリクエストを生成して送信する
 	err = svc.ai.SendRequest(ctx, conversationID)

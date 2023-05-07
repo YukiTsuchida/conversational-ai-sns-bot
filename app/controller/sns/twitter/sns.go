@@ -80,6 +80,18 @@ func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, accoun
 	return nil
 }
 
+func (sns *snsTwitterImpl) RemoveAccountConversationID(ctx context.Context, accountID string) error {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = account.Update().ClearConversation().Save(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
 	return nil, nil
 }

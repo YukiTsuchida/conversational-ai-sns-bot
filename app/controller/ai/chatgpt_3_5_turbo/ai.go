@@ -144,10 +144,26 @@ func (ai *aiChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conver
 }
 
 func (ai *aiChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message string) error {
+	conversationIDInt, err := strconv.Atoi(conversationID)
+	if err != nil {
+		return err
+	}
+	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message).SetRole(chatgpt35turboconversationlog.RoleUser).Save(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (ai *aiChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message string, purpose string) error {
+	conversationIDInt, err := strconv.Atoi(conversationID)
+	if err != nil {
+		return err
+	}
+	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message).SetRole(chatgpt35turboconversationlog.RoleAssistant).Save(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

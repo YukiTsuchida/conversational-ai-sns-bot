@@ -12,6 +12,7 @@ type SNS interface {
 	FetchAccountByConversationID(ctx context.Context, conversationID string) (*sns.Account, error)
 	CreateAccount(ctx context.Context, accountID string, credential sns.Credential) error // このinterfaceもうちょっとなんとかしたい
 	GiveAccountConversationID(ctx context.Context, accountID string, conversationID string) error
+	RemoveAccountConversationID(ctx context.Context, accountID string) error
 	ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns.PostMessageResponse, error)
 	ExecuteGetMyMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetMyMessagesCommand) (*sns.GetMyMessagesResponse, error)
 	ExecuteGetOtherMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetOtherMessagesCommand) (*sns.GetOtherMessagesResponse, error)

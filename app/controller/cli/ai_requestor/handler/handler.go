@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"strconv"
 
@@ -25,6 +25,25 @@ type ChatGPTAPIRequest struct {
 type ChatGPTAPIMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
+}
+
+type ControllerReplyRequest struct {
+	Message    string `json:"message"`
+	ErrMessage string `json:"err_message"`
+}
+
+type ChatGPTAPIResponse struct {
+	ID      string `json:"id"`
+	Object  string `json:"object"`
+	Created int    `json:"created"`
+	Choices []struct {
+		Index   int `json:"index"`
+		Message struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"message"`
+		FinishReason string `json:"finish_reason"`
+	} `json:"choices"`
 }
 
 func OpenAIChatGPTRequestHandler() func(w http.ResponseWriter, r *http.Request) {
@@ -81,9 +100,27 @@ func OpenAIChatGPTRequestHandler() func(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
+		var controllerReplyReq ControllerReplyRequest
+		chatGPTAPIResp, err := reqChatGPTAPI(jsonStr)
+		if err == nil {
+			controllerReplyReq.Message = chatGPTAPIResp.Choices[0].Message.Content
+			controllerReplyReq.ErrMessage = ""
+		} else {
+			controllerReplyReq.Message = ""
+			controllerReplyReq.ErrMessage = "ChatGPT API request error: " + err.Error()
+			internalOpenAIChatGPTRequestError(err)
+		}
+
+		jsonStr, err = json.Marshal(controllerReplyReq)
+		if err != nil {
+			internalOpenAIChatGPTRequestError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		newReq, err := http.NewRequest(
 			"POST",
-			"https://api.openai.com/v1/chat/completions",
+			req.CallBackUrl,
 			bytes.NewBuffer([]byte(jsonStr)),
 		)
 		if err != nil {
@@ -92,29 +129,54 @@ func OpenAIChatGPTRequestHandler() func(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		newReq.Header.Set("Content-Type", "application/json")
-		newReq.Header.Set("Authorization", "Bearer "+config.CHATGPT_API_KEY())
 
 		client := &http.Client{}
-		resp, err := client.Do(newReq)
+		_, err = client.Do(newReq)
 		if err != nil {
 			internalOpenAIChatGPTRequestError(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		defer resp.Body.Close()
-
-		// 本来はここでChatGPTAPIのレスポンスをパースして、call_back_urlに返すが、一旦繋ぎ込みはせずに結果だけログに出力する
-		dump, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			internalOpenAIChatGPTRequestError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		fmt.Printf("%q", dump)
 
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "ok")
 	}
+}
+
+func reqChatGPTAPI(jsonStr []byte) (*ChatGPTAPIResponse, error) {
+	newReq, err := http.NewRequest(
+		"POST",
+		"https://api.openai.com/v1/chat/completions",
+		bytes.NewBuffer([]byte(jsonStr)),
+	)
+	if err != nil {
+		return nil, err
+	}
+	newReq.Header.Set("Content-Type", "application/json")
+	newReq.Header.Set("Authorization", "Bearer "+config.CHATGPT_API_KEY())
+
+	client := &http.Client{}
+	resp, err := client.Do(newReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBuf, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("ChatGPT API request error: status code %d, body %s", resp.StatusCode, string(bodyBuf))
+	}
+
+	// ChatGPT APIのレスポンスをパースする
+	var chatGPTAPIResp ChatGPTAPIResponse
+	err = json.NewDecoder(resp.Body).Decode(&chatGPTAPIResp)
+	if err != nil {
+		return nil, err
+	}
+	return &chatGPTAPIResp, nil
 }
 
 func internalOpenAIChatGPTRequestError(err error) {
