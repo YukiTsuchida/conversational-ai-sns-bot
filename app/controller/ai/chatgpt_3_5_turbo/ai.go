@@ -128,10 +128,16 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 			break
 		}
 		numTokens += t
-		insert(messages, 1, Message{
+		messages = insert(messages, 1, Message{
 			Role:    logs[i].Role.String(),
 			Message: logs[i].Message,
 		})
+	}
+
+	fmt.Println(numTokens)
+
+	for _, message := range messages {
+		fmt.Println(message.Role + " " + message.Message)
 	}
 
 	request := Request{
