@@ -1,13 +1,13 @@
 package twitter
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
-	"bytes"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
@@ -97,26 +97,26 @@ func (sns *snsTwitterImpl) RemoveAccountConversationID(ctx context.Context, acco
 }
 
 type postMessageRequest struct {
-	Data struct{
+	Data struct {
 		Text string `json:"text"`
-	}`json:"data"`
+	} `json:"data"`
 }
 
 func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	u,err := url.Parse("https://api.twitter.com/2/tweets")
+	u, err := url.Parse("https://api.twitter.com/2/tweets")
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	r := postMessageRequest{}
 	r.Data.Text = cmd.Message()
 
-	b,_ := json.Marshal(r)
+	b, _ := json.Marshal(r)
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), bytes.NewBuffer(b))
 	if err != nil {
@@ -126,7 +126,6 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
 
-	
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {
@@ -143,7 +142,7 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 }
 
 type getMyMessagesResponse struct {
-	Data []struct{
+	Data []struct {
 		Text string `json:"text"`
 	} `json:"data"`
 }
@@ -151,22 +150,22 @@ type getMyMessagesResponse struct {
 func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	userID,err := sns.getUserIDByAccessToken(ctx,account.AccessToken)
+	userID, err := sns.getUserIDByAccessToken(ctx, account.AccessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	u,err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/%s/tweets",userID))
+	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/%s/tweets", userID))
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	q := u.Query()
-	q.Add("max_results",fmt.Sprintf("%d",cmd.MaxResults())) //min:5, max: 100
-	q.Add("exclude","retweets,replies")
+	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults())) //min:5, max: 100
+	q.Add("exclude", "retweets,replies")
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -177,7 +176,6 @@ func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountI
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
 
-	
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {
@@ -196,11 +194,11 @@ func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountI
 	}
 
 	var messages []string
-	for _,m := range j.Data {
+	for _, m := range j.Data {
 		messages = append(messages, m.Text)
 	}
 
-	return sns_model.NewGetMyMessagesResponse(messages,""), nil
+	return sns_model.NewGetMyMessagesResponse(messages, ""), nil
 }
 
 func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
@@ -208,7 +206,7 @@ func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accou
 }
 
 type searchMessagesResponse struct {
-	Data []struct{
+	Data []struct {
 		ID   string `json:"id"`
 		Text string `json:"text"`
 	} `json:"data"`
@@ -217,17 +215,17 @@ type searchMessagesResponse struct {
 func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountID string, cmd *cmd.SearchMessageCommand) (*sns_model.SearchMessageResponse, error) {
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	u,err := url.Parse("https://api.twitter.com/2/tweets/search/recent")
+	u, err := url.Parse("https://api.twitter.com/2/tweets/search/recent")
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	q := u.Query()
-	q.Add("query",fmt.Sprintf("%s -is:retweet",cmd.Query()))
-	q.Add("max_results",fmt.Sprintf("%d",cmd.MaxResults()))
+	q.Add("query", fmt.Sprintf("%s -is:retweet", cmd.Query()))
+	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults()))
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -238,7 +236,6 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
 
-	
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {
@@ -257,16 +254,16 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 	}
 
 	var messages []sns_model.SearchMessageMessage
-	for _,m := range j.Data {
-		messages = append(messages, sns_model.NewSearchMessageMessage(m.ID,m.Text))
+	for _, m := range j.Data {
+		messages = append(messages, sns_model.NewSearchMessageMessage(m.ID, m.Text))
 	}
 
-	return sns_model.NewSearchMessageResponse(messages,""), nil
+	return sns_model.NewSearchMessageResponse(messages, ""), nil
 }
 
 type getMyProfileResponse struct {
 	Data struct {
-		UserName string `json:"username"`
+		UserName    string `json:"username"`
 		Description string `json:"description"`
 	} `json:"data"`
 }
@@ -274,16 +271,16 @@ type getMyProfileResponse struct {
 func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetMyProfileCommand) (*sns_model.GetMyProfileResponse, error) {
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	u,err := url.Parse("https://api.twitter.com/2/users/me")
+	u, err := url.Parse("https://api.twitter.com/2/users/me")
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	q := u.Query()
-	q.Add("user.fields","description")
+	q.Add("user.fields", "description")
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -293,7 +290,7 @@ func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID
 
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
-	
+
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {
@@ -311,13 +308,13 @@ func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID
 		return nil, err
 	}
 
-	return sns_model.NewGetMyProfileResponse(j.Data.UserName,j.Data.Description,""), nil
+	return sns_model.NewGetMyProfileResponse(j.Data.UserName, j.Data.Description, ""), nil
 }
 
 type getOthersProfileResponse struct {
 	Data struct {
-		ID string `json:"id"`
-		UserName string `json:"username"`
+		ID          string `json:"id"`
+		UserName    string `json:"username"`
 		Description string `json:"description"`
 	} `json:"data"`
 }
@@ -325,16 +322,16 @@ type getOthersProfileResponse struct {
 func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetOthersProfileCommand) (*sns_model.GetOthersProfileResponse, error) {
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	u,err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/by/username/%s",cmd.UserID()))
+	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/by/username/%s", cmd.UserID()))
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	q := u.Query()
-	q.Add("user.fields","description")
+	q.Add("user.fields", "description")
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -344,7 +341,7 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
-	
+
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {
@@ -363,7 +360,7 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 	}
 
 	//MEMO: userIDは1123444555みたいなやつですか？
-	return sns_model.NewGetOthersProfileResponse(j.Data.ID,j.Data.UserName,j.Data.Description,""), nil
+	return sns_model.NewGetOthersProfileResponse(j.Data.ID, j.Data.UserName, j.Data.Description, ""), nil
 }
 func (sns *snsTwitterImpl) ExecuteUpdateMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.UpdateMyProfileCommand) (*sns_model.UpdateMyProfileResponse, error) {
 	return nil, nil
@@ -376,9 +373,9 @@ type getUserIDByAccessTokenResponse struct {
 }
 
 func (sns *snsTwitterImpl) getUserIDByAccessToken(ctx context.Context, accessToken string) (string, error) {
-	u,err := url.Parse("https://api.twitter.com/2/users/me")
+	u, err := url.Parse("https://api.twitter.com/2/users/me")
 	if err != nil {
-		return "",err
+		return "", err
 	}
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -388,7 +385,7 @@ func (sns *snsTwitterImpl) getUserIDByAccessToken(ctx context.Context, accessTok
 
 	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	
+
 	c := http.Client{}
 	resp, err := c.Do(newReq)
 	if err != nil {

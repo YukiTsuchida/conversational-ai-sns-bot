@@ -13,26 +13,25 @@ import (
 
 func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u,err := url.Parse("http://twitter.com/i/oauth2/authorize")
+		u, err := url.Parse("http://twitter.com/i/oauth2/authorize")
 		if err != nil {
-			http.Error(w,"url.Parse failed",http.StatusBadRequest)
+			http.Error(w, "url.Parse failed", http.StatusBadRequest)
 			return
 		}
 
 		//csrf対策, client側で検証する
 		state := randomString(20)
 
-		sCookie := &http.Cookie {
-			Name: "state",
-			Value: state,
-			Path: "/", //cookieを送信するpathを自動で絞り込む
-			Expires: time.Now().Add(60 * time.Minute),
-			Secure: config.IsProd(), //trueの場合httpsのみ送信
+		sCookie := &http.Cookie{
+			Name:     "state",
+			Value:    state,
+			Path:     "/", //cookieを送信するpathを自動で絞り込む
+			Expires:  time.Now().Add(60 * time.Minute),
+			Secure:   config.IsProd(), //trueの場合httpsのみ送信
 			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
 		}
-		http.SetCookie(w,sCookie)
-
+		http.SetCookie(w, sCookie)
 
 		// csrf,認可コード横取り攻撃対策, 認可サーバで検証
 		codeVerifier := randomString(20)
@@ -40,15 +39,15 @@ func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {
 		codeChallenge := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(b[:])
 
 		cCookie := &http.Cookie{
-			Name: "code_verifier",
-			Value: codeVerifier,
-			Path: "/", //cookieを送信するpathを自動で絞り込む
-			Expires: time.Now().Add(60 * time.Minute),
-			Secure: config.IsProd(), //trueの場合httpsのみ送信
+			Name:     "code_verifier",
+			Value:    codeVerifier,
+			Path:     "/", //cookieを送信するpathを自動で絞り込む
+			Expires:  time.Now().Add(60 * time.Minute),
+			Secure:   config.IsProd(), //trueの場合httpsのみ送信
 			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
 		}
-		http.SetCookie(w,cCookie)
+		http.SetCookie(w, cCookie)
 
 		q := u.Query()
 		q.Add("response_type", "code")
@@ -65,11 +64,11 @@ func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {
 }
 
 func randomString(length int) string {
-    var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-    b := make([]rune, length)
-    for i := range b {
-        b[i] = letterRunes[rand.Intn(len(letterRunes))]
-    }
-    return string(b)
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
