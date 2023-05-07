@@ -7,6 +7,13 @@ import (
 
 type Cmd interface {
 	BuildFirstMessage() string
-	BuildNextMessage(cmd *cmd.Command, snsResponse *sns.Response) string
-	ParseCmdsByMessage(message string) []cmd.Command
+	BuildNextMessageCommandNotFound() string
+	BuildNextMessagePostMessage(snsResponse *sns.PostMessageResponse) string
+	BuildNextMessageGetMyMessages(snsResponse *sns.GetMyMessagesResponse) string
+	BuildNextMessageGetOtherMessages(snsResponse *sns.GetOtherMessagesResponse) string
+	BuildNextMessageSearchMessage(snsResponse *sns.SearchMessageResponse) string
+	BuildNextMessageGetMyProfile(snsResponse *sns.GetMyProfileResponse) string
+	BuildNextMessageGetOthersProfile(snsResponse *sns.GetOthersProfileResponse) string
+	BuildNextMessageUpdateMyProfile(snsResponse *sns.UpdateMyProfileResponse) string
+	ParseCmdsByMessage(message string) []*cmd.Command
 }

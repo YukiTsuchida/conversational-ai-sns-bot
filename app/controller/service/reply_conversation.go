@@ -7,6 +7,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
+	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
 )
 
@@ -57,16 +58,64 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 	}
 
 	// cmdをSNSに送信して、どんどんログに追加していく
+	// 複数のコマンドを同時に実行できるようにしているが、基本的には1つのコマンドしか実行されない想定(プロンプトで縛ってるだけなのでAIがプロンプトを無視したらその限りではない)
 	for _, cmd := range cmds {
 		if cmd.IsPostActionPurposeLog() {
 			// purposeログは無視
 			continue
 		}
-		snsRes, err := svc.sns.ExecuteCmd(ctx, account.ID(), &cmd)
+		var nextMessage string
+		if cmd.IsPostMessage() {
+			message, err := cmd.Option("message")
+			if err != nil {
+				// 基本的にパース時にエラーが出るのでオプションは必ず存在する
+				return err
+			}
+			cmd := cmd_model.NewPostMessageCommand(message)
+			snsRes, err := svc.sns.ExecutePostMessageCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessagePostMessage(snsRes)
+		} else if cmd.IsGetMyMessages() {
+			cmd := cmd_model.NewGetMyMessagesCommand()
+			snsRes, err := svc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageGetMyMessages(snsRes)
+		} else if cmd.IsGetOtherMessages() {
+			message, err := cmd.Option("user_id")
+			if err != nil {
+				return err
+			}
+			message, err := cmd.Option("message")
+			if err != nil {
+				return err
+			}
+			cmd := cmd_model.NewGetMyMessagesCommand()
+			snsRes, err := svc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
+			if err != nil {
+				return err
+			}
+			nextMessage = svc.cmd.BuildNextMessageGetMyMessages(snsRes)
+		} else if cmd.IsSearchMessage() {
+		} else if cmd.IsGetMyProfile() {
+		} else if cmd.IsGetOthersProfile() {
+		} else if cmd.IsUpdateMyProfile() {
+		} else {
+			// 存在しない
+			continue
+		}
+		err = svc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err
 		}
-		nextMessage := svc.cmd.BuildNextMessage(&cmd, snsRes)
+	}
+
+	if len(cmds) == 0 {
+		// cmdがない場合は、メッセージが間違ってるよって教える
+		nextMessage := svc.cmd.BuildNextMessageCommandNotFound()
 		err = svc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err

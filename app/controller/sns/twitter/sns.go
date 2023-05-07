@@ -80,7 +80,25 @@ func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, accoun
 	return nil
 }
 
-func (sns *snsTwitterImpl) ExecuteCmd(ctx context.Context, accountID string, cmd *cmd.Command) (*sns_model.Response, error) {
+func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountID string, cmd *cmd.SearchMessageCommand) (*sns_model.SearchMessageResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetMyProfileCommand) (*sns_model.GetMyProfileResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetOthersProfileCommand) (*sns_model.GetOthersProfileResponse, error) {
+	return nil, nil
+}
+func (sns *snsTwitterImpl) ExecuteUpdateMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.UpdateMyProfileCommand) (*sns_model.UpdateMyProfileResponse, error) {
 	return nil, nil
 }
 
