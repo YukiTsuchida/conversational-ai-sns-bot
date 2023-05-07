@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
@@ -37,6 +38,18 @@ func (sns *snsTwitterImpl) FetchAccountByID(ctx context.Context, accountID strin
 	return sns_model.NewAccount(account.TwitterAccountID, conversationIDStr), nil
 }
 
+func (sns *snsTwitterImpl) FetchAccountByConversationID(ctx context.Context, conversationID string) (*sns_model.Account, error) {
+	conversationIDInt, err := strconv.Atoi(conversationID)
+	if err != nil {
+		return nil, err
+	}
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.HasConversationWith(conversations.IDEQ(conversationIDInt))).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return sns_model.NewAccount(account.TwitterAccountID, conversationID), nil
+}
+
 func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential sns_model.Credential) error {
 	c, ok := credential.(*sns_model.OAuth2Credential)
 	if !ok {
@@ -67,7 +80,7 @@ func (sns *snsTwitterImpl) GiveAccountConversationID(ctx context.Context, accoun
 	return nil
 }
 
-func (sns *snsTwitterImpl) ExecuteCmd(ctx context.Context, cmd *cmd.Command) (*sns_model.Response, error) {
+func (sns *snsTwitterImpl) ExecuteCmd(ctx context.Context, accountID string, cmd *cmd.Command) (*sns_model.Response, error) {
 	return nil, nil
 }
 

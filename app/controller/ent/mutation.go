@@ -618,6 +618,7 @@ type ConversationsMutation struct {
 	sns_type      *conversations.SnsType
 	cmd_version   *conversations.CmdVersion
 	is_aborted    *bool
+	abort_reason  *string
 	created_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
@@ -867,6 +868,55 @@ func (m *ConversationsMutation) ResetIsAborted() {
 	m.is_aborted = nil
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (m *ConversationsMutation) SetAbortReason(s string) {
+	m.abort_reason = &s
+}
+
+// AbortReason returns the value of the "abort_reason" field in the mutation.
+func (m *ConversationsMutation) AbortReason() (r string, exists bool) {
+	v := m.abort_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAbortReason returns the old "abort_reason" field's value of the Conversations entity.
+// If the Conversations object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ConversationsMutation) OldAbortReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAbortReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAbortReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAbortReason: %w", err)
+	}
+	return oldValue.AbortReason, nil
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (m *ConversationsMutation) ClearAbortReason() {
+	m.abort_reason = nil
+	m.clearedFields[conversations.FieldAbortReason] = struct{}{}
+}
+
+// AbortReasonCleared returns if the "abort_reason" field was cleared in this mutation.
+func (m *ConversationsMutation) AbortReasonCleared() bool {
+	_, ok := m.clearedFields[conversations.FieldAbortReason]
+	return ok
+}
+
+// ResetAbortReason resets all changes to the "abort_reason" field.
+func (m *ConversationsMutation) ResetAbortReason() {
+	m.abort_reason = nil
+	delete(m.clearedFields, conversations.FieldAbortReason)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *ConversationsMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -937,7 +987,7 @@ func (m *ConversationsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConversationsMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.ai_model != nil {
 		fields = append(fields, conversations.FieldAiModel)
 	}
@@ -949,6 +999,9 @@ func (m *ConversationsMutation) Fields() []string {
 	}
 	if m.is_aborted != nil {
 		fields = append(fields, conversations.FieldIsAborted)
+	}
+	if m.abort_reason != nil {
+		fields = append(fields, conversations.FieldAbortReason)
 	}
 	if m.created_at != nil {
 		fields = append(fields, conversations.FieldCreatedAt)
@@ -969,6 +1022,8 @@ func (m *ConversationsMutation) Field(name string) (ent.Value, bool) {
 		return m.CmdVersion()
 	case conversations.FieldIsAborted:
 		return m.IsAborted()
+	case conversations.FieldAbortReason:
+		return m.AbortReason()
 	case conversations.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -988,6 +1043,8 @@ func (m *ConversationsMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldCmdVersion(ctx)
 	case conversations.FieldIsAborted:
 		return m.OldIsAborted(ctx)
+	case conversations.FieldAbortReason:
+		return m.OldAbortReason(ctx)
 	case conversations.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -1027,6 +1084,13 @@ func (m *ConversationsMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsAborted(v)
 		return nil
+	case conversations.FieldAbortReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAbortReason(v)
+		return nil
 	case conversations.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -1063,7 +1127,11 @@ func (m *ConversationsMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ConversationsMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(conversations.FieldAbortReason) {
+		fields = append(fields, conversations.FieldAbortReason)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1076,6 +1144,11 @@ func (m *ConversationsMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ConversationsMutation) ClearField(name string) error {
+	switch name {
+	case conversations.FieldAbortReason:
+		m.ClearAbortReason()
+		return nil
+	}
 	return fmt.Errorf("unknown Conversations nullable field %s", name)
 }
 
@@ -1094,6 +1167,9 @@ func (m *ConversationsMutation) ResetField(name string) error {
 		return nil
 	case conversations.FieldIsAborted:
 		m.ResetIsAborted()
+		return nil
+	case conversations.FieldAbortReason:
+		m.ResetAbortReason()
 		return nil
 	case conversations.FieldCreatedAt:
 		m.ResetCreatedAt()

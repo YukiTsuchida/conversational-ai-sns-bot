@@ -22,6 +22,8 @@ const (
 	FieldCmdVersion = "cmd_version"
 	// FieldIsAborted holds the string denoting the is_aborted field in the database.
 	FieldIsAborted = "is_aborted"
+	// FieldAbortReason holds the string denoting the abort_reason field in the database.
+	FieldAbortReason = "abort_reason"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the conversations in the database.
@@ -35,6 +37,7 @@ var Columns = []string{
 	FieldSnsType,
 	FieldCmdVersion,
 	FieldIsAborted,
+	FieldAbortReason,
 	FieldCreatedAt,
 }
 
@@ -147,6 +150,11 @@ func ByCmdVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByIsAborted orders the results by the is_aborted field.
 func ByIsAborted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsAborted, opts...).ToFunc()
+}
+
+// ByAbortReason orders the results by the abort_reason field.
+func ByAbortReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAbortReason, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

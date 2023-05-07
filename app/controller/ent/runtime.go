@@ -32,7 +32,7 @@ func init() {
 	// conversations.DefaultIsAborted holds the default value on creation for the is_aborted field.
 	conversations.DefaultIsAborted = conversationsDescIsAborted.Default.(bool)
 	// conversationsDescCreatedAt is the schema descriptor for created_at field.
-	conversationsDescCreatedAt := conversationsFields[4].Descriptor()
+	conversationsDescCreatedAt := conversationsFields[5].Descriptor()
 	// conversations.DefaultCreatedAt holds the default value on creation for the created_at field.
 	conversations.DefaultCreatedAt = conversationsDescCreatedAt.Default.(func() time.Time)
 	twitteraccountsFields := schema.TwitterAccounts{}.Fields()

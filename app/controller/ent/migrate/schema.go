@@ -38,6 +38,7 @@ var (
 		{Name: "sns_type", Type: field.TypeEnum, Enums: []string{"twitter"}},
 		{Name: "cmd_version", Type: field.TypeEnum, Enums: []string{"v0_1"}},
 		{Name: "is_aborted", Type: field.TypeBool, Default: false},
+		{Name: "abort_reason", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 	}
 	// ConversationsTable holds the schema information for the "conversations" table.
