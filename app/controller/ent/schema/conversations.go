@@ -20,6 +20,7 @@ func (Conversations) Fields() []ent.Field {
 		field.Enum("sns_type").Values("twitter"),
 		field.Enum("cmd_version").Values("v0_1"),
 		field.Bool("is_aborted").Default(false),
+		field.String("abort_reason").Optional(),
 		field.Time("created_at").
 			Default(time.Now).
 			Annotations(

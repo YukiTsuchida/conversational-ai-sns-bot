@@ -25,6 +25,8 @@ type Conversations struct {
 	CmdVersion conversations.CmdVersion `json:"cmd_version,omitempty"`
 	// IsAborted holds the value of the "is_aborted" field.
 	IsAborted bool `json:"is_aborted,omitempty"`
+	// AbortReason holds the value of the "abort_reason" field.
+	AbortReason string `json:"abort_reason,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -39,7 +41,7 @@ func (*Conversations) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case conversations.FieldID:
 			values[i] = new(sql.NullInt64)
-		case conversations.FieldAiModel, conversations.FieldSnsType, conversations.FieldCmdVersion:
+		case conversations.FieldAiModel, conversations.FieldSnsType, conversations.FieldCmdVersion, conversations.FieldAbortReason:
 			values[i] = new(sql.NullString)
 		case conversations.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -87,6 +89,12 @@ func (c *Conversations) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_aborted", values[i])
 			} else if value.Valid {
 				c.IsAborted = value.Bool
+			}
+		case conversations.FieldAbortReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field abort_reason", values[i])
+			} else if value.Valid {
+				c.AbortReason = value.String
 			}
 		case conversations.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -141,6 +149,9 @@ func (c *Conversations) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_aborted=")
 	builder.WriteString(fmt.Sprintf("%v", c.IsAborted))
+	builder.WriteString(", ")
+	builder.WriteString("abort_reason=")
+	builder.WriteString(c.AbortReason)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(c.CreatedAt.Format(time.ANSIC))

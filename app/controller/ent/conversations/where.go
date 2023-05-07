@@ -59,6 +59,11 @@ func IsAborted(v bool) predicate.Conversations {
 	return predicate.Conversations(sql.FieldEQ(FieldIsAborted, v))
 }
 
+// AbortReason applies equality check predicate on the "abort_reason" field. It's identical to AbortReasonEQ.
+func AbortReason(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldEQ(FieldAbortReason, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Conversations {
 	return predicate.Conversations(sql.FieldEQ(FieldCreatedAt, v))
@@ -132,6 +137,81 @@ func IsAbortedEQ(v bool) predicate.Conversations {
 // IsAbortedNEQ applies the NEQ predicate on the "is_aborted" field.
 func IsAbortedNEQ(v bool) predicate.Conversations {
 	return predicate.Conversations(sql.FieldNEQ(FieldIsAborted, v))
+}
+
+// AbortReasonEQ applies the EQ predicate on the "abort_reason" field.
+func AbortReasonEQ(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldEQ(FieldAbortReason, v))
+}
+
+// AbortReasonNEQ applies the NEQ predicate on the "abort_reason" field.
+func AbortReasonNEQ(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldNEQ(FieldAbortReason, v))
+}
+
+// AbortReasonIn applies the In predicate on the "abort_reason" field.
+func AbortReasonIn(vs ...string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldIn(FieldAbortReason, vs...))
+}
+
+// AbortReasonNotIn applies the NotIn predicate on the "abort_reason" field.
+func AbortReasonNotIn(vs ...string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldNotIn(FieldAbortReason, vs...))
+}
+
+// AbortReasonGT applies the GT predicate on the "abort_reason" field.
+func AbortReasonGT(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldGT(FieldAbortReason, v))
+}
+
+// AbortReasonGTE applies the GTE predicate on the "abort_reason" field.
+func AbortReasonGTE(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldGTE(FieldAbortReason, v))
+}
+
+// AbortReasonLT applies the LT predicate on the "abort_reason" field.
+func AbortReasonLT(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldLT(FieldAbortReason, v))
+}
+
+// AbortReasonLTE applies the LTE predicate on the "abort_reason" field.
+func AbortReasonLTE(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldLTE(FieldAbortReason, v))
+}
+
+// AbortReasonContains applies the Contains predicate on the "abort_reason" field.
+func AbortReasonContains(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldContains(FieldAbortReason, v))
+}
+
+// AbortReasonHasPrefix applies the HasPrefix predicate on the "abort_reason" field.
+func AbortReasonHasPrefix(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldHasPrefix(FieldAbortReason, v))
+}
+
+// AbortReasonHasSuffix applies the HasSuffix predicate on the "abort_reason" field.
+func AbortReasonHasSuffix(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldHasSuffix(FieldAbortReason, v))
+}
+
+// AbortReasonIsNil applies the IsNil predicate on the "abort_reason" field.
+func AbortReasonIsNil() predicate.Conversations {
+	return predicate.Conversations(sql.FieldIsNull(FieldAbortReason))
+}
+
+// AbortReasonNotNil applies the NotNil predicate on the "abort_reason" field.
+func AbortReasonNotNil() predicate.Conversations {
+	return predicate.Conversations(sql.FieldNotNull(FieldAbortReason))
+}
+
+// AbortReasonEqualFold applies the EqualFold predicate on the "abort_reason" field.
+func AbortReasonEqualFold(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldEqualFold(FieldAbortReason, v))
+}
+
+// AbortReasonContainsFold applies the ContainsFold predicate on the "abort_reason" field.
+func AbortReasonContainsFold(v string) predicate.Conversations {
+	return predicate.Conversations(sql.FieldContainsFold(FieldAbortReason, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

@@ -52,6 +52,20 @@ func (cc *ConversationsCreate) SetNillableIsAborted(b *bool) *ConversationsCreat
 	return cc
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (cc *ConversationsCreate) SetAbortReason(s string) *ConversationsCreate {
+	cc.mutation.SetAbortReason(s)
+	return cc
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (cc *ConversationsCreate) SetNillableAbortReason(s *string) *ConversationsCreate {
+	if s != nil {
+		cc.SetAbortReason(*s)
+	}
+	return cc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (cc *ConversationsCreate) SetCreatedAt(t time.Time) *ConversationsCreate {
 	cc.mutation.SetCreatedAt(t)
@@ -184,6 +198,10 @@ func (cc *ConversationsCreate) createSpec() (*Conversations, *sqlgraph.CreateSpe
 	if value, ok := cc.mutation.IsAborted(); ok {
 		_spec.SetField(conversations.FieldIsAborted, field.TypeBool, value)
 		_node.IsAborted = value
+	}
+	if value, ok := cc.mutation.AbortReason(); ok {
+		_spec.SetField(conversations.FieldAbortReason, field.TypeString, value)
+		_node.AbortReason = value
 	}
 	if value, ok := cc.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)

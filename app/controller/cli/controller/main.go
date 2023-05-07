@@ -25,6 +25,7 @@ func main() {
 	})
 	r.Post("/accounts/twitter", handler.RegisterTwitterAccountHandler(db))
 	r.Post("/conversations/twitter", handler.StartTwitterConversationHandler(db))
+	r.Post("/conversations/:id/reply", handler.ReplyConversationHandler(db))
 
 	// twitter auth
 	r.Get("/accounts/twitter_login", handler.LoginTwitterAccountHandler())

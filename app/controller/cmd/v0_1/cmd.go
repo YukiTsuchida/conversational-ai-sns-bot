@@ -53,11 +53,29 @@ Your goal is to get closer to more people through social networking. What would 
 }
 
 func (cmd *cmdV0_1Impl) BuildNextMessage(req *cmd_model.Command, res *sns.Response) string {
-	return ""
+	var nextMessage string
+	if req.IsPostMessage() {
+		nextMessage = `
+		Your message has been posted.
+		What do you want to do next?
+		`
+	} // 全パターン列挙する
+	return nextMessage
 }
 
 func (cmd *cmdV0_1Impl) ParseCmdsByMessage(message string) []cmd_model.Command {
+	// var cmds []cmd_model.Command
+	// lines := strings.Split(message, "\n")
+	// for _, line := range lines {
+	// 	if line.Contains("PostMessage") {
+
+	// 	}
+	// }
 	return nil
+}
+
+func parseOption(line string, optionName string) string {
+	return ""
 }
 
 func NewCmdV0_1Impl() cmd.Cmd {

@@ -60,6 +60,26 @@ func (cu *ConversationsUpdate) SetNillableIsAborted(b *bool) *ConversationsUpdat
 	return cu
 }
 
+// SetAbortReason sets the "abort_reason" field.
+func (cu *ConversationsUpdate) SetAbortReason(s string) *ConversationsUpdate {
+	cu.mutation.SetAbortReason(s)
+	return cu
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (cu *ConversationsUpdate) SetNillableAbortReason(s *string) *ConversationsUpdate {
+	if s != nil {
+		cu.SetAbortReason(*s)
+	}
+	return cu
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (cu *ConversationsUpdate) ClearAbortReason() *ConversationsUpdate {
+	cu.mutation.ClearAbortReason()
+	return cu
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (cu *ConversationsUpdate) SetCreatedAt(t time.Time) *ConversationsUpdate {
 	cu.mutation.SetCreatedAt(t)
@@ -150,6 +170,12 @@ func (cu *ConversationsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.IsAborted(); ok {
 		_spec.SetField(conversations.FieldIsAborted, field.TypeBool, value)
 	}
+	if value, ok := cu.mutation.AbortReason(); ok {
+		_spec.SetField(conversations.FieldAbortReason, field.TypeString, value)
+	}
+	if cu.mutation.AbortReasonCleared() {
+		_spec.ClearField(conversations.FieldAbortReason, field.TypeString)
+	}
 	if value, ok := cu.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
 	}
@@ -202,6 +228,26 @@ func (cuo *ConversationsUpdateOne) SetNillableIsAborted(b *bool) *ConversationsU
 	if b != nil {
 		cuo.SetIsAborted(*b)
 	}
+	return cuo
+}
+
+// SetAbortReason sets the "abort_reason" field.
+func (cuo *ConversationsUpdateOne) SetAbortReason(s string) *ConversationsUpdateOne {
+	cuo.mutation.SetAbortReason(s)
+	return cuo
+}
+
+// SetNillableAbortReason sets the "abort_reason" field if the given value is not nil.
+func (cuo *ConversationsUpdateOne) SetNillableAbortReason(s *string) *ConversationsUpdateOne {
+	if s != nil {
+		cuo.SetAbortReason(*s)
+	}
+	return cuo
+}
+
+// ClearAbortReason clears the value of the "abort_reason" field.
+func (cuo *ConversationsUpdateOne) ClearAbortReason() *ConversationsUpdateOne {
+	cuo.mutation.ClearAbortReason()
 	return cuo
 }
 
@@ -324,6 +370,12 @@ func (cuo *ConversationsUpdateOne) sqlSave(ctx context.Context) (_node *Conversa
 	}
 	if value, ok := cuo.mutation.IsAborted(); ok {
 		_spec.SetField(conversations.FieldIsAborted, field.TypeBool, value)
+	}
+	if value, ok := cuo.mutation.AbortReason(); ok {
+		_spec.SetField(conversations.FieldAbortReason, field.TypeString, value)
+	}
+	if cuo.mutation.AbortReasonCleared() {
+		_spec.ClearField(conversations.FieldAbortReason, field.TypeString)
 	}
 	if value, ok := cuo.mutation.CreatedAt(); ok {
 		_spec.SetField(conversations.FieldCreatedAt, field.TypeTime, value)
