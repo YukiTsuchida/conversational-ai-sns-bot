@@ -2,6 +2,7 @@ package twitter
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
@@ -36,8 +37,18 @@ func (sns *snsTwitterImpl) FetchAccountByID(ctx context.Context, accountID strin
 	return sns_model.NewAccount(account.TwitterAccountID, conversationIDStr), nil
 }
 
-func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential string) error {
-	_, err := sns.db.TwitterAccounts.Create().SetTwitterAccountID(accountID).SetBearerToken(credential).Save(ctx)
+func (sns *snsTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential sns_model.Credential) error {
+	c, ok := credential.(*sns_model.OAuth2Credential)
+	if !ok {
+		return fmt.Errorf("oauth2 credential parse failed")
+	}
+
+	accessToken, refreshToken := c.GetTokens()
+	_, err := sns.db.TwitterAccounts.Create().
+		SetTwitterAccountID(accountID).
+		SetAccessToken(accessToken).
+		SetRefreshToken(refreshToken).
+		Save(ctx)
 	if err != nil {
 		return err
 	}

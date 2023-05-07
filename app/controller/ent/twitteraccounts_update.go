@@ -35,9 +35,15 @@ func (tau *TwitterAccountsUpdate) SetTwitterAccountID(s string) *TwitterAccounts
 	return tau
 }
 
-// SetBearerToken sets the "bearer_token" field.
-func (tau *TwitterAccountsUpdate) SetBearerToken(s string) *TwitterAccountsUpdate {
-	tau.mutation.SetBearerToken(s)
+// SetAccessToken sets the "access_token" field.
+func (tau *TwitterAccountsUpdate) SetAccessToken(s string) *TwitterAccountsUpdate {
+	tau.mutation.SetAccessToken(s)
+	return tau
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (tau *TwitterAccountsUpdate) SetRefreshToken(s string) *TwitterAccountsUpdate {
+	tau.mutation.SetRefreshToken(s)
 	return tau
 }
 
@@ -133,9 +139,14 @@ func (tau *TwitterAccountsUpdate) check() error {
 			return &ValidationError{Name: "twitter_account_id", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.twitter_account_id": %w`, err)}
 		}
 	}
-	if v, ok := tau.mutation.BearerToken(); ok {
-		if err := twitteraccounts.BearerTokenValidator(v); err != nil {
-			return &ValidationError{Name: "bearer_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.bearer_token": %w`, err)}
+	if v, ok := tau.mutation.AccessToken(); ok {
+		if err := twitteraccounts.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.access_token": %w`, err)}
+		}
+	}
+	if v, ok := tau.mutation.RefreshToken(); ok {
+		if err := twitteraccounts.RefreshTokenValidator(v); err != nil {
+			return &ValidationError{Name: "refresh_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.refresh_token": %w`, err)}
 		}
 	}
 	return nil
@@ -156,8 +167,11 @@ func (tau *TwitterAccountsUpdate) sqlSave(ctx context.Context) (n int, err error
 	if value, ok := tau.mutation.TwitterAccountID(); ok {
 		_spec.SetField(twitteraccounts.FieldTwitterAccountID, field.TypeString, value)
 	}
-	if value, ok := tau.mutation.BearerToken(); ok {
-		_spec.SetField(twitteraccounts.FieldBearerToken, field.TypeString, value)
+	if value, ok := tau.mutation.AccessToken(); ok {
+		_spec.SetField(twitteraccounts.FieldAccessToken, field.TypeString, value)
+	}
+	if value, ok := tau.mutation.RefreshToken(); ok {
+		_spec.SetField(twitteraccounts.FieldRefreshToken, field.TypeString, value)
 	}
 	if value, ok := tau.mutation.CreatedAt(); ok {
 		_spec.SetField(twitteraccounts.FieldCreatedAt, field.TypeTime, value)
@@ -220,9 +234,15 @@ func (tauo *TwitterAccountsUpdateOne) SetTwitterAccountID(s string) *TwitterAcco
 	return tauo
 }
 
-// SetBearerToken sets the "bearer_token" field.
-func (tauo *TwitterAccountsUpdateOne) SetBearerToken(s string) *TwitterAccountsUpdateOne {
-	tauo.mutation.SetBearerToken(s)
+// SetAccessToken sets the "access_token" field.
+func (tauo *TwitterAccountsUpdateOne) SetAccessToken(s string) *TwitterAccountsUpdateOne {
+	tauo.mutation.SetAccessToken(s)
+	return tauo
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (tauo *TwitterAccountsUpdateOne) SetRefreshToken(s string) *TwitterAccountsUpdateOne {
+	tauo.mutation.SetRefreshToken(s)
 	return tauo
 }
 
@@ -331,9 +351,14 @@ func (tauo *TwitterAccountsUpdateOne) check() error {
 			return &ValidationError{Name: "twitter_account_id", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.twitter_account_id": %w`, err)}
 		}
 	}
-	if v, ok := tauo.mutation.BearerToken(); ok {
-		if err := twitteraccounts.BearerTokenValidator(v); err != nil {
-			return &ValidationError{Name: "bearer_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.bearer_token": %w`, err)}
+	if v, ok := tauo.mutation.AccessToken(); ok {
+		if err := twitteraccounts.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.access_token": %w`, err)}
+		}
+	}
+	if v, ok := tauo.mutation.RefreshToken(); ok {
+		if err := twitteraccounts.RefreshTokenValidator(v); err != nil {
+			return &ValidationError{Name: "refresh_token", err: fmt.Errorf(`ent: validator failed for field "TwitterAccounts.refresh_token": %w`, err)}
 		}
 	}
 	return nil
@@ -371,8 +396,11 @@ func (tauo *TwitterAccountsUpdateOne) sqlSave(ctx context.Context) (_node *Twitt
 	if value, ok := tauo.mutation.TwitterAccountID(); ok {
 		_spec.SetField(twitteraccounts.FieldTwitterAccountID, field.TypeString, value)
 	}
-	if value, ok := tauo.mutation.BearerToken(); ok {
-		_spec.SetField(twitteraccounts.FieldBearerToken, field.TypeString, value)
+	if value, ok := tauo.mutation.AccessToken(); ok {
+		_spec.SetField(twitteraccounts.FieldAccessToken, field.TypeString, value)
+	}
+	if value, ok := tauo.mutation.RefreshToken(); ok {
+		_spec.SetField(twitteraccounts.FieldRefreshToken, field.TypeString, value)
 	}
 	if value, ok := tauo.mutation.CreatedAt(); ok {
 		_spec.SetField(twitteraccounts.FieldCreatedAt, field.TypeTime, value)

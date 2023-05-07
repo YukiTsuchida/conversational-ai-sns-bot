@@ -54,3 +54,27 @@ func CONVERSATION_RATE_PER_SECOND() float64 {
 func CHATGPT_API_KEY() string {
 	return os.Getenv("CHATGPT_API_KEY")
 }
+
+func TWITTER_CLIENT_ID() string {
+	return os.Getenv("TWITTER_CLIENT_ID")
+}
+
+func TWITTER_CALLBACK_URL() string {
+	return os.Getenv("TWITTER_CALLBACK_URL")
+}
+
+func TWITTER_CLIENT_SECRET() string {
+	return os.Getenv("TWITTER_CLIENT_SECRET")
+}
+
+func ENVIRONMENT() string {
+	return os.Getenv("ENVIRONMENT")
+}
+
+func IsDevelop() bool {
+	return ENVIRONMENT() == "develop"
+}
+
+func IsProd() bool {
+	return ENVIRONMENT() == "prod"
+}

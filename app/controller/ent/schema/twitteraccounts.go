@@ -18,7 +18,8 @@ type TwitterAccounts struct {
 func (TwitterAccounts) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("twitter_account_id").NotEmpty().Unique(),
-		field.String("bearer_token").NotEmpty(),
+		field.String("access_token").NotEmpty(),
+		field.String("refresh_token").NotEmpty(),
 		field.Time("created_at").
 			Default(time.Now).
 			Annotations(

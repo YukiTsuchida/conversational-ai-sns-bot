@@ -54,7 +54,7 @@ curl localhost:8080/health
 DBを初期化して起動する。
 
 ```sh
-docker-compose up -d --renew-anon-volumes
+docker-compose down && docker-compose up -d --renew-anon-volumes
 goose -dir ./ent/migrate/migrations postgres "host=localhost port=5432 user=admin password=admin dbname=db sslmode=disable" up # tableを初期化
 ```
 
@@ -84,3 +84,11 @@ PGPASSWORD=admin docker-compose exec postgresql psql -d db -U admin -c "\dt"
 ```
 
 詳しくは[entの公式ドキュメント](https://entgo.io/ja/docs/getting-started)も参考にしてください。
+
+## DBへの接続
+
+DBコンテナに接続するには以下のコマンドを実行してください。
+
+```
+docker-compose exec postgresql psql -Uadmin -ddb
+```
