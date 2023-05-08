@@ -26,7 +26,6 @@ type ReplyConversationRequest struct {
 func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
 
 	conversationRepo := conversation.NewConversationRepository(db)
-	abortConversationService := service.NewAbortConversationService(conversationRepo)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req ReplyConversationRequest
@@ -73,6 +72,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			return
 		}
 		replyConversationService := service.NewReplyConversationService(sns, cmd, ai, conversationRepo)
+		abortConversationService := service.NewAbortConversationService(sns, conversationRepo)
 
 		// エラーがあればconversationをabortする
 		if req.ErrMessage != "" {

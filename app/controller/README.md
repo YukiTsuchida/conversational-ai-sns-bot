@@ -58,6 +58,24 @@ docker-compose down && docker-compose up -d --renew-anon-volumes
 goose -dir ./ent/migrate/migrations postgres "host=localhost port=5432 user=admin password=admin dbname=db sslmode=disable" up # tableを初期化
 ```
 
+### twitter bot動かし方
+
+http://localhost:8080/accounts/twitter_login にアクセスするとtwitterの認可画面が表示されるので許可する。
+
+以下のcurlコマンドでbotが動き出す。
+
+```sh
+curl -X POST localhost:8080/conversations/twitter -d '{"twitter_id":"hoge","ai_model":"gpt-3.5-turbo","cmd_version":"v0.1"}'
+```
+
+以下のcurlコマンドでbotを停止できる。
+
+```sh
+curl -X DELETE http://localhost:8080/conversations/twitter -d '{"twitter_id":"hoge"}'
+```
+
+
+
 ## DBのマイグレーションについて
 
 DBのスキーマ管理にentを利用しています。

@@ -17,3 +17,7 @@ func (account Account) IsInConversations() bool {
 func (account Account) ID() string {
 	return account.id
 }
+
+func (account Account) ConversationID() string {
+	return account.conversationID
+}

@@ -20,6 +20,7 @@ services:
       CLOUDTASKS_HOST: gcloud-tasks-emulator
       CLOUDTASKS_PARENT: projects/dev/locations/here
       CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する
+      SLEEP_TIME_FOR_REPLY_SECONDS: 30 # ローカル環境だと↑の理由によりbotが高速に回ってしまうので、適度にsleepさせる
       SELF_HOST: http://controller:8080
       REQUESTOR_HOST: http://ai-requestor:8080
       TWITTER_CALLBACK_URL: http://localhost:8080/accounts/twitter_callback
