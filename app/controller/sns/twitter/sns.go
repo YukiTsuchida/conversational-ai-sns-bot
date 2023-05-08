@@ -285,8 +285,8 @@ func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accou
 
 type searchMessagesResponse struct {
 	Data []struct {
-		ID   string `json:"id"`
-		Text string `json:"text"`
+		AuthorID string `json:"author_id"`
+		Text     string `json:"text"`
 	} `json:"data"`
 }
 
@@ -304,6 +304,7 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 	q := u.Query()
 	q.Add("query", fmt.Sprintf("%s -is:retweet", cmd.Query()))
 	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults()))
+	q.Add("tweet.fields", "author_id")
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -342,7 +343,7 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 
 	var messages []sns_model.SearchMessageMessage
 	for _, m := range j.Data {
-		messages = append(messages, sns_model.NewSearchMessageMessage(m.ID, m.Text))
+		messages = append(messages, sns_model.NewSearchMessageMessage(m.AuthorID, m.Text))
 	}
 
 	return sns_model.NewSearchMessageResponse(messages, ""), nil
