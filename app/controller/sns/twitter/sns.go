@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 
@@ -97,9 +98,7 @@ func (sns *snsTwitterImpl) RemoveAccountConversationID(ctx context.Context, acco
 }
 
 type postMessageRequest struct {
-	Data struct {
-		Text string `json:"text"`
-	} `json:"data"`
+	Text string `json:"text"`
 }
 
 func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
@@ -114,7 +113,7 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 	}
 
 	r := postMessageRequest{}
-	r.Data.Text = cmd.Message()
+	r.Text = cmd.Message()
 
 	b, _ := json.Marshal(r)
 
@@ -123,7 +122,7 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 		return nil, err
 	}
 
-	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	newReq.Header.Set("Content-Type", "application/json")
 	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
 
 	c := http.Client{}
@@ -134,7 +133,14 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 	defer resp.Body.Close()
 
 	// TODO: errorハンドリングもっと丁寧にする
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
 		return sns_model.NewPostMessageResponse("post tweet failed"), fmt.Errorf("twitter API error")
 	}
 
@@ -185,6 +191,13 @@ func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountI
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
 		return sns_model.NewGetMyMessagesResponse(nil, "get my messages failed"), fmt.Errorf("twitter API error")
 	}
 
@@ -214,6 +227,9 @@ func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accou
 		return nil, err
 	}
 
+	fmt.Println(cmd.UserID())
+	fmt.Println(cmd.MaxResults())
+
 	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/%s/tweets", cmd.UserID()))
 	if err != nil {
 		return nil, err
@@ -241,7 +257,17 @@ func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accou
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return sns_model.NewGetOtherMessagesResponse(nil, "get other messages failed"), fmt.Errorf("twitter API error")
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
+		if resp.StatusCode == http.StatusNotFound {
+			return sns_model.NewGetOtherMessagesResponse(nil, "user_id not found."), nil
+		}
+		return nil, fmt.Errorf("twitter API error")
 	}
 
 	var j getOtherMessagesResponse
@@ -297,7 +323,16 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return sns_model.NewSearchMessageResponse(nil, "search message failed"), fmt.Errorf("twitter API error")
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewSearchMessageResponse(nil, "invalid request."), nil
+		}
+		return nil, fmt.Errorf("twitter API error")
 	}
 
 	var j searchMessagesResponse
@@ -315,7 +350,7 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 
 type getMyProfileResponse struct {
 	Data struct {
-		UserName    string `json:"username"`
+		Name        string `json:"name"`
 		Description string `json:"description"`
 	} `json:"data"`
 }
@@ -352,6 +387,13 @@ func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
 		return sns_model.NewGetMyProfileResponse("", "", "get my profile failed"), fmt.Errorf("twitter API error")
 	}
 
@@ -360,7 +402,7 @@ func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID
 		return nil, err
 	}
 
-	return sns_model.NewGetMyProfileResponse(j.Data.UserName, j.Data.Description, ""), nil
+	return sns_model.NewGetMyProfileResponse(j.Data.Name, j.Data.Description, ""), nil
 }
 
 type getOthersProfileResponse struct {
@@ -377,7 +419,7 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 		return nil, err
 	}
 
-	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/by/username/%s", cmd.UserID()))
+	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/%s", cmd.UserID()))
 	if err != nil {
 		return nil, err
 	}
@@ -403,6 +445,13 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
 		return sns_model.NewGetOthersProfileResponse("", "", "", fmt.Sprintf("userID (%s) not found", cmd.UserID())), fmt.Errorf("get other twitter account failed")
 	}
 
@@ -415,7 +464,7 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 	return sns_model.NewGetOthersProfileResponse(j.Data.ID, j.Data.UserName, j.Data.Description, ""), nil
 }
 func (sns *snsTwitterImpl) ExecuteUpdateMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.UpdateMyProfileCommand) (*sns_model.UpdateMyProfileResponse, error) {
-	return nil, nil
+	return sns_model.NewUpdateMyProfileResponse("this command is not implemented."), nil
 }
 
 type getUserIDByAccessTokenResponse struct {
@@ -447,6 +496,13 @@ func (sns *snsTwitterImpl) getUserIDByAccessToken(ctx context.Context, accessTok
 
 	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
+		// respをdumpする
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(b))
+		}
 		return "", fmt.Errorf("twitter API error")
 	}
 

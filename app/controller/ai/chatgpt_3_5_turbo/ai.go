@@ -140,7 +140,7 @@ func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID
 	request := Request{
 		CallBackUrl: config.SELF_HOST() + "/conversations/" + conversationID + "/reply",
 		AIModel:     modelName,
-		Temperature: "1.0",
+		Temperature: "0.8",
 		Messages:    messages,
 	}
 

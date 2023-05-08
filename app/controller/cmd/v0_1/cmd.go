@@ -34,7 +34,7 @@ Get a list of other people's messages
 
 Search other people's messages
 - Command: SearchMessage:query={"keyword to search"}&max_results={10}
-    - max_results is a number from 10 to 10
+    - max_results is a number from 10 to 20
 
 Get my user information
 - Command: GetMyProfile
@@ -356,7 +356,7 @@ func parseOption(line string, optionName string) string {
 		return ""
 	}
 
-	// PostMessage:message={"Message to be posted"}?max_results={10} のような文字列から「Message to be posted」を抽出する
+	// PostMessage:message={"Message to be posted"}&max_results={10} のような文字列から「Message to be posted」を抽出する
 	regexp := regexp.MustCompile(optionName + `=(.*)`)
 	matches := regexp.FindStringSubmatch(line)
 	if len(matches) != 2 {
@@ -365,8 +365,8 @@ func parseOption(line string, optionName string) string {
 	}
 	val := matches[1]
 
-	// ?以降を削除する
-	val = strings.Split(val, "?")[0]
+	// &以降を削除する
+	val = strings.Split(val, "&")[0]
 
 	val = strings.TrimSuffix(val, `.`)
 
