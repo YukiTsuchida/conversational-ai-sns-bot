@@ -133,9 +133,9 @@ func (sns *snsTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID 
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get my twitter account failed")
+		return sns_model.NewPostMessageResponse("post tweet failed"), fmt.Errorf("twitter API error")
 	}
 
 	return sns_model.NewPostMessageResponse(""), nil
@@ -183,9 +183,9 @@ func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountI
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get my twitter account failed")
+		return sns_model.NewGetMyMessagesResponse(nil, "get my messages failed"), fmt.Errorf("twitter API error")
 	}
 
 	var j getMyMessagesResponse
@@ -201,8 +201,60 @@ func (sns *snsTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountI
 	return sns_model.NewGetMyMessagesResponse(messages, ""), nil
 }
 
+type getOtherMessagesResponse struct {
+	Data []struct {
+		ID   string `json:"id"`
+		Text string `json:"text"`
+	} `json:"data"`
+}
+
 func (sns *snsTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
-	return nil, nil
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	u, err := url.Parse(fmt.Sprintf("https://api.twitter.com/2/users/%s/tweets", cmd.UserID()))
+	if err != nil {
+		return nil, err
+	}
+
+	q := u.Query()
+	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults())) //min:5, max: 100
+	q.Add("exclude", "retweets,replies")
+	u.RawQuery = q.Encode()
+
+	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	newReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
+
+	c := http.Client{}
+	resp, err := c.Do(newReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// TODO: errorハンドリングもっと丁寧にする
+	if resp.StatusCode != http.StatusOK {
+		return sns_model.NewGetOtherMessagesResponse(nil, "get other messages failed"), fmt.Errorf("twitter API error")
+	}
+
+	var j getOtherMessagesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&j); err != nil {
+		return nil, err
+	}
+
+	var messages []sns_model.GetOtherMessagesMessage
+	for _, m := range j.Data {
+		messages = append(messages, sns_model.NewGetOtherMessagesMessage(m.ID, m.Text))
+	}
+
+	return sns_model.NewGetOtherMessagesResponse(messages, ""), nil
 }
 
 type searchMessagesResponse struct {
@@ -243,9 +295,9 @@ func (sns *snsTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountI
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get my twitter account failed")
+		return sns_model.NewSearchMessageResponse(nil, "search message failed"), fmt.Errorf("twitter API error")
 	}
 
 	var j searchMessagesResponse
@@ -298,9 +350,9 @@ func (sns *snsTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get my twitter account failed")
+		return sns_model.NewGetMyProfileResponse("", "", "get my profile failed"), fmt.Errorf("twitter API error")
 	}
 
 	var j getMyProfileResponse
@@ -349,9 +401,9 @@ func (sns *snsTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accou
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get other twitter account failed")
+		return sns_model.NewGetOthersProfileResponse("", "", "", fmt.Sprintf("userID (%s) not found", cmd.UserID())), fmt.Errorf("get other twitter account failed")
 	}
 
 	var j getOthersProfileResponse
@@ -393,9 +445,9 @@ func (sns *snsTwitterImpl) getUserIDByAccessToken(ctx context.Context, accessTok
 	}
 	defer resp.Body.Close()
 
-	//TODO: twitter error handling
+	// TODO: errorハンドリングもっと丁寧にする
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("get my twitter account failed")
+		return "", fmt.Errorf("twitter API error")
 	}
 
 	var j getUserIDByAccessTokenResponse

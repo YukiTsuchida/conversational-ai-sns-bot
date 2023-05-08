@@ -254,8 +254,8 @@ func (cmd *cmdV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfile
 func (cmd *cmdV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
 	return `
 		Command not found.
-		What do you want to do next? (Hint: You might want to search for)
-		please talk to me on command.
+		What do you want to do next?
+		please talk to me on only command.
 		`
 }
 
