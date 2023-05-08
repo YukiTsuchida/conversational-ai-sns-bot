@@ -368,6 +368,8 @@ func parseOption(line string, optionName string) string {
 	// ?以降を削除する
 	val = strings.Split(val, "?")[0]
 
+	val = strings.TrimSuffix(val, `.`)
+
 	// {}を削除する
 	val = strings.TrimPrefix(val, "{")
 	val = strings.TrimSuffix(val, "}")
