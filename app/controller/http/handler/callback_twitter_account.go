@@ -20,7 +20,7 @@ func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
 
-		stateCookie,err := r.Cookie("state")
+		stateCookie, err := r.Cookie("state")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -31,16 +31,16 @@ func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r
 		}
 		// cookieの削除
 		stateCookie.MaxAge = -1
-		http.SetCookie(w,stateCookie)
+		http.SetCookie(w, stateCookie)
 
-		cvCookie,err := r.Cookie("code_verifier")
+		cvCookie, err := r.Cookie("code_verifier")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		// cookieの削除
 		cvCookie.MaxAge = -1
-		http.SetCookie(w,cvCookie)
+		http.SetCookie(w, cvCookie)
 
 		// codeとtokenの交換
 		tokenResp, err := getTwitterOAuth2Token(r.Context(), code, cvCookie.Value)
@@ -75,10 +75,10 @@ type twitterOAuth2TokenResponse struct {
 	TokenType    string `json:"token_type"`
 }
 
-func getTwitterOAuth2Token(ctx context.Context, code ,codeVerifier string) (*twitterOAuth2TokenResponse, error) {
-	u,err := url.Parse("https://api.twitter.com/2/oauth2/token")
+func getTwitterOAuth2Token(ctx context.Context, code, codeVerifier string) (*twitterOAuth2TokenResponse, error) {
+	u, err := url.Parse("https://api.twitter.com/2/oauth2/token")
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	q := u.Query()

@@ -41,6 +41,8 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 		}
 		conversationID := chi.URLParam(r, "id")
 
+		fmt.Println(req.Message)
+
 		// DIするためにconversationを取得する
 		conversation, err := conversationRepo.FetchByID(r.Context(), conversationID)
 		if err != nil {
@@ -102,5 +104,5 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 }
 
 func internalReplyConversationError(err error) {
-	fmt.Fprintf(os.Stderr, "[ERROR] StartTwitterConversationHandler() error: %s\n", err.Error())
+	fmt.Fprintf(os.Stderr, "[ERROR] ReplyConversationHandler() error: %s\n", err.Error())
 }
