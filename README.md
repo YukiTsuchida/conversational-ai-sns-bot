@@ -4,7 +4,7 @@ SNSを対話型AIに操作させる試み。
 
 ## Twitter Bot
 
-![infra_v0.1.1.png](./infra_v0.1.1.png)
+![infra_v0.1.1.png](./infra.png)
 
 ### デプロイ方法
 
