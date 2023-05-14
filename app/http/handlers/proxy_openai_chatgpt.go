@@ -11,7 +11,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 )
 
 // ChatGPT APIに投げるリクエストのbody型
@@ -49,7 +49,7 @@ type ChatGPTAPIResponse struct {
 func ProxyOpenAIChatGPTHandler() func(w http.ResponseWriter, r *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req chatgpt_3_5_turbo.Request
+		var req chatgpt_3_5_turbo.Request // ToDo: 実装に依存してしまってるので治す
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			internalOpenAIChatGPTRequestError(err)

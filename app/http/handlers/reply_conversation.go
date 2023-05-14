@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
@@ -54,7 +54,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 
 		// DIは一旦ここでやる
 		var sns sns.SNS
-		var ai ai.AI
+		var aiSvc ai.Service
 		var prompt prompt.Prompt
 		if conversation.SNSType() == "twitter" {
 			sns = twitter.NewSNSTwitterImpl(db)
@@ -62,7 +62,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "invalid sns_type: "+conversation.SNSType(), http.StatusBadRequest)
 		}
 		if conversation.AIModel() == "gpt-3.5-turbo" {
-			ai = chatgpt_3_5_turbo.NewAIChatGPT3_5TurboImpl(db)
+			aiSvc = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
 		} else {
 			http.Error(w, "invalid ai_model: "+conversation.AIModel(), http.StatusBadRequest)
 			return
@@ -73,7 +73,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationUsecase := usecases.NewReplyConversation(sns, prompt, ai, conversationRepo)
+		replyConversationUsecase := usecases.NewReplyConversation(sns, prompt, aiSvc, conversationRepo)
 		abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
 
 		// エラーがあればconversationをabortする
