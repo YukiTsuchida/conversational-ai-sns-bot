@@ -1,8 +1,8 @@
 package prompt
 
 import (
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 )
 
 type Prompt interface {

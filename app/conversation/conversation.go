@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
-	conversation_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/conversation"
+	conversation_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )

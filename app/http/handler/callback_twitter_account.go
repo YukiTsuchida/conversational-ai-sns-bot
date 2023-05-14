@@ -9,7 +9,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
-	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 )
 
