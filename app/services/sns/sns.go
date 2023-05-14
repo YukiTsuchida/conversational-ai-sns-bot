@@ -12,7 +12,7 @@ import (
 type Service interface {
 	FetchAccountByID(ctx context.Context, accountID *sns.AccountID) (*sns.Account, error)
 	FetchAccountByConversationID(ctx context.Context, conversationID *conversation.ID) (*sns.Account, error)
-	CreateAccount(ctx context.Context, accountID *sns.AccountID, credential sns.Credential) error // このinterfaceもうちょっとなんとかしたい
+	CreateAccount(ctx context.Context, accountID *sns.AccountID, credential sns.Credential) error // このinterfaceもうちょっとなんとかしたい #27
 	GiveAccountConversationID(ctx context.Context, accountID *sns.AccountID, conversationID *conversation.ID) error
 	RemoveAccountConversationID(ctx context.Context, accountID *sns.AccountID) error
 	ExecutePostMessageCmd(ctx context.Context, accountID *sns.AccountID, cmd *cmd.PostMessageCommand) (*sns.PostMessageResponse, error)
