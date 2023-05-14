@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
@@ -13,7 +13,7 @@ import (
 
 type StartConversation struct {
 	sns              sns.SNS
-	prompt           prompt.Prompt
+	promptSvc        prompt.Service
 	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
 }
@@ -43,7 +43,7 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	}
 
 	// 最初に送る文章を生成する
-	msg := uc.prompt.BuildFirstMessage()
+	msg := uc.promptSvc.BuildFirstMessage()
 
 	// 会話履歴を追加する
 	err = uc.aiSvc.AppendSystemMessage(ctx, conversationID, msg)
@@ -60,6 +60,6 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	return nil
 }
 
-func NewStartConversation(sns sns.SNS, prompt prompt.Prompt, aiSvc ai.Service, conversationRepo repositories.Conversation) *StartConversation {
-	return &StartConversation{sns, prompt, aiSvc, conversationRepo}
+func NewStartConversation(sns sns.SNS, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *StartConversation {
+	return &StartConversation{sns, promptSvc, aiSvc, conversationRepo}
 }
