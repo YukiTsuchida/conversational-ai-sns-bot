@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/http/handlers"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/http/handler"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -23,13 +23,13 @@ func main() {
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
-	r.Post("/conversations/twitter", handler.StartTwitterConversationHandler(db))
-	r.Delete("/conversations/twitter", handler.AbortTwitterConversationHandler(db))
-	r.Post("/conversations/{id}/reply", handler.ReplyConversationHandler(db))
+	r.Post("/conversations/twitter", handlers.StartTwitterConversationHandler(db))
+	r.Delete("/conversations/twitter", handlers.AbortTwitterConversationHandler(db))
+	r.Post("/conversations/{id}/reply", handlers.ReplyConversationHandler(db))
 
 	// twitter auth
-	r.Get("/accounts/twitter_login", handler.LoginTwitterAccountHandler())
-	r.Get("/accounts/twitter_callback", handler.CallbackTwitterAccountHandler(db))
+	r.Get("/accounts/twitter_login", handlers.LoginTwitterAccountHandler())
+	r.Get("/accounts/twitter_callback", handlers.CallbackTwitterAccountHandler(db))
 
 	http.ListenAndServe(":8080", r)
 }
