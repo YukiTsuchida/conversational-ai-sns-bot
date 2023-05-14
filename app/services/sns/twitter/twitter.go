@@ -27,8 +27,8 @@ type snsServiceTwitterImpl struct {
 	db *ent.Client
 }
 
-func (sns *snsServiceTwitterImpl) FetchAccountByID(ctx context.Context, accountID string) (*sns_model.Account, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) FetchAccountByID(ctx context.Context, accountID *sns_model.AccountID) (*sns_model.Account, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (sns *snsServiceTwitterImpl) FetchAccountByConversationID(ctx context.Conte
 	return sns_model.NewAccount(account.TwitterAccountID, conversationID), nil
 }
 
-func (sns *snsServiceTwitterImpl) CreateAccount(ctx context.Context, accountID string, credential sns_model.Credential) error {
+func (sns *snsServiceTwitterImpl) CreateAccount(ctx context.Context, accountID *sns_model.AccountID, credential sns_model.Credential) error {
 	c, ok := credential.(*sns_model.OAuth2Credential)
 	if !ok {
 		return fmt.Errorf("oauth2 credential parse failed")
@@ -64,7 +64,7 @@ func (sns *snsServiceTwitterImpl) CreateAccount(ctx context.Context, accountID s
 
 	accessToken, refreshToken := c.GetTokens()
 	_, err := sns.db.TwitterAccounts.Create().
-		SetTwitterAccountID(accountID).
+		SetTwitterAccountID(accountID.ToString()).
 		SetAccessToken(accessToken).
 		SetRefreshToken(refreshToken).
 		Save(ctx)
@@ -74,20 +74,20 @@ func (sns *snsServiceTwitterImpl) CreateAccount(ctx context.Context, accountID s
 	return nil
 }
 
-func (sns *snsServiceTwitterImpl) GiveAccountConversationID(ctx context.Context, accountID string, conversationID *conversation.ID) error {
+func (sns *snsServiceTwitterImpl) GiveAccountConversationID(ctx context.Context, accountID *sns_model.AccountID, conversationID *conversation.ID) error {
 	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}
-	err = sns.db.TwitterAccounts.Update().SetConversationID(conversationIDInt).Where(twitteraccounts.TwitterAccountIDEQ(accountID)).Exec(ctx)
+	err = sns.db.TwitterAccounts.Update().SetConversationID(conversationIDInt).Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).Exec(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sns *snsServiceTwitterImpl) RemoveAccountConversationID(ctx context.Context, accountID string) error {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) RemoveAccountConversationID(ctx context.Context, accountID *sns_model.AccountID) error {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return err
 	}
@@ -102,8 +102,8 @@ type postMessageRequest struct {
 	Text string `json:"text"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID string, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecutePostMessageCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.PostMessageCommand) (*sns_model.PostMessageResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +154,8 @@ type getMyMessagesResponse struct {
 	} `json:"data"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -222,8 +222,8 @@ type getOtherMessagesResponse struct {
 	} `json:"data"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID string, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -291,8 +291,8 @@ type searchMessagesResponse struct {
 	} `json:"data"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountID string, cmd *cmd.SearchMessageCommand) (*sns_model.SearchMessageResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.SearchMessageCommand) (*sns_model.SearchMessageResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -357,8 +357,8 @@ type getMyProfileResponse struct {
 	} `json:"data"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetMyProfileCommand) (*sns_model.GetMyProfileResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetMyProfileCommand) (*sns_model.GetMyProfileResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -415,8 +415,8 @@ type getOthersProfileResponse struct {
 	} `json:"data"`
 }
 
-func (sns *snsServiceTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accountID string, cmd *cmd.GetOthersProfileCommand) (*sns_model.GetOthersProfileResponse, error) {
-	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID)).First(ctx)
+func (sns *snsServiceTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetOthersProfileCommand) (*sns_model.GetOthersProfileResponse, error) {
+	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -465,7 +465,7 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context
 	//MEMO: userIDは1123444555みたいなやつですか？
 	return sns_model.NewGetOthersProfileResponse(j.Data.ID, j.Data.UserName, j.Data.Description, ""), nil
 }
-func (sns *snsServiceTwitterImpl) ExecuteUpdateMyProfileCmd(ctx context.Context, accountID string, cmd *cmd.UpdateMyProfileCommand) (*sns_model.UpdateMyProfileResponse, error) {
+func (sns *snsServiceTwitterImpl) ExecuteUpdateMyProfileCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.UpdateMyProfileCommand) (*sns_model.UpdateMyProfileResponse, error) {
 	return sns_model.NewUpdateMyProfileResponse("this command is not implemented."), nil
 }
 

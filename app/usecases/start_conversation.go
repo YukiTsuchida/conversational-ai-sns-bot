@@ -7,6 +7,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
 )
@@ -18,7 +19,7 @@ type StartConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
+func (uc *StartConversation) Execute(ctx context.Context, accountID *sns_model.AccountID, aiModel string, snsType string, cmdVersion string) error {
 	// accountが存在するか確認
 	account, err := uc.snsSvc.FetchAccountByID(ctx, accountID)
 	if err != nil {

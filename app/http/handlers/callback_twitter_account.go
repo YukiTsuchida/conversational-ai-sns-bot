@@ -9,6 +9,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
 )
@@ -59,7 +60,7 @@ func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r
 		credential := sns_model.NewOAuth2Credential(tokenResp.AccessToken, tokenResp.RefreshToken)
 
 		// DBに保存
-		if err := snsSvc.CreateAccount(r.Context(), accountResp.Data.UserName, credential); err != nil {
+		if err := snsSvc.CreateAccount(r.Context(), sns.NewAccountID(accountResp.Data.UserName), credential); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}

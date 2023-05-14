@@ -40,6 +40,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 	if err != nil {
 		return err
 	}
+	accountID := &account.AccountID
 
 	// messageからcmdを抽出する
 	cmds := uc.promptSvc.ParseCmdsByAIMessage(message)
@@ -77,7 +78,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewPostMessageCommand(message)
-			snsRes, err := uc.snsSvc.ExecutePostMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecutePostMessageCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
@@ -89,7 +90,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewGetMyMessagesCommand(maxResults)
-			snsRes, err := uc.snsSvc.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetMyMessagesCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
@@ -105,7 +106,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewGetOtherMessagesCommand(userID, maxResults)
-			snsRes, err := uc.snsSvc.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetOtherMessagesCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
@@ -121,14 +122,14 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewSearchMessageCommand(query, maxResults)
-			snsRes, err := uc.snsSvc.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteSearchMessageCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
 			nextMessage = uc.promptSvc.BuildUserMessageSearchMessageResult(snsRes)
 		} else if cmd.IsGetMyProfile() {
 			cmd := cmd_model.NewGetMyProfileCommand()
-			snsRes, err := uc.snsSvc.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetMyProfileCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
@@ -139,7 +140,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewGetOthersProfileCommand(userID)
-			snsRes, err := uc.snsSvc.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetOthersProfileCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}
@@ -154,7 +155,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 				return err
 			}
 			cmd := cmd_model.NewUpdateMyProfileCommand(name, description)
-			snsRes, err := uc.snsSvc.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteUpdateMyProfileCmd(ctx, accountID, cmd)
 			if err != nil {
 				return err
 			}

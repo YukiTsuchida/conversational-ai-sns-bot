@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
+
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
@@ -35,7 +37,7 @@ func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		account, err := snsSvc.FetchAccountByID(r.Context(), req.TwitterID)
+		account, err := snsSvc.FetchAccountByID(r.Context(), sns.NewAccountID(req.TwitterID))
 		if err != nil {
 			internalAbortTwitterConversationError(err)
 			http.Error(w, "failed to fetch account: "+err.Error(), http.StatusInternalServerError)
