@@ -7,7 +7,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 )
 
-type SNS interface {
+type Service interface {
 	FetchAccountByID(ctx context.Context, accountID string) (*sns.Account, error)
 	FetchAccountByConversationID(ctx context.Context, conversationID string) (*sns.Account, error)
 	CreateAccount(ctx context.Context, accountID string, credential sns.Credential) error // このinterfaceもうちょっとなんとかしたい

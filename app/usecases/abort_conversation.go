@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
 )
 
 type AbortConversation struct {
-	sns              sns.SNS
+	snsSvc           sns.Service
 	conversationRepo repositories.Conversation
 }
 
@@ -17,17 +17,17 @@ func (uc *AbortConversation) Execute(ctx context.Context, conversationID string,
 	if err != nil {
 		return err
 	}
-	account, err := uc.sns.FetchAccountByConversationID(ctx, conversationID)
+	account, err := uc.snsSvc.FetchAccountByConversationID(ctx, conversationID)
 	if err != nil {
 		return err
 	}
-	err = uc.sns.RemoveAccountConversationID(ctx, account.ID())
+	err = uc.snsSvc.RemoveAccountConversationID(ctx, account.ID())
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func NewAbortConversation(sns sns.SNS, conversationRepo repositories.Conversation) *AbortConversation {
-	return &AbortConversation{sns, conversationRepo}
+func NewAbortConversation(snsSvc sns.Service, conversationRepo repositories.Conversation) *AbortConversation {
+	return &AbortConversation{snsSvc, conversationRepo}
 }

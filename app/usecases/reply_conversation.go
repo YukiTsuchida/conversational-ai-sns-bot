@@ -11,11 +11,11 @@ import (
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
 )
 
 type ReplyConversation struct {
-	sns              sns.SNS
+	snsSvc           sns.Service
 	promptSvc        prompt.Service
 	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
@@ -34,7 +34,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	}
 
 	// accountを取得
-	account, err := uc.sns.FetchAccountByConversationID(ctx, conversationID)
+	account, err := uc.snsSvc.FetchAccountByConversationID(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewPostMessageCommand(message)
-			snsRes, err := uc.sns.ExecutePostMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecutePostMessageCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -87,7 +87,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewGetMyMessagesCommand(maxResults)
-			snsRes, err := uc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -103,7 +103,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewGetOtherMessagesCommand(userID, maxResults)
-			snsRes, err := uc.sns.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -119,14 +119,14 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewSearchMessageCommand(query, maxResults)
-			snsRes, err := uc.sns.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
 			nextMessage = uc.promptSvc.BuildNextMessageSearchMessage(snsRes)
 		} else if cmd.IsGetMyProfile() {
 			cmd := cmd_model.NewGetMyProfileCommand()
-			snsRes, err := uc.sns.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -137,7 +137,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewGetOthersProfileCommand(userID)
-			snsRes, err := uc.sns.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -152,7 +152,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 				return err
 			}
 			cmd := cmd_model.NewUpdateMyProfileCommand(name, description)
-			snsRes, err := uc.sns.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.snsSvc.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
@@ -187,6 +187,6 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	return nil
 }
 
-func NewReplyConversation(sns sns.SNS, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *ReplyConversation {
-	return &ReplyConversation{sns, promptSvc, aiSvc, conversationRepo}
+func NewReplyConversation(snsSvc sns.Service, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *ReplyConversation {
+	return &ReplyConversation{snsSvc, promptSvc, aiSvc, conversationRepo}
 }

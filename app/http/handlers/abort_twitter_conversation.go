@@ -8,7 +8,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 )
 
@@ -18,9 +18,9 @@ type AbortTwitterConversationRequest struct {
 
 func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
 
-	sns := twitter.NewSNSTwitterImpl(db)
+	snsSvc := twitter.NewSNSServiceTwitterImpl(db)
 	conversationRepo := repositories.NewConversation(db)
-	abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
+	abortConversationUsecase := usecases.NewAbortConversation(snsSvc, conversationRepo)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req AbortTwitterConversationRequest
@@ -35,7 +35,7 @@ func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		account, err := sns.FetchAccountByID(r.Context(), req.TwitterID)
+		account, err := snsSvc.FetchAccountByID(r.Context(), req.TwitterID)
 		if err != nil {
 			internalAbortTwitterConversationError(err)
 			http.Error(w, "failed to fetch account: "+err.Error(), http.StatusInternalServerError)
