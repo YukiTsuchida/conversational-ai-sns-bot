@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )
 
 // The Chatgpt35TurboConversationLogFunc type is an adapter to allow the use of ordinary

@@ -5,10 +5,10 @@ package ent
 import (
 	"time"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/schema"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/schema"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 )
 
 // The init function reads all schema descriptors with runtime code

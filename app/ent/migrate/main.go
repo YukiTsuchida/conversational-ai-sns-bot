@@ -10,7 +10,7 @@ import (
 	"ariga.io/atlas/sql/sqltool"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/migrate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/migrate"
 	_ "github.com/lib/pq"
 )
 

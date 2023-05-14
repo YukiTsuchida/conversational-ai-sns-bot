@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	conversation_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	conversation_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/conversation"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )
 
 // 本来インタフェース切るまでもないが、service側にdbを直接さわるロジックを書きたくないので別packageに切り出した

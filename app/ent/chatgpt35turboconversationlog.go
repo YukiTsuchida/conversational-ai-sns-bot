@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 )
 
 // Chatgpt35TurboConversationLog is the model entity for the Chatgpt35TurboConversationLog schema.

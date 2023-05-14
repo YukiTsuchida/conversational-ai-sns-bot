@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 )
 
 // Conversations is the model entity for the Conversations schema.

@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai/chatgpt_3_5_turbo"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/service"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -55,7 +55,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 		// DIは一旦ここでやる
 		var sns sns.SNS
 		var ai ai.AI
-		var cmd cmd.Cmd
+		var prompt prompt.Prompt
 		if conversation.SNSType() == "twitter" {
 			sns = twitter.NewSNSTwitterImpl(db)
 		} else {
@@ -68,12 +68,12 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			return
 		}
 		if conversation.CmdVersion() == "v0.1" {
-			cmd = v0_1.NewCmdV0_1Impl()
+			prompt = v0_1.NewPromptV0_1Impl()
 		} else {
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationService := service.NewReplyConversationService(sns, cmd, ai, conversationRepo)
+		replyConversationService := service.NewReplyConversationService(sns, prompt, ai, conversationRepo)
 		abortConversationService := service.NewAbortConversationService(sns, conversationRepo)
 
 		// エラーがあればconversationをabortする

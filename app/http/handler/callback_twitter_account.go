@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
-	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 )
 
 func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {

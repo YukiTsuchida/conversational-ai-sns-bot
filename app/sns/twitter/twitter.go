@@ -10,14 +10,14 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
 
-	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 var _ sns.SNS = (*snsTwitterImpl)(nil)

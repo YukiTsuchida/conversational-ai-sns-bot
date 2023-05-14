@@ -3,8 +3,8 @@ package sns
 import (
 	"context"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
 )
 
 type SNS interface {

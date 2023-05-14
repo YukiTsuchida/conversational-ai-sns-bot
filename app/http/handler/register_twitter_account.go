@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/service"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 )
 
 type RegisterTwitterAccountRequest struct {

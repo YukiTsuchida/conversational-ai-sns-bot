@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

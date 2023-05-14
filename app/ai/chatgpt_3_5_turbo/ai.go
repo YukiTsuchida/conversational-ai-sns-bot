@@ -8,16 +8,16 @@ import (
 	"strings"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 	"google.golang.org/grpc"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 
 	"github.com/pkoukk/tiktoken-go"
 )

@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai/chatgpt_3_5_turbo"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/service"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )
 
 type StartTwitterConversationRequest struct {
@@ -52,7 +52,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 		var conversationRepo conversation.ConversationRepository = conversation.NewConversationRepository(db)
 		var sns sns.SNS = twitter.NewSNSTwitterImpl(db)
 		var ai ai.AI
-		var cmd cmd.Cmd
+		var prompt prompt.Prompt
 		if req.AIModel == "gpt-3.5-turbo" {
 			ai = chatgpt_3_5_turbo.NewAIChatGPT3_5TurboImpl(db)
 		} else {
@@ -60,13 +60,13 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 		if req.CmdVersion == "v0.1" {
-			cmd = v0_1.NewCmdV0_1Impl()
+			prompt = v0_1.NewPromptV0_1Impl()
 		} else {
 			http.Error(w, "invalid request body param: cmd_version", http.StatusBadRequest)
 			return
 		}
 
-		startConvarsationService := service.NewStartConversationService(sns, cmd, ai, conversationRepo)
+		startConvarsationService := service.NewStartConversationService(sns, prompt, ai, conversationRepo)
 
 		err = startConvarsationService.StartConversation(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {

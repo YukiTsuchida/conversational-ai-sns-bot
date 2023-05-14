@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cli/ai_requestor/handler"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/cli/ai_requestor/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
