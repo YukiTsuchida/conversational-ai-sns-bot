@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt/v0_1"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 
@@ -52,7 +52,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
 		var sns sns.SNS = twitter.NewSNSTwitterImpl(db)
 		var aiSvc ai.Service
-		var prompt prompt.Prompt
+		var promptSvc prompt.Service
 		if req.AIModel == "gpt-3.5-turbo" {
 			aiSvc = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
 		} else {
@@ -60,13 +60,13 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 		if req.CmdVersion == "v0.1" {
-			prompt = v0_1.NewPromptV0_1Impl()
+			promptSvc = v0_1.NewPromptServiceV0_1Impl()
 		} else {
 			http.Error(w, "invalid request body param: cmd_version", http.StatusBadRequest)
 			return
 		}
 
-		startConvarsationUsecase := usecases.NewStartConversation(sns, prompt, aiSvc, conversationRepo)
+		startConvarsationUsecase := usecases.NewStartConversation(sns, promptSvc, aiSvc, conversationRepo)
 
 		err = startConvarsationUsecase.Execute(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {

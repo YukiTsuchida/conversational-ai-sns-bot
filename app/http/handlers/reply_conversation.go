@@ -7,11 +7,11 @@ import (
 	"os"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt/v0_1"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
@@ -55,7 +55,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 		// DIは一旦ここでやる
 		var sns sns.SNS
 		var aiSvc ai.Service
-		var prompt prompt.Prompt
+		var promptSvc prompt.Service
 		if conversation.SNSType() == "twitter" {
 			sns = twitter.NewSNSTwitterImpl(db)
 		} else {
@@ -68,12 +68,12 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			return
 		}
 		if conversation.CmdVersion() == "v0.1" {
-			prompt = v0_1.NewPromptV0_1Impl()
+			promptSvc = v0_1.NewPromptServiceV0_1Impl()
 		} else {
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationUsecase := usecases.NewReplyConversation(sns, prompt, aiSvc, conversationRepo)
+		replyConversationUsecase := usecases.NewReplyConversation(sns, promptSvc, aiSvc, conversationRepo)
 		abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
 
 		// エラーがあればconversationをabortする

@@ -5,7 +5,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 )
 
-type Prompt interface {
+type Service interface {
 	BuildFirstMessage() string
 	BuildNextMessageCommandNotFound() string
 	BuildNextMessagePostMessage(snsResponse *sns.PostMessageResponse) string
