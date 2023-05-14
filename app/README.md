@@ -2,49 +2,50 @@
 
 ## パッケージ構成
 
-```
+```sh
 .
-├── ai # 対話型AIのモデルに依存するロジックを実装
-│   ├── ai.go
-│   ├── chatgpt_3_5_turbo
-│   │   └── ai.go
-│   └── chatgpt_4_0_turbo
-│       └── ai.go
-├── cli # main系
-│   └── main.go
-├── cmd # cmdに依存するロジックを実装
-│   ├── cmd.go
-│   ├── v0_1
-│   │   └── cmd.go
-│   └── v0_2
-│       └── cmd.go
-├── go.mod
-├── model # 共通で利用するstructなど
-│   ├── ai 
-│   │   └── message_role.go
-│   ├── cmd
-│   │   ├── command.go
-│   │   └── type.go
-│   └── sns
-│       ├── account.go
-│       └── response.go
-├── server # handlerとか入れる想定
-├── service # コアとなるユースケース群
-│   ├── abort_conversation.go
-│   ├── create_account.go
-│   ├── reply_conversation.go
-│   └── start_conversation.go
-└── sns # SNSに依存するロジックを実装
-    ├── misskey
-    │   └── sns.go
-    ├── sns.go
-    └── twitter
-        └── sns.go
+├── cmd
+│   ├── ai_requestor
+│   │   └── main.go # requestorのエントリポイント
+│   └── controller
+│       └── main.go # controllerのエントリポイント
+├── config # 環境変数から値を読み出したりなど
+├── ent # DBのスキーマ、自動生成されたORM、goose用のmigrationファイルなど
+├── http
+│   └── handlers # httpリクエストのパース・バリデーション、DI、usecaseの呼び出しを行う
+├── models # ドメイン全体で引き回す構造体
+├── repositories # いわゆるrepository
+│   └── conversation.go
+├── services
+│   ├── ai # AIに依存するロジック、例えばAPIに投げるリクエストを組み立てたり、会話履歴をDBに保存するなど
+│   │   ├── ai.go
+│   │   ├── chatgpt_3_5_turbo
+│   │   │   └── chatgpt_3_5_turbo.go
+│   │   └── chatgpt_4_0_turbo
+│   │       └── chatgpt_4_0_turbo.go
+│   ├── prompt # prompt生成とパースに関連するロジック
+│   │   ├── prompt.go
+│   │   ├── v0_1
+│   │   │   ├── v0_1.go
+│   │   │   └── v0_1_test.go
+│   │   └── v0_2
+│   │       └── v0_2.go
+│   └── sns # SNSに依存するロジック
+│       ├── misskey
+│       │   └── misskey.go
+│       ├── sns.go
+│       └── twitter
+│           └── twitter.go
+└── usecases # handlerから呼び出されるusecaseたち、DIして使うのでDBやAI,prompt,sns実装についての知識を一切持たない
+    ├── abort_conversation.go
+    ├── register_account.go
+    ├── reply_conversation.go
+    └── start_conversation.go
 ```
 
 ## ローカルで起動する
 
-普通に起動する。
+普通に起動する。hotreloadに[air](https://github.com/cosmtrek/air)を使っているので初回起動に時間がかかります。
 
 ```sh
 docker-compose up -d
@@ -56,6 +57,7 @@ DBを初期化して起動する。
 ```sh
 docker-compose down && docker-compose up -d --renew-anon-volumes
 goose -dir ./ent/migrate/migrations postgres "host=localhost port=5432 user=admin password=admin dbname=db sslmode=disable" up # tableを初期化
+curl localhost:8080/health
 ```
 
 ### twitter bot動かし方

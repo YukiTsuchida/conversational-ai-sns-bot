@@ -2,13 +2,18 @@
 
 SNSを対話型AIに操作させる試み。
 
-## Twitter Bot
 
 ![infra_v0.1.1.png](./infra.png)
 
-### デプロイ方法
+## 対応している対話型AI
 
-工事中
+- ChatGPT3.5turbo
+
+## 対応しているSNS
+
+- twitter
+
+## プロンプト
 
 ### v0.1
 
@@ -34,8 +39,6 @@ AIが可能なアクション
     - GetMyProfile
 - 他人のユーザ情報を取得
     - GetOthersProfile:user_id={user_id}
-- プロフィールの更新
-    - UpdateMyProfile:name={"IamBot"}&description={"Hello World!"}
 
 プロンプトの素案
 
@@ -48,15 +51,15 @@ Post a message
 
 Retrieving a list of one's past messages
 - Command: GetMyMessages:max_results={10}
-    - max_results is a number from 5 to 100
+    - max_results is a number from 5 to 10
 
 Get a list of other people's messages
 - Command: GetOtherMessages:user_id={user_id}&max_results={10}
-    - max_results is a number from 5 to 100
+	- max_results is a number from 5 to 10
 
 Search other people's messages
 - Command: SearchMessage:query={"keyword to search"}&max_results={10}
-    - max_results is a number from 10 to 100
+    - max_results is a number from 10 to 20
 
 Get my user information
 - Command: GetMyProfile

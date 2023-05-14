@@ -24,8 +24,8 @@ services:
       SELF_HOST: http://controller:8080
       REQUESTOR_HOST: http://ai-requestor:8080
       TWITTER_CALLBACK_URL: http://localhost:8080/accounts/twitter_callback
-      TWITTER_CLIENT_ID: NjluVXRqWnJaTmxybHV1cm9uTWs6MTpjaQ
-      TWITTER_CLIENT_SECRET: S8-QhnuJH69FiOY2A9oy1XARmTBzklODnog5qt16hY-cKYXJAo
+      TWITTER_CLIENT_ID: NjluVXRqWnJaTmxybHV1cm9uTWs6MTpjaQ # ToDo: credentialをSecretManagerに上げる #28
+      TWITTER_CLIENT_SECRET: S8-QhnuJH69FiOY2A9oy1XARmTBzklODnog5qt16hY-cKYXJAo # ToDo: credentialをSecretManagerに上げる #28
       ENVIRONMENT: develop
   ai-requestor:
     build:
@@ -38,7 +38,7 @@ services:
     volumes:
       - ./:/app
     environment:
-      CHATGPT_API_KEY: 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
+      CHATGPT_API_KEY: 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 # ToDo: credentialをSecretManagerに上げる #28
   gcloud-tasks-emulator:
     image: ghcr.io/aertje/cloud-tasks-emulator:latest
     command: -host 0.0.0.0 -port 8123 -queue "projects/dev/locations/here/queues/anotherq"

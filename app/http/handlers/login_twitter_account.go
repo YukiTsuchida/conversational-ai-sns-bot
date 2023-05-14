@@ -11,6 +11,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 )
 
+// ToDo: twitterに依存する処理がベタ書きなのでservices/snsに移動する #27
 func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u, err := url.Parse("http://twitter.com/i/oauth2/authorize")
