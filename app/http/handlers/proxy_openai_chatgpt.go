@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"bytes"
@@ -46,7 +46,7 @@ type ChatGPTAPIResponse struct {
 	} `json:"choices"`
 }
 
-func OpenAIChatGPTRequestHandler() func(w http.ResponseWriter, r *http.Request) {
+func ProxyOpenAIChatGPTHandler() func(w http.ResponseWriter, r *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req chatgpt_3_5_turbo.Request
