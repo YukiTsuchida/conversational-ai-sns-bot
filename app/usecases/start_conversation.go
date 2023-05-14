@@ -8,11 +8,11 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
 )
 
 type StartConversation struct {
-	sns              sns.SNS
+	snsSvc           sns.Service
 	promptSvc        prompt.Service
 	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
@@ -20,7 +20,7 @@ type StartConversation struct {
 
 func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
 	// accountが存在するか確認
-	account, err := uc.sns.FetchAccountByID(ctx, accountID)
+	account, err := uc.snsSvc.FetchAccountByID(ctx, accountID)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	}
 
 	// accountにconversation_idを付与する(accountとconversationを1:1対応させたいため)
-	err = uc.sns.GiveAccountConversationID(ctx, accountID, conversationID)
+	err = uc.snsSvc.GiveAccountConversationID(ctx, accountID, conversationID)
 	if err != nil {
 		return err
 	}
@@ -60,6 +60,6 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	return nil
 }
 
-func NewStartConversation(sns sns.SNS, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *StartConversation {
-	return &StartConversation{sns, promptSvc, aiSvc, conversationRepo}
+func NewStartConversation(snsSvc sns.Service, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *StartConversation {
+	return &StartConversation{snsSvc, promptSvc, aiSvc, conversationRepo}
 }

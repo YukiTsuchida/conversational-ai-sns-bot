@@ -12,8 +12,8 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 	"github.com/go-chi/chi/v5"
 )
@@ -53,11 +53,11 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 		}
 
 		// DIは一旦ここでやる
-		var sns sns.SNS
+		var snsSvc sns.Service
 		var aiSvc ai.Service
 		var promptSvc prompt.Service
 		if conversation.SNSType() == "twitter" {
-			sns = twitter.NewSNSTwitterImpl(db)
+			snsSvc = twitter.NewSNSServiceTwitterImpl(db)
 		} else {
 			http.Error(w, "invalid sns_type: "+conversation.SNSType(), http.StatusBadRequest)
 		}
@@ -73,8 +73,8 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationUsecase := usecases.NewReplyConversation(sns, promptSvc, aiSvc, conversationRepo)
-		abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
+		replyConversationUsecase := usecases.NewReplyConversation(snsSvc, promptSvc, aiSvc, conversationRepo)
+		abortConversationUsecase := usecases.NewAbortConversation(snsSvc, conversationRepo)
 
 		// エラーがあればconversationをabortする
 		if req.ErrMessage != "" {

@@ -13,8 +13,8 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )
@@ -50,7 +50,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 
 		// DIは一旦ここでやる
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
-		var sns sns.SNS = twitter.NewSNSTwitterImpl(db)
+		var snsSvc sns.Service = twitter.NewSNSServiceTwitterImpl(db)
 		var aiSvc ai.Service
 		var promptSvc prompt.Service
 		if req.AIModel == "gpt-3.5-turbo" {
@@ -66,7 +66,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		startConvarsationUsecase := usecases.NewStartConversation(sns, promptSvc, aiSvc, conversationRepo)
+		startConvarsationUsecase := usecases.NewStartConversation(snsSvc, promptSvc, aiSvc, conversationRepo)
 
 		err = startConvarsationUsecase.Execute(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {
