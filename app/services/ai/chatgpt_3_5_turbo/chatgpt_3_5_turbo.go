@@ -24,6 +24,7 @@ import (
 
 const modelName = "gpt-3.5-turbo"
 const tokenLimit = 4000 // 実際は4096だが、回答も含めて4096なので4000にしておく
+const temperature = "0.7"
 
 var _ ai.Service = (*aiServiceChatGPT3_5TurboImpl)(nil)
 
@@ -144,7 +145,7 @@ func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, convers
 	request := Request{
 		CallBackUrl: config.SELF_HOST() + "/conversations/" + conversationID.ToString() + "/reply",
 		AIModel:     modelName,
-		Temperature: "0.7",
+		Temperature: temperature,
 		Messages:    messages,
 	}
 

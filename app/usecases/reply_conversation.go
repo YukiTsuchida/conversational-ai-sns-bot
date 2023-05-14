@@ -86,8 +86,8 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 		} else if cmd.IsGetMyMessages() {
 			maxResults, err := cmd.OptionInInt("max_results")
 			if err != nil {
-				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
-				return err
+				// max_resultsにint以外が入っていた場合はコマンドがなかったことにする
+				continue
 			}
 			cmd := cmd_model.NewGetMyMessagesCommand(maxResults)
 			snsRes, err := uc.snsSvc.ExecuteGetMyMessagesCmd(ctx, accountID, cmd)
@@ -102,8 +102,8 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 			}
 			maxResults, err := cmd.OptionInInt("max_results")
 			if err != nil {
-				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
-				return err
+				// max_resultsにint以外が入っていた場合はコマンドがなかったことにする
+				continue
 			}
 			cmd := cmd_model.NewGetOtherMessagesCommand(userID, maxResults)
 			snsRes, err := uc.snsSvc.ExecuteGetOtherMessagesCmd(ctx, accountID, cmd)
@@ -118,8 +118,8 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 			}
 			maxResults, err := cmd.OptionInInt("max_results")
 			if err != nil {
-				// ToDo: max_resultsにint以外が入っていた場合もエラーになるのでここはハンドリングしたほうがいい
-				return err
+				// max_resultsにint以外が入っていた場合はコマンドがなかったことにする
+				continue
 			}
 			cmd := cmd_model.NewSearchMessageCommand(query, maxResults)
 			snsRes, err := uc.snsSvc.ExecuteSearchMessageCmd(ctx, accountID, cmd)
