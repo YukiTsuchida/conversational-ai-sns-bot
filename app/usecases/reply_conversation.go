@@ -8,16 +8,16 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 type ReplyConversation struct {
 	sns              sns.SNS
 	prompt           prompt.Prompt
-	ai               ai.AI
+	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
 }
 
@@ -55,7 +55,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	}
 
 	// AIからのメッセージをログに追加
-	err = uc.ai.AppendAIMessage(ctx, conversationID, message, purpose)
+	err = uc.aiSvc.AppendAIMessage(ctx, conversationID, message, purpose)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			// 存在しない
 			continue
 		}
-		err = uc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
+		err = uc.aiSvc.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err
 		}
@@ -170,7 +170,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	if len(cmds) == 0 {
 		// cmdがない場合は、メッセージが間違ってるよって教える
 		nextMessage := uc.prompt.BuildNextMessageCommandNotFound()
-		err = uc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
+		err = uc.aiSvc.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err
 		}
@@ -179,7 +179,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	time.Sleep(time.Duration(config.SLEEP_TIME_FOR_REPLY_SECONDS()) * time.Second)
 
 	// 会話履歴を結合して対話型AI用のリクエストを生成して送信する
-	err = uc.ai.SendRequest(ctx, conversationID)
+	err = uc.aiSvc.SendRequest(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -187,6 +187,6 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	return nil
 }
 
-func NewReplyConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo repositories.Conversation) *ReplyConversation {
-	return &ReplyConversation{sns, prompt, ai, conversationRepo}
+func NewReplyConversation(sns sns.SNS, prompt prompt.Prompt, aiSvc ai.Service, conversationRepo repositories.Conversation) *ReplyConversation {
+	return &ReplyConversation{sns, prompt, aiSvc, conversationRepo}
 }

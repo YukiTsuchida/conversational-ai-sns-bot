@@ -10,14 +10,13 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 	"google.golang.org/grpc"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
-
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
 
 	"github.com/pkoukk/tiktoken-go"
 )
@@ -25,9 +24,9 @@ import (
 const modelName = "gpt-3.5-turbo"
 const tokenLimit = 4000 // 実際は4096だが、回答も含めて4096なので4000にしておく
 
-var _ ai.AI = (*aiChatGPT3_5TurboImpl)(nil)
+var _ ai.Service = (*aiServiceChatGPT3_5TurboImpl)(nil)
 
-type aiChatGPT3_5TurboImpl struct {
+type aiServiceChatGPT3_5TurboImpl struct {
 	db *ent.Client
 }
 
@@ -44,7 +43,7 @@ type Message struct {
 	Message string `json:"message"`
 }
 
-func (ai *aiChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	logs, err := ai.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.IDEQ(conversationIDInt))).Order(ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)).All(ctx)
 	if err != nil {
@@ -183,7 +182,7 @@ func calcToken(text string) (int, error) {
 	return len(token), nil
 }
 
-func (ai *aiChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
@@ -195,7 +194,7 @@ func (ai *aiChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conver
 	return nil
 }
 
-func (ai *aiChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
@@ -207,7 +206,7 @@ func (ai *aiChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversa
 	return nil
 }
 
-func (ai *aiChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message string, purpose string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message string, purpose string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
@@ -219,6 +218,6 @@ func (ai *aiChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversati
 	return nil
 }
 
-func NewAIChatGPT3_5TurboImpl(db *ent.Client) ai.AI {
-	return &aiChatGPT3_5TurboImpl{db}
+func NewAIServiceChatGPT3_5TurboImpl(db *ent.Client) ai.Service {
+	return &aiServiceChatGPT3_5TurboImpl{db}
 }
