@@ -14,9 +14,9 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 
-	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
-	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
+	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 

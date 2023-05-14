@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 )
 
