@@ -1,20 +1,42 @@
 package conversation
 
+import "strconv"
+
+type ID struct {
+	id string
+}
+
+func NewID(id string) *ID {
+	return &ID{id: id}
+}
+
+func (id *ID) ToString() string {
+	return id.id
+}
+
+func (id *ID) ToInt() (int, error) {
+	v, err := strconv.Atoi(id.id)
+	if err != nil {
+		return 0, err
+	}
+	return v, nil
+}
+
 type Conversation struct {
-	conversationID string
-	aiModel        string
-	snsType        string
-	cmdVersion     string
-	isAborted      bool
+	ID
+	aiModel    string
+	snsType    string
+	cmdVersion string
+	isAborted  bool
 }
 
 func NewConversation(conversationID string, aiModel string, snsType string, cmdVersion string, isAborted bool) *Conversation {
 	return &Conversation{
-		conversationID: conversationID,
-		aiModel:        aiModel,
-		snsType:        snsType,
-		cmdVersion:     cmdVersion,
-		isAborted:      isAborted,
+		ID:         ID{id: conversationID},
+		aiModel:    aiModel,
+		snsType:    snsType,
+		cmdVersion: cmdVersion,
+		isAborted:  isAborted,
 	}
 }
 

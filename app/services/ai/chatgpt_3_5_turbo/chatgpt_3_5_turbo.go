@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
@@ -44,8 +44,12 @@ type Message struct {
 	Message string `json:"message"`
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID string) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, conversationID *conversation.ID) error {
+	conversationIDInt, err := conversationID.ToInt()
+	if err != nil {
+		return err
+	}
+
 	logs, err := ai.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.IDEQ(conversationIDInt))).Order(ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)).All(ctx)
 	if err != nil {
 		return err
@@ -53,7 +57,7 @@ func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, convers
 
 	cloudTasksHost := config.CLOUDTASKS_HOST()     // local環境ではエミュレータを使うので環境変数からhostを指定する
 	cloudtasksParent := config.CLOUDTASKS_PARENT() // 「projects/%s/locations/%s」の部分
-	cloudtasksChild := "/queues/" + conversationID
+	cloudtasksChild := "/queues/" + conversationID.ToString()
 
 	var client *cloudtasks.Client
 	var clientOpt option.ClientOption = nil
@@ -138,7 +142,7 @@ func (ai *aiServiceChatGPT3_5TurboImpl) SendRequest(ctx context.Context, convers
 	}
 
 	request := Request{
-		CallBackUrl: config.SELF_HOST() + "/conversations/" + conversationID + "/reply",
+		CallBackUrl: config.SELF_HOST() + "/conversations/" + conversationID.ToString() + "/reply",
 		AIModel:     modelName,
 		Temperature: "0.7",
 		Messages:    messages,
@@ -183,8 +187,8 @@ func calcToken(text string) (int, error) {
 	return len(token), nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message *ai_model.SystemMessage) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.SystemMessage) error {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}
@@ -195,8 +199,8 @@ func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context,
 	return nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message *ai_model.UserMessage) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.UserMessage) error {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}
@@ -207,8 +211,8 @@ func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, c
 	return nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message *ai_model.AIMessage, purpose string) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.AIMessage, purpose string) error {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}

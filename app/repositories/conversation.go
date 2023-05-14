@@ -12,9 +12,9 @@ import (
 )
 
 type Conversation interface {
-	Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (string, error)
-	FetchByID(ctx context.Context, conversationID string) (*conversation_model.Conversation, error)
-	Abort(ctx context.Context, conversationID string, reason string) error
+	Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (*conversation_model.ID, error)
+	FetchByID(ctx context.Context, conversationID *conversation_model.ID) (*conversation_model.Conversation, error)
+	Abort(ctx context.Context, conversationID *conversation_model.ID, reason string) error
 }
 
 type conversation struct {
@@ -23,7 +23,7 @@ type conversation struct {
 
 var _ Conversation = (*conversation)(nil)
 
-func (conversationRepo *conversation) Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (string, error) {
+func (conversationRepo *conversation) Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (*conversation_model.ID, error) {
 	// ent用にデータを整形する、entでは「.」を使えないため全て「_」に置き換える
 	aiModelEnt := conversations.AiModel(strings.ReplaceAll(aiModel, ".", "_"))
 	snsTypeEnt := conversations.SnsType(snsType)
@@ -31,13 +31,13 @@ func (conversationRepo *conversation) Create(ctx context.Context, aiModel string
 
 	c, err := conversationRepo.db.Conversations.Create().SetAiModel(aiModelEnt).SetSnsType(snsTypeEnt).SetCmdVersion(cmdVersionEnt).Save(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return strconv.Itoa(c.ID), nil
+	return conversation_model.NewID(strconv.Itoa(c.ID)), nil
 }
 
-func (conversationRepo *conversation) FetchByID(ctx context.Context, conversationID string) (*conversation_model.Conversation, error) {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (conversationRepo *conversation) FetchByID(ctx context.Context, conversationID *conversation_model.ID) (*conversation_model.Conversation, error) {
+	conversationIDInt, err := conversationID.ToInt()
 	c, err := conversationRepo.db.Conversations.Get(ctx, conversationIDInt)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (conversationRepo *conversation) FetchByID(ctx context.Context, conversatio
 	isAborted := c.IsAborted
 
 	conversation := conversation_model.NewConversation(
-		conversationID,
+		conversationID.ToString(),
 		aiModel,
 		snsType,
 		cmdVersion,
@@ -59,8 +59,8 @@ func (conversationRepo *conversation) FetchByID(ctx context.Context, conversatio
 	return conversation, nil
 }
 
-func (conversationRepo *conversation) Abort(ctx context.Context, conversationID string, reason string) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (conversationRepo *conversation) Abort(ctx context.Context, conversationID *conversation_model.ID, reason string) error {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}
