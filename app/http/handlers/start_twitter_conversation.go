@@ -10,6 +10,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 
+	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt/v0_1"
@@ -68,7 +69,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 
 		startConvarsationUsecase := usecases.NewStartConversation(snsSvc, promptSvc, aiSvc, conversationRepo)
 
-		err = startConvarsationUsecase.Execute(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
+		err = startConvarsationUsecase.Execute(r.Context(), sns_model.NewAccountID(req.TwitterID), req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {
 			// ToDo: エラーの内容に応じてresponseを変える
 			internalStartTwitterConversationError(err)

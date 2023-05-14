@@ -22,7 +22,7 @@ func (uc *AbortConversation) Execute(ctx context.Context, conversationID *conver
 	if err != nil {
 		return err
 	}
-	err = uc.snsSvc.RemoveAccountConversationID(ctx, account.ID())
+	err = uc.snsSvc.RemoveAccountConversationID(ctx, &account.AccountID)
 	if err != nil {
 		return err
 	}
