@@ -268,6 +268,9 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context
 		if resp.StatusCode == http.StatusNotFound {
 			return sns_model.NewGetOtherMessagesResponse(nil, "user_id not found."), nil
 		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewGetOtherMessagesResponse(nil, "One or more parameters to your request was invalid."), nil
+		}
 		return nil, fmt.Errorf("twitter API error")
 	}
 
