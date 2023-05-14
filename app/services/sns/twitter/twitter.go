@@ -124,7 +124,7 @@ func (sns *snsServiceTwitterImpl) ExecutePostMessageCmd(ctx context.Context, acc
 	}
 
 	newReq.Header.Set("Content-Type", "application/json")
-	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken))
+	newReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.AccessToken)) // ToDo: アクセストークンのリフレッシュを実装する #30
 
 	c := http.Client{}
 	resp, err := c.Do(newReq)

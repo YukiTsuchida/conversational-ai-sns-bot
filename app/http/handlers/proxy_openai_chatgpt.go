@@ -48,6 +48,8 @@ type ChatGPTAPIResponse struct {
 
 func ProxyOpenAIChatGPTHandler() func(w http.ResponseWriter, r *http.Request) {
 
+	// ToDo: ここの処理をservices/aiに移す #26
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req chatgpt_3_5_turbo.Request // ToDo: 実装に依存してしまってるので治す
 		err := json.NewDecoder(r.Body).Decode(&req)

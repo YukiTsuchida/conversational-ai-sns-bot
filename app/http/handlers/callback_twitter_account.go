@@ -14,6 +14,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns/twitter"
 )
 
+// ToDo: twitterに依存する処理がベタ書きなのでservices/snsに移動する #27
 func CallbackTwitterAccountHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
 	// DI
 	snsSvc := twitter.NewSNSServiceTwitterImpl(db)
