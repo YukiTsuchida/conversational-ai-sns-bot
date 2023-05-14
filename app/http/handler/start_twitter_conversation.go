@@ -8,11 +8,11 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 
@@ -66,9 +66,9 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		startConvarsationService := service.NewStartConversationService(sns, prompt, ai, conversationRepo)
+		startConvarsationUsecase := usecases.NewStartConversation(sns, prompt, ai, conversationRepo)
 
-		err = startConvarsationService.StartConversation(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
+		err = startConvarsationUsecase.Execute(r.Context(), req.TwitterID, req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {
 			// ToDo: エラーの内容に応じてresponseを変える
 			internalStartTwitterConversationError(err)

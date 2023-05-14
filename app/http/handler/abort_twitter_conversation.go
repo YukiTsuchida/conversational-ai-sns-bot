@@ -8,8 +8,8 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 )
 
 type AbortTwitterConversationRequest struct {
@@ -20,7 +20,7 @@ func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 
 	sns := twitter.NewSNSTwitterImpl(db)
 	conversationRepo := conversation.NewConversationRepository(db)
-	abortConversationService := service.NewAbortConversationService(sns, conversationRepo)
+	abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req AbortTwitterConversationRequest
@@ -47,7 +47,7 @@ func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		err = abortConversationService.AbortConversation(r.Context(), account.ConversationID(), "aborted by user")
+		err = abortConversationUsecase.Execute(r.Context(), account.ConversationID(), "aborted by user")
 		if err != nil {
 			// ToDo: エラーの内容に応じてresponseを変える
 			internalAbortTwitterConversationError(err)

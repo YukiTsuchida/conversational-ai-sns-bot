@@ -12,9 +12,9 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/service"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -73,13 +73,13 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationService := service.NewReplyConversationService(sns, prompt, ai, conversationRepo)
-		abortConversationService := service.NewAbortConversationService(sns, conversationRepo)
+		replyConversationUsecase := usecases.NewReplyConversation(sns, prompt, ai, conversationRepo)
+		abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
 
 		// エラーがあればconversationをabortする
 		if req.ErrMessage != "" {
 			abortReason := req.ErrMessage
-			err = abortConversationService.AbortConversation(r.Context(), conversationID, abortReason)
+			err = abortConversationUsecase.Execute(r.Context(), conversationID, abortReason)
 			if err != nil {
 				internalReplyConversationError(err)
 				http.Error(w, "failed to abort_conversation: "+err.Error(), http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			return
 		}
 
-		err = replyConversationService.ReplyConversation(r.Context(), conversationID, req.Message)
+		err = replyConversationUsecase.Execute(r.Context(), conversationID, req.Message)
 		if err != nil {
 			// ToDo: エラーの内容に応じてresponseを変える
 			internalReplyConversationError(err)
