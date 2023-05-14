@@ -23,7 +23,6 @@ func main() {
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
-	r.Post("/accounts/twitter", handler.RegisterTwitterAccountHandler(db))
 	r.Post("/conversations/twitter", handler.StartTwitterConversationHandler(db))
 	r.Delete("/conversations/twitter", handler.AbortTwitterConversationHandler(db))
 	r.Post("/conversations/{id}/reply", handler.ReplyConversationHandler(db))

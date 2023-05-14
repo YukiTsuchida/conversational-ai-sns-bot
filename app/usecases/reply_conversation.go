@@ -1,4 +1,4 @@
-package service
+package usecases
 
 import (
 	"context"
@@ -14,16 +14,16 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
-type ReplyConversationService struct {
+type ReplyConversation struct {
 	sns              sns.SNS
 	prompt           prompt.Prompt
 	ai               ai.AI
 	conversationRepo conversation.ConversationRepository
 }
 
-func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conversationID string, message string) error {
+func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string, message string) error {
 	// conversationが存在するか確認
-	conversation, err := svc.conversationRepo.FetchByID(ctx, conversationID)
+	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -34,13 +34,13 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 	}
 
 	// accountを取得
-	account, err := svc.sns.FetchAccountByConversationID(ctx, conversationID)
+	account, err := uc.sns.FetchAccountByConversationID(ctx, conversationID)
 	if err != nil {
 		return err
 	}
 
 	// messageからcmdを抽出する
-	cmds := svc.prompt.ParseCmdsByMessage(message)
+	cmds := uc.prompt.ParseCmdsByMessage(message)
 
 	// purposeコマンドを探す
 	var purpose string
@@ -55,7 +55,7 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 	}
 
 	// AIからのメッセージをログに追加
-	err = svc.ai.AppendAIMessage(ctx, conversationID, message, purpose)
+	err = uc.ai.AppendAIMessage(ctx, conversationID, message, purpose)
 	if err != nil {
 		return err
 	}
@@ -75,11 +75,11 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 				return err
 			}
 			cmd := cmd_model.NewPostMessageCommand(message)
-			snsRes, err := svc.sns.ExecutePostMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecutePostMessageCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessagePostMessage(snsRes)
+			nextMessage = uc.prompt.BuildNextMessagePostMessage(snsRes)
 		} else if cmd.IsGetMyMessages() {
 			maxResults, err := cmd.OptionInInt("max_results")
 			if err != nil {
@@ -87,11 +87,11 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 				return err
 			}
 			cmd := cmd_model.NewGetMyMessagesCommand(maxResults)
-			snsRes, err := svc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteGetMyMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageGetMyMessages(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageGetMyMessages(snsRes)
 		} else if cmd.IsGetOtherMessages() {
 			userID, err := cmd.Option("user_id")
 			if err != nil {
@@ -103,11 +103,11 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 				return err
 			}
 			cmd := cmd_model.NewGetOtherMessagesCommand(userID, maxResults)
-			snsRes, err := svc.sns.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteGetOtherMessagesCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageGetOtherMessages(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageGetOtherMessages(snsRes)
 		} else if cmd.IsSearchMessage() {
 			query, err := cmd.Option("query")
 			if err != nil {
@@ -119,29 +119,29 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 				return err
 			}
 			cmd := cmd_model.NewSearchMessageCommand(query, maxResults)
-			snsRes, err := svc.sns.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteSearchMessageCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageSearchMessage(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageSearchMessage(snsRes)
 		} else if cmd.IsGetMyProfile() {
 			cmd := cmd_model.NewGetMyProfileCommand()
-			snsRes, err := svc.sns.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageGetMyProfile(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageGetMyProfile(snsRes)
 		} else if cmd.IsGetOthersProfile() {
 			userID, err := cmd.Option("user_id")
 			if err != nil {
 				return err
 			}
 			cmd := cmd_model.NewGetOthersProfileCommand(userID)
-			snsRes, err := svc.sns.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteGetOthersProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageGetOthersProfile(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageGetOthersProfile(snsRes)
 		} else if cmd.IsUpdateMyProfile() {
 			name, err := cmd.Option("name")
 			if err != nil {
@@ -152,16 +152,16 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 				return err
 			}
 			cmd := cmd_model.NewUpdateMyProfileCommand(name, description)
-			snsRes, err := svc.sns.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
+			snsRes, err := uc.sns.ExecuteUpdateMyProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = svc.prompt.BuildNextMessageUpdateMyProfile(snsRes)
+			nextMessage = uc.prompt.BuildNextMessageUpdateMyProfile(snsRes)
 		} else {
 			// 存在しない
 			continue
 		}
-		err = svc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
+		err = uc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err
 		}
@@ -169,8 +169,8 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 
 	if len(cmds) == 0 {
 		// cmdがない場合は、メッセージが間違ってるよって教える
-		nextMessage := svc.prompt.BuildNextMessageCommandNotFound()
-		err = svc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
+		nextMessage := uc.prompt.BuildNextMessageCommandNotFound()
+		err = uc.ai.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err
 		}
@@ -179,7 +179,7 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 	time.Sleep(time.Duration(config.SLEEP_TIME_FOR_REPLY_SECONDS()) * time.Second)
 
 	// 会話履歴を結合して対話型AI用のリクエストを生成して送信する
-	err = svc.ai.SendRequest(ctx, conversationID)
+	err = uc.ai.SendRequest(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -187,6 +187,6 @@ func (svc *ReplyConversationService) ReplyConversation(ctx context.Context, conv
 	return nil
 }
 
-func NewReplyConversationService(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *ReplyConversationService {
-	return &ReplyConversationService{sns, prompt, ai, conversationRepo}
+func NewReplyConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *ReplyConversation {
+	return &ReplyConversation{sns, prompt, ai, conversationRepo}
 }

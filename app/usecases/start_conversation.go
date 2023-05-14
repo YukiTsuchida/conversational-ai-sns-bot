@@ -1,4 +1,4 @@
-package service
+package usecases
 
 import (
 	"context"
@@ -11,16 +11,16 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
-type StartConversationService struct {
+type StartConversation struct {
 	sns              sns.SNS
 	prompt           prompt.Prompt
 	ai               ai.AI
 	conversationRepo conversation.ConversationRepository
 }
 
-func (svc *StartConversationService) StartConversation(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
+func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
 	// accountが存在するか確認
-	account, err := svc.sns.FetchAccountByID(ctx, accountID)
+	account, err := uc.sns.FetchAccountByID(ctx, accountID)
 	if err != nil {
 		return err
 	}
@@ -31,28 +31,28 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	}
 
 	// conversationを新規作成する
-	conversationID, err := svc.conversationRepo.Create(ctx, aiModel, snsType, cmdVersion)
+	conversationID, err := uc.conversationRepo.Create(ctx, aiModel, snsType, cmdVersion)
 	if err != nil {
 		return err
 	}
 
 	// accountにconversation_idを付与する(accountとconversationを1:1対応させたいため)
-	err = svc.sns.GiveAccountConversationID(ctx, accountID, conversationID)
+	err = uc.sns.GiveAccountConversationID(ctx, accountID, conversationID)
 	if err != nil {
 		return err
 	}
 
 	// 最初に送る文章を生成する
-	msg := svc.prompt.BuildFirstMessage()
+	msg := uc.prompt.BuildFirstMessage()
 
 	// 会話履歴を追加する
-	err = svc.ai.AppendSystemMessage(ctx, conversationID, msg)
+	err = uc.ai.AppendSystemMessage(ctx, conversationID, msg)
 	if err != nil {
 		return err
 	}
 
 	// 会話履歴を結合して対話型AI用のリクエストを生成して送信する
-	err = svc.ai.SendRequest(ctx, conversationID)
+	err = uc.ai.SendRequest(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -60,6 +60,6 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	return nil
 }
 
-func NewStartConversationService(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversationService {
-	return &StartConversationService{sns, prompt, ai, conversationRepo}
+func NewStartConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversation {
+	return &StartConversation{sns, prompt, ai, conversationRepo}
 }
