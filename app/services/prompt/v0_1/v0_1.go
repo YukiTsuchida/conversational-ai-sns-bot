@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
@@ -16,8 +17,8 @@ var _ prompt.Service = (*promptServiceV0_1Impl)(nil)
 type promptServiceV0_1Impl struct {
 }
 
-func (prompt *promptServiceV0_1Impl) BuildFirstMessage() string {
-	return `
+func (prompt *promptServiceV0_1Impl) BuildSystemMessage() *ai.SystemMessage {
+	return ai.NewSystemMessage(`
 A certain social networking site allows you to perform the following actions
 
 Post a message
@@ -54,212 +55,213 @@ For example, if you want to get user information about yourself, please reply "G
 I will feed back the result of the action each time. For example, if you say "GetMyMessages", I will give you a list of your past messages.
 
 Your goal is to get closer to more people through social networking. What would you like to do first? From this point on, you can only talk to me on command.
-	`
+	`)
 }
 
-func (prompt *promptServiceV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessagePostMessageResult(res *sns.PostMessageResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		return `
+		return ai.NewUserMessage(`
 		Your message has been posted.
-		`
+		`)
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to post your message.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageGetMyMessagesResult(res *sns.GetMyMessagesResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		nextMessage = `
+		nextMessage = ai.NewUserMessage(`
 		Below is a list of messages you posted.
 
-		`
+		`)
 		for _, message := range res.Messages() {
-			nextMessage += fmt.Sprintf("- message=\"%s\"\n", message)
+			nextMessage.Append(fmt.Sprintf("- message=\"%s\"\n", message))
 		}
 		return nextMessage
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to get your messages.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessagesResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageGetOtherMessagesResult(res *sns.GetOtherMessagesResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		nextMessage = `
+		nextMessage = ai.NewUserMessage(`
 		The following messages were found.
 
-		`
+		`)
 		for _, message := range res.Messages() {
-			nextMessage += fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message())
+			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to get messages.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageSearchMessageResult(res *sns.SearchMessageResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		nextMessage = `
+		nextMessage = ai.NewUserMessage(`
 		The following messages were found.
 
-		`
+		`)
 		for _, message := range res.Messages() {
-			nextMessage += fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message())
+			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to search messages.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageGetMyProfileResult(res *sns.GetMyProfileResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		nextMessage = `
+		nextMessage = ai.NewUserMessage(`
 		This is your profile.
 
-		`
-		nextMessage += fmt.Sprintf("- name=\"%s\"\n", res.Name())
-		nextMessage += fmt.Sprintf("- description=\"%s\"\n", res.Description())
+		`)
+		nextMessage.Append(fmt.Sprintf("- name=\"%s\"\n", res.Name()))
+		nextMessage.Append(fmt.Sprintf("- description=\"%s\"\n", res.Description()))
 		return nextMessage
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to get your profile.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfileResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageGetOthersProfileResult(res *sns.GetOthersProfileResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		nextMessage = `
+		nextMessage = ai.NewUserMessage(`
 		The following profile was found.
 
-		`
-		nextMessage += fmt.Sprintf("- user_id=\"%s\"\n", res.UserID())
-		nextMessage += fmt.Sprintf("- name=\"%s\"\n", res.Name())
-		nextMessage += fmt.Sprintf("- description=\"%s\"\n", res.Description())
+		`)
+		nextMessage.Append(fmt.Sprintf("- user_id=\"%s\"\n", res.UserID()))
+		nextMessage.Append(fmt.Sprintf("- name=\"%s\"\n", res.Name()))
+		nextMessage.Append(fmt.Sprintf("- description=\"%s\"\n", res.Description()))
 		return nextMessage
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to get profile.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
-func (prompt *promptServiceV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfileResponse) (nextMessage string) {
+func (prompt *promptServiceV0_1Impl) BuildUserMessageUpdateMyProfileResult(res *sns.UpdateMyProfileResponse) (nextMessage *ai.UserMessage) {
 	defer func() {
-		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
+		nextMessage.Append("\nWhat do you want to do next?\nplease talk to me on command.")
 	}()
 	if res == nil {
 		// ないとは思うが、SNSのレスポンスがない場合
-		return `
+		return ai.NewUserMessage(`
 		No response found from SNS.
-		`
+		`)
 	}
 
 	cmdSuccess := !res.ErrorOccured()
 
 	if cmdSuccess {
-		return `
+		return ai.NewUserMessage(`
 		Your profile has been updated.
-		`
+		`)
 	} else {
-		return `
+		return ai.NewUserMessage(`
 		Failed to update profile.
 
-		reason: ` + res.ErrReason()
+		reason: ` + res.ErrReason())
 	}
 }
 
-func (prompt *promptServiceV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
-	return `
+func (prompt *promptServiceV0_1Impl) BuildUserMessageCommandNotFoundResult() (nextMessage *ai.UserMessage) {
+	return ai.NewUserMessage(`
 		Command not found.
 		What do you want to do next?
 		please talk to me on only command.
-		`
+		`)
 }
 
-func (prompt *promptServiceV0_1Impl) ParseCmdsByMessage(message string) []*cmd_model.Command {
+func (prompt *promptServiceV0_1Impl) ParseCmdsByAIMessage(aiMsg *ai.AIMessage) []*cmd_model.Command {
+	message := aiMsg.ToString()
 	var cmds []*cmd_model.Command
 	lines := strings.Split(message, "\n")
 	for _, line := range lines {

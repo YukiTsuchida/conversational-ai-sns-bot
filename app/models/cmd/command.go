@@ -7,7 +7,7 @@ import (
 
 type Command struct {
 	cmdType Type
-	options map[string]string // ここも型化したいがやり方がわからん
+	options map[string]string
 }
 
 func NewCommand(cmdType Type, options map[string]string) *Command {

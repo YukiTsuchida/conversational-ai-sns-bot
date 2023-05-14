@@ -10,6 +10,7 @@ import (
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"google.golang.org/api/option"
 	taskspb "google.golang.org/genproto/googleapis/cloud/tasks/v2"
@@ -182,36 +183,36 @@ func calcToken(text string) (int, error) {
 	return len(token), nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendSystemMessage(ctx context.Context, conversationID string, message *ai_model.SystemMessage) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
 	}
-	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message).SetRole(chatgpt35turboconversationlog.RoleSystem).Save(ctx)
+	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message.ToString()).SetRole(chatgpt35turboconversationlog.RoleSystem).Save(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendUserMessage(ctx context.Context, conversationID string, message *ai_model.UserMessage) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
 	}
-	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message).SetRole(chatgpt35turboconversationlog.RoleUser).Save(ctx)
+	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message.ToString()).SetRole(chatgpt35turboconversationlog.RoleUser).Save(ctx)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message string, purpose string) error {
+func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, conversationID string, message *ai_model.AIMessage, purpose string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
 	}
-	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message).SetRole(chatgpt35turboconversationlog.RoleAssistant).Save(ctx)
+	_, err = ai.db.Chatgpt35TurboConversationLog.Create().SetConversationID(conversationIDInt).SetMessage(message.ToString()).SetRole(chatgpt35turboconversationlog.RoleAssistant).Save(ctx)
 	if err != nil {
 		return err
 	}
