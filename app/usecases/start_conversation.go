@@ -43,7 +43,7 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	}
 
 	// 最初に送る文章を生成する
-	msg := uc.promptSvc.BuildFirstMessage()
+	msg := uc.promptSvc.BuildSystemMessage()
 
 	// 会話履歴を追加する
 	err = uc.aiSvc.AppendSystemMessage(ctx, conversationID, msg)

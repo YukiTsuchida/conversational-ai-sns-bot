@@ -8,6 +8,7 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 
+	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
@@ -21,7 +22,7 @@ type ReplyConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string, message string) error {
+func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string, message *ai_model.AIMessage) error {
 	// conversationが存在するか確認
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationID)
 	if err != nil {
@@ -40,7 +41,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	}
 
 	// messageからcmdを抽出する
-	cmds := uc.promptSvc.ParseCmdsByMessage(message)
+	cmds := uc.promptSvc.ParseCmdsByAIMessage(message)
 
 	// purposeコマンドを探す
 	var purpose string
@@ -67,7 +68,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			// purposeログは無視
 			continue
 		}
-		var nextMessage string
+		var nextMessage *ai_model.UserMessage
 		if cmd.IsPostMessage() {
 			message, err := cmd.Option("message")
 			if err != nil {
@@ -79,7 +80,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessagePostMessage(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessagePostMessageResult(snsRes)
 		} else if cmd.IsGetMyMessages() {
 			maxResults, err := cmd.OptionInInt("max_results")
 			if err != nil {
@@ -91,7 +92,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageGetMyMessages(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageGetMyMessagesResult(snsRes)
 		} else if cmd.IsGetOtherMessages() {
 			userID, err := cmd.Option("user_id")
 			if err != nil {
@@ -107,7 +108,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageGetOtherMessages(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageGetOtherMessagesResult(snsRes)
 		} else if cmd.IsSearchMessage() {
 			query, err := cmd.Option("query")
 			if err != nil {
@@ -123,14 +124,14 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageSearchMessage(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageSearchMessageResult(snsRes)
 		} else if cmd.IsGetMyProfile() {
 			cmd := cmd_model.NewGetMyProfileCommand()
 			snsRes, err := uc.snsSvc.ExecuteGetMyProfileCmd(ctx, account.ID(), cmd)
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageGetMyProfile(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageGetMyProfileResult(snsRes)
 		} else if cmd.IsGetOthersProfile() {
 			userID, err := cmd.Option("user_id")
 			if err != nil {
@@ -141,7 +142,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageGetOthersProfile(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageGetOthersProfileResult(snsRes)
 		} else if cmd.IsUpdateMyProfile() {
 			name, err := cmd.Option("name")
 			if err != nil {
@@ -156,7 +157,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 			if err != nil {
 				return err
 			}
-			nextMessage = uc.promptSvc.BuildNextMessageUpdateMyProfile(snsRes)
+			nextMessage = uc.promptSvc.BuildUserMessageUpdateMyProfileResult(snsRes)
 		} else {
 			// 存在しない
 			continue
@@ -169,7 +170,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 
 	if len(cmds) == 0 {
 		// cmdがない場合は、メッセージが間違ってるよって教える
-		nextMessage := uc.promptSvc.BuildNextMessageCommandNotFound()
+		nextMessage := uc.promptSvc.BuildUserMessageCommandNotFoundResult()
 		err = uc.aiSvc.AppendUserMessage(ctx, conversationID, nextMessage)
 		if err != nil {
 			return err

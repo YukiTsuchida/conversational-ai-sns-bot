@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
@@ -90,7 +91,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			return
 		}
 
-		err = replyConversationUsecase.Execute(r.Context(), conversationID, req.Message)
+		err = replyConversationUsecase.Execute(r.Context(), conversationID, ai_model.NewAIMessage(req.Message))
 		if err != nil {
 			// ToDo: エラーの内容に応じてresponseを変える
 			internalReplyConversationError(err)
