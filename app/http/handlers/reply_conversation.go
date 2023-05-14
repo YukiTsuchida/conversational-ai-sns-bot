@@ -8,6 +8,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
@@ -40,7 +41,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "request body params were empty: message, err", http.StatusBadRequest)
 			return
 		}
-		conversationID := chi.URLParam(r, "id")
+		conversationID := conversation.NewID(chi.URLParam(r, "id"))
 
 		fmt.Println(req.Message)
 

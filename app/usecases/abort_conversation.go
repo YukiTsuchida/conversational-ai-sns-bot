@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
 )
@@ -12,7 +13,7 @@ type AbortConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *AbortConversation) Execute(ctx context.Context, conversationID string, reason string) error {
+func (uc *AbortConversation) Execute(ctx context.Context, conversationID *conversation.ID, reason string) error {
 	err := uc.conversationRepo.Abort(ctx, conversationID, reason)
 	if err != nil {
 		return err

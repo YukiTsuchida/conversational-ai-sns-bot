@@ -15,6 +15,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 
 	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
@@ -31,20 +32,20 @@ func (sns *snsServiceTwitterImpl) FetchAccountByID(ctx context.Context, accountI
 	if err != nil {
 		return nil, err
 	}
-	conversationID, err := account.QueryConversation().FirstID(ctx)
+	conversationIDInt, err := account.QueryConversation().FirstID(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			// レコードが見つからないケースは問題ない
-			return sns_model.NewAccount(account.TwitterAccountID, ""), nil
+			return sns_model.NewAccount(account.TwitterAccountID, nil), nil
 		}
 		return nil, err
 	}
-	conversationIDStr := strconv.Itoa(conversationID)
-	return sns_model.NewAccount(account.TwitterAccountID, conversationIDStr), nil
+	conversationID := conversation.NewID(strconv.Itoa(conversationIDInt))
+	return sns_model.NewAccount(account.TwitterAccountID, conversationID), nil
 }
 
-func (sns *snsServiceTwitterImpl) FetchAccountByConversationID(ctx context.Context, conversationID string) (*sns_model.Account, error) {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (sns *snsServiceTwitterImpl) FetchAccountByConversationID(ctx context.Context, conversationID *conversation.ID) (*sns_model.Account, error) {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +74,8 @@ func (sns *snsServiceTwitterImpl) CreateAccount(ctx context.Context, accountID s
 	return nil
 }
 
-func (sns *snsServiceTwitterImpl) GiveAccountConversationID(ctx context.Context, accountID string, conversationID string) error {
-	conversationIDInt, err := strconv.Atoi(conversationID)
+func (sns *snsServiceTwitterImpl) GiveAccountConversationID(ctx context.Context, accountID string, conversationID *conversation.ID) error {
+	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/sns"
@@ -22,7 +23,7 @@ type ReplyConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string, message *ai_model.AIMessage) error {
+func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conversation.ID, message *ai_model.AIMessage) error {
 	// conversationが存在するか確認
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationID)
 	if err != nil {
