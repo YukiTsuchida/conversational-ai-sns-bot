@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 )
@@ -19,7 +19,7 @@ type AbortTwitterConversationRequest struct {
 func AbortTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
 
 	sns := twitter.NewSNSTwitterImpl(db)
-	conversationRepo := conversation.NewConversationRepository(db)
+	conversationRepo := repositories.NewConversation(db)
 	abortConversationUsecase := usecases.NewAbortConversation(sns, conversationRepo)
 
 	return func(w http.ResponseWriter, r *http.Request) {

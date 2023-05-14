@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
@@ -15,7 +15,7 @@ type StartConversation struct {
 	sns              sns.SNS
 	prompt           prompt.Prompt
 	ai               ai.AI
-	conversationRepo conversation.ConversationRepository
+	conversationRepo repositories.Conversation
 }
 
 func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiModel string, snsType string, cmdVersion string) error {
@@ -60,6 +60,6 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID string, aiMo
 	return nil
 }
 
-func NewStartConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversation {
+func NewStartConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo repositories.Conversation) *StartConversation {
 	return &StartConversation{sns, prompt, ai, conversationRepo}
 }

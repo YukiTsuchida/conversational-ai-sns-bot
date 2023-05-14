@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
@@ -49,7 +49,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 		}
 
 		// DIは一旦ここでやる
-		var conversationRepo conversation.ConversationRepository = conversation.NewConversationRepository(db)
+		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
 		var sns sns.SNS = twitter.NewSNSTwitterImpl(db)
 		var ai ai.AI
 		var prompt prompt.Prompt

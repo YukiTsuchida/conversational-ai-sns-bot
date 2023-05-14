@@ -1,4 +1,4 @@
-package conversation
+package repositories
 
 import (
 	"context"
@@ -11,20 +11,19 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 )
 
-// 本来インタフェース切るまでもないが、service側にdbを直接さわるロジックを書きたくないので別packageに切り出した
-type ConversationRepository interface {
+type Conversation interface {
 	Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (string, error)
 	FetchByID(ctx context.Context, conversationID string) (*conversation_model.Conversation, error)
 	Abort(ctx context.Context, conversationID string, reason string) error
 }
 
-type conversationRepository struct {
+type conversation struct {
 	db *ent.Client
 }
 
-var _ ConversationRepository = (*conversationRepository)(nil)
+var _ Conversation = (*conversation)(nil)
 
-func (conversationRepo *conversationRepository) Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (string, error) {
+func (conversationRepo *conversation) Create(ctx context.Context, aiModel string, snsType string, cmdVersion string) (string, error) {
 	// ent用にデータを整形する、entでは「.」を使えないため全て「_」に置き換える
 	aiModelEnt := conversations.AiModel(strings.ReplaceAll(aiModel, ".", "_"))
 	snsTypeEnt := conversations.SnsType(snsType)
@@ -37,7 +36,7 @@ func (conversationRepo *conversationRepository) Create(ctx context.Context, aiMo
 	return strconv.Itoa(c.ID), nil
 }
 
-func (conversationRepo *conversationRepository) FetchByID(ctx context.Context, conversationID string) (*conversation_model.Conversation, error) {
+func (conversationRepo *conversation) FetchByID(ctx context.Context, conversationID string) (*conversation_model.Conversation, error) {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	c, err := conversationRepo.db.Conversations.Get(ctx, conversationIDInt)
 	if err != nil {
@@ -60,7 +59,7 @@ func (conversationRepo *conversationRepository) FetchByID(ctx context.Context, c
 	return conversation, nil
 }
 
-func (conversationRepo *conversationRepository) Abort(ctx context.Context, conversationID string, reason string) error {
+func (conversationRepo *conversation) Abort(ctx context.Context, conversationID string, reason string) error {
 	conversationIDInt, err := strconv.Atoi(conversationID)
 	if err != nil {
 		return err
@@ -73,6 +72,6 @@ func (conversationRepo *conversationRepository) Abort(ctx context.Context, conve
 	return nil
 }
 
-func NewConversationRepository(db *ent.Client) ConversationRepository {
-	return &conversationRepository{db}
+func NewConversation(db *ent.Client) Conversation {
+	return &conversation{db}
 }

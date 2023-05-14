@@ -8,10 +8,10 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt/v0_1"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns/twitter"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
@@ -25,7 +25,7 @@ type ReplyConversationRequest struct {
 
 func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
 
-	conversationRepo := conversation.NewConversationRepository(db)
+	conversationRepo := repositories.NewConversation(db)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req ReplyConversationRequest
