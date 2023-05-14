@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/http/handler"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/http/handler"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 type AbortConversationService struct {

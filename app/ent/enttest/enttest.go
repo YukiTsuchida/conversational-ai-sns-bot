@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	// required by schema hooks.
-	_ "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/runtime"
+	_ "github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/migrate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/migrate"
 )
 
 type (

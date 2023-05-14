@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/predicate"
 )
 
 // Chatgpt35TurboConversationLogQuery is the builder for querying Chatgpt35TurboConversationLog entities.

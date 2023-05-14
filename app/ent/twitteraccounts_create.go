@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 )
 
 // TwitterAccountsCreate is the builder for creating a TwitterAccounts entity.

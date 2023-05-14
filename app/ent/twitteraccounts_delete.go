@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/predicate"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/predicate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 )
 
 // TwitterAccountsDelete is the builder for deleting a TwitterAccounts entity.

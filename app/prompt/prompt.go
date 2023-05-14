@@ -1,11 +1,11 @@
-package cmd
+package prompt
 
 import (
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
 )
 
-type Cmd interface {
+type Prompt interface {
 	BuildFirstMessage() string
 	BuildNextMessageCommandNotFound() string
 	BuildNextMessagePostMessage(snsResponse *sns.PostMessageResponse) string

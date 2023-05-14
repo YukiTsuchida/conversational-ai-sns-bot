@@ -8,15 +8,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/migrate"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/twitteraccounts"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/twitteraccounts"
 )
 
 // Client is the client that holds all ent builders.

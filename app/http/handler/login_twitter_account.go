@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 )
 
 func LoginTwitterAccountHandler() func(w http.ResponseWriter, r *http.Request) {

@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/chatgpt35turboconversationlog"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/conversations"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 )
 
 // Chatgpt35TurboConversationLogCreate is the builder for creating a Chatgpt35TurboConversationLog entity.

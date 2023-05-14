@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ent/runtime.go
+// The schema-stitching logic is generated in github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/runtime.go
 
 const (
 	Version = "v0.12.3"                                         // Version of ent codegen.

@@ -6,17 +6,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
-	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/model/sns"
+	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/model/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 )
 
-var _ cmd.Cmd = (*cmdV0_1Impl)(nil)
+var _ prompt.Prompt = (*promptV0_1Impl)(nil)
 
-type cmdV0_1Impl struct {
+type promptV0_1Impl struct {
 }
 
-func (cmd *cmdV0_1Impl) BuildFirstMessage() string {
+func (prompt *promptV0_1Impl) BuildFirstMessage() string {
 	return `
 A certain social networking site allows you to perform the following actions
 
@@ -57,7 +57,7 @@ Your goal is to get closer to more people through social networking. What would 
 	`
 }
 
-func (cmd *cmdV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -81,7 +81,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessagePostMessage(res *sns.PostMessageResponse
 		reason: ` + res.ErrReason()
 	}
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -110,7 +110,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetMyMessages(res *sns.GetMyMessagesResp
 		reason: ` + res.ErrReason()
 	}
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessagesResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessagesResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -140,7 +140,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetOtherMessages(res *sns.GetOtherMessag
 	}
 
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -169,7 +169,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageSearchMessage(res *sns.SearchMessageResp
 		reason: ` + res.ErrReason()
 	}
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -197,7 +197,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetMyProfile(res *sns.GetMyProfileRespon
 		reason: ` + res.ErrReason()
 	}
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfileResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfileResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -226,7 +226,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageGetOthersProfile(res *sns.GetOthersProfi
 		reason: ` + res.ErrReason()
 	}
 }
-func (cmd *cmdV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfileResponse) (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfileResponse) (nextMessage string) {
 	defer func() {
 		nextMessage += "\nWhat do you want to do next?\nplease talk to me on command."
 	}()
@@ -251,7 +251,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageUpdateMyProfile(res *sns.UpdateMyProfile
 	}
 }
 
-func (cmd *cmdV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
+func (prompt *promptV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
 	return `
 		Command not found.
 		What do you want to do next?
@@ -259,7 +259,7 @@ func (cmd *cmdV0_1Impl) BuildNextMessageCommandNotFound() (nextMessage string) {
 		`
 }
 
-func (cmd *cmdV0_1Impl) ParseCmdsByMessage(message string) []*cmd_model.Command {
+func (prompt *promptV0_1Impl) ParseCmdsByMessage(message string) []*cmd_model.Command {
 	var cmds []*cmd_model.Command
 	lines := strings.Split(message, "\n")
 	for _, line := range lines {
@@ -381,6 +381,6 @@ func parseOption(line string, optionName string) string {
 	return val
 }
 
-func NewCmdV0_1Impl() cmd.Cmd {
-	return &cmdV0_1Impl{}
+func NewPromptV0_1Impl() prompt.Prompt {
+	return &promptV0_1Impl{}
 }

@@ -9,9 +9,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/config"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai/chatgpt_3_5_turbo"
 )
 
 // ChatGPT APIに投げるリクエストのbody型

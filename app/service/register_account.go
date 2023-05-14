@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 type RegisterAccountService struct {

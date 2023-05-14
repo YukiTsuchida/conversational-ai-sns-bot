@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/cmd"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/controller/sns"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 type StartConversationService struct {
 	sns              sns.SNS
-	cmd              cmd.Cmd
+	prompt           prompt.Prompt
 	ai               ai.AI
 	conversationRepo conversation.ConversationRepository
 }
@@ -43,7 +43,7 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	}
 
 	// 最初に送る文章を生成する
-	msg := svc.cmd.BuildFirstMessage()
+	msg := svc.prompt.BuildFirstMessage()
 
 	// 会話履歴を追加する
 	err = svc.ai.AppendSystemMessage(ctx, conversationID, msg)
@@ -60,6 +60,6 @@ func (svc *StartConversationService) StartConversation(ctx context.Context, acco
 	return nil
 }
 
-func NewStartConversationService(sns sns.SNS, cmd cmd.Cmd, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversationService {
-	return &StartConversationService{sns, cmd, ai, conversationRepo}
+func NewStartConversationService(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *StartConversationService {
+	return &StartConversationService{sns, prompt, ai, conversationRepo}
 }
