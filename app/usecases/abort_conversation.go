@@ -3,13 +3,13 @@ package usecases
 import (
 	"context"
 
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
 type AbortConversation struct {
 	sns              sns.SNS
-	conversationRepo conversation.ConversationRepository
+	conversationRepo repositories.Conversation
 }
 
 func (uc *AbortConversation) Execute(ctx context.Context, conversationID string, reason string) error {
@@ -28,6 +28,6 @@ func (uc *AbortConversation) Execute(ctx context.Context, conversationID string,
 	return nil
 }
 
-func NewAbortConversation(sns sns.SNS, conversationRepo conversation.ConversationRepository) *AbortConversation {
+func NewAbortConversation(sns sns.SNS, conversationRepo repositories.Conversation) *AbortConversation {
 	return &AbortConversation{sns, conversationRepo}
 }

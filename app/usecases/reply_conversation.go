@@ -9,8 +9,8 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/prompt"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ai"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/conversation"
 	cmd_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/cmd"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/sns"
 )
 
@@ -18,7 +18,7 @@ type ReplyConversation struct {
 	sns              sns.SNS
 	prompt           prompt.Prompt
 	ai               ai.AI
-	conversationRepo conversation.ConversationRepository
+	conversationRepo repositories.Conversation
 }
 
 func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string, message string) error {
@@ -187,6 +187,6 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID string,
 	return nil
 }
 
-func NewReplyConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo conversation.ConversationRepository) *ReplyConversation {
+func NewReplyConversation(sns sns.SNS, prompt prompt.Prompt, ai ai.AI, conversationRepo repositories.Conversation) *ReplyConversation {
 	return &ReplyConversation{sns, prompt, ai, conversationRepo}
 }
