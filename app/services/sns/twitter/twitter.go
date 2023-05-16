@@ -423,7 +423,8 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, ac
 		return nil, err
 	}
 
-	return sns_model.NewGetMyProfileResponse(j.Data.Name, j.Data.Description, ""), nil
+	// return sns_model.NewGetMyProfileResponse(j.Data.Name, j.Data.Description, ""), nil
+	return sns_model.NewGetMyProfileResponse(j.Data.Name, "my description", ""), nil // 一時的にdescriptionは封鎖する
 }
 
 type getOthersProfileResponse struct {

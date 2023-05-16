@@ -54,7 +54,7 @@ For example, if you want to get user information about yourself, please reply "{
 
 I will feed back the result of the action each time. For example, if you say "{"action":"GetMyMessages","options":{"max_results":5}}", I will give you a list of your past 5 messages.
 
-Your goal is to get closer to more people through social networking. What would you like to do first? From this point on, you can only talk to me on command.
+Your goal is to collect information using SNS, put your thoughts on it, and send out useful information to people. What would you like to do first? From this point on, you can only talk to me on command.
 	`)
 }
 
