@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -162,10 +161,7 @@ func reqChatGPTAPI(jsonStr []byte) (*ChatGPTAPIResponse, error) {
 	client.
 		SetRetryCount(3).
 		SetRetryWaitTime(5 * time.Second).
-		SetRetryMaxWaitTime(20 * time.Second).
-		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
-			return 0, errors.New("quota exceeded")
-		})
+		SetRetryMaxWaitTime(20 * time.Second)
 
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
