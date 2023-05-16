@@ -9,14 +9,18 @@ func NewGetMyMessagesResponse(messages []string, errReason string) *GetMyMessage
 	return &GetMyMessagesResponse{messages, errReason}
 }
 
-func (response GetMyMessagesResponse) Messages() []string {
+func (response *GetMyMessagesResponse) AppendMessage(message string) {
+	response.messages = append(response.messages, message)
+}
+
+func (response *GetMyMessagesResponse) Messages() []string {
 	return response.messages
 }
 
-func (response GetMyMessagesResponse) ErrorOccured() bool {
+func (response *GetMyMessagesResponse) ErrorOccured() bool {
 	return response.errReason != ""
 }
 
-func (response GetMyMessagesResponse) ErrReason() string {
+func (response *GetMyMessagesResponse) ErrReason() string {
 	return response.errReason
 }

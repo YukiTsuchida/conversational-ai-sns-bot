@@ -130,7 +130,7 @@ func (prompt *promptServiceV0_1Impl) BuildUserMessageGetOtherMessagesResult(res 
 
 		`)
 		for _, message := range res.Messages() {
-			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
+			nextMessage.Append(fmt.Sprintf("- user_id=\"%s\", message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {
@@ -160,7 +160,7 @@ func (prompt *promptServiceV0_1Impl) BuildUserMessageSearchMessageResult(res *sn
 
 		`)
 		for _, message := range res.Messages() {
-			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
+			nextMessage.Append(fmt.Sprintf("- user_id=\"%s\", message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {

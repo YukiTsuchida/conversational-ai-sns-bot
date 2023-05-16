@@ -143,7 +143,14 @@ func (sns *snsServiceTwitterImpl) ExecutePostMessageCmd(ctx context.Context, acc
 		} else {
 			fmt.Println(string(b))
 		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewPostMessageResponse("One or more parameters to your request was invalid."), nil
+		}
 		return sns_model.NewPostMessageResponse("post tweet failed"), fmt.Errorf("twitter API error")
+	}
+
+	if cachedGetMyMessagesResponse != nil {
+		cachedGetMyMessagesResponse.AppendMessage(cmd.Message())
 	}
 
 	return sns_model.NewPostMessageResponse(""), nil
@@ -155,7 +162,14 @@ type getMyMessagesResponse struct {
 	} `json:"data"`
 }
 
+var cachedGetMyMessagesResponse *sns_model.GetMyMessagesResponse
+
 func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
+	if cachedGetMyMessagesResponse != nil {
+		// レートリミットが厳しいのでcacheして返す
+		return cachedGetMyMessagesResponse, nil
+	}
+
 	maxResults := cmd.MaxResults()
 	if maxResults < 5 || 10 < maxResults {
 		maxResults = 5
@@ -204,6 +218,9 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, a
 		} else {
 			fmt.Println(string(b))
 		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewGetMyMessagesResponse(nil, "One or more parameters to your request was invalid."), nil
+		}
 		return sns_model.NewGetMyMessagesResponse(nil, "get my messages failed"), fmt.Errorf("twitter API error")
 	}
 
@@ -217,7 +234,9 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, a
 		messages = append(messages, m.Text)
 	}
 
-	return sns_model.NewGetMyMessagesResponse(messages, ""), nil
+	cachedGetMyMessagesResponse = sns_model.NewGetMyMessagesResponse(messages, "")
+
+	return cachedGetMyMessagesResponse, nil
 }
 
 type getOtherMessagesResponse struct {
@@ -414,6 +433,9 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyProfileCmd(ctx context.Context, ac
 			fmt.Println(err)
 		} else {
 			fmt.Println(string(b))
+		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewGetMyProfileResponse("", "", "One or more parameters to your request was invalid."), nil
 		}
 		return sns_model.NewGetMyProfileResponse("", "", "get my profile failed"), fmt.Errorf("twitter API error")
 	}
