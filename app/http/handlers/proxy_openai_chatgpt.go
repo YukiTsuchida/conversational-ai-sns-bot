@@ -3,15 +3,18 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
+
+	"github.com/go-resty/resty/v2"
 )
 
 // ChatGPT APIに投げるリクエストのbody型
@@ -146,37 +149,36 @@ func ProxyOpenAIChatGPTHandler() func(w http.ResponseWriter, r *http.Request) {
 }
 
 func reqChatGPTAPI(jsonStr []byte) (*ChatGPTAPIResponse, error) {
-	newReq, err := http.NewRequest(
-		"POST",
-		"https://api.openai.com/v1/chat/completions",
-		bytes.NewBuffer([]byte(jsonStr)),
-	)
-	if err != nil {
-		return nil, err
-	}
-	newReq.Header.Set("Content-Type", "application/json")
-	newReq.Header.Set("Authorization", "Bearer "+config.CHATGPT_API_KEY())
 
-	client := &http.Client{}
-	resp, err := client.Do(newReq)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		bodyBuf, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("ChatGPT API request error: status code %d, body %s", resp.StatusCode, string(bodyBuf))
-	}
-
-	// ChatGPT APIのレスポンスをパースする
 	var chatGPTAPIResp ChatGPTAPIResponse
-	err = json.NewDecoder(resp.Body).Decode(&chatGPTAPIResp)
+
+	client := resty.New()
+
+	client.AddRetryCondition(
+		func(r *resty.Response, err error) bool {
+			return r.StatusCode() == http.StatusTooManyRequests
+		},
+	)
+	client.
+		SetRetryCount(3).
+		SetRetryWaitTime(5 * time.Second).
+		SetRetryMaxWaitTime(20 * time.Second).
+		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
+			return 0, errors.New("quota exceeded")
+		})
+
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Authorization", "Bearer "+config.CHATGPT_API_KEY()).
+		SetBody(jsonStr).
+		SetResult(&chatGPTAPIResp). // or SetResult(AuthSuccess{}).
+		Post("https://api.openai.com/v1/chat/completions")
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("ChatGPT API request error: status code %d, body %s", resp.StatusCode(), string(resp.Body()))
 	}
 	return &chatGPTAPIResp, nil
 }
