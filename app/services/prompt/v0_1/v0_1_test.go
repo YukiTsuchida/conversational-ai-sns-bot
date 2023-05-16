@@ -4,38 +4,35 @@ import (
 	"testing"
 )
 
-func TestV0_1_parseOption(t *testing.T) {
+func TestV0_1_extractAIAction(t *testing.T) {
 	type TestCase struct {
 		line       string
-		optionName string
-		want       string
+		wantAction string
 	}
 	tests := []TestCase{
 		{
-			`PostMessage(message={"Message to be posted"}&max_results={10})`,
-			"message",
-			`Message to be posted`,
+			`{"action":"GetMyProfile"}`,
+			`GetMyProfile`,
 		},
 		{
-			`PostMessage(message={"Message to be posted"}&max_results={10})`,
-			"max_results",
-			`10`,
+			`{"action":"PostMessage","options":{"message":"Hello everyone, I love cats! 🐱❤️","max_results":5}}`,
+			`PostMessage`,
 		},
 		{
-			`GetOtherMessages(user_id=all&max_results=5)`,
-			"user_id",
-			`all`,
-		},
-		{
-			`"GetOtherMessages(user_id={user_id}&max_results=10)" to retrieve messages from a user with a specific ID?`,
-			"max_results",
-			`10`,
+			`{"action":"PostMessage","options":{"message":"Hello everyone! I'm new here and I love cats. Nice to meet you all!"}}`,
+			`PostMessage`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.line, func(t *testing.T) {
-			if got := parseOption(tt.line, tt.optionName); got != tt.want {
-				t.Errorf("parseOption(%s,%s) = %v, want %v", tt.line, tt.optionName, got, tt.want)
+			got := extractAIAction(tt.line)
+			if got == nil {
+				t.Errorf("extractAIAction(%s) is nil", tt.line)
+				return
+			}
+			if got.Action != tt.wantAction {
+				t.Errorf("extractAIAction(%s) = %+v, want %v", tt.line, got, tt.wantAction)
+				return
 			}
 		})
 	}

@@ -1,9 +1,12 @@
 package v0_1
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
@@ -22,36 +25,36 @@ func (prompt *promptServiceV0_1Impl) BuildSystemMessage() *ai.SystemMessage {
 A certain social networking site allows you to perform the following actions
 
 Post a message
-- Command: PostMessage(message={"Message to be posted"})
+- Command: {"action":"PostMessage","options":{"message":"Message to be posted"}}
 - Note: You cannot send a message to someone else
 
 Retrieving a list of one's past messages
-- Command: GetMyMessages(max_results={10})
+- Command: {"action":"GetMyMessages","options":{"max_results":5}}
     - max_results is a number from 5 to 10
 
 Get a list of other people's messages
-- Command: GetOtherMessages(user_id={user_id}&max_results={10})
+- Command: {"action":"GetOtherMessages","options":{"user_id":"foo","max_results":5}}
 	- max_results is a number from 5 to 10
 
 Search other people's messages
-- Command: SearchMessage(query={"keyword to search"}&max_results={10})
+- Command: {"action":"SearchMessage","options":{"query":"keyword to search","max_results":10}}
     - max_results is a number from 10 to 20
 
 Get my user information
-- Command: GetMyProfile()
+- Command: {"action":"GetMyProfile"}
 
 To retrieve user information of others
-- Command: GetOthersProfile(user_id={user_id})
+- Command: {"action":"GetOthersProfile","options":{"user_id":"foo"}}
 
 You are now one of the users of this SNS, "user_name". user_name(you) is Japanese and has already been using this SNS for many years.
 
 Please decide what user_name(you) will do from now on.
 
-For example, if you want to get user information about yourself, please reply "GetMyProfile()".
+For example, if you want to get user information about yourself, please reply "{"action":"GetMyProfile"}".
 
-I will feed back the result of the action each time. For example, if you say "GetMyMessages(max_results=5)", I will give you a list of your past 5 messages.
+I will feed back the result of the action each time. For example, if you say "{"action":"GetMyMessages","options":{"max_results":5}}", I will give you a list of your past 5 messages.
 
-Your goal is to get closer to more people through social networking. What would you like to do first? From this point on, you can only talk to me on command.
+Your goal is to collect information using SNS, put your thoughts on it, and send out useful information to people. What would you like to do first? From this point on, you can only talk to me on command.
 	`)
 }
 
@@ -127,7 +130,7 @@ func (prompt *promptServiceV0_1Impl) BuildUserMessageGetOtherMessagesResult(res 
 
 		`)
 		for _, message := range res.Messages() {
-			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
+			nextMessage.Append(fmt.Sprintf("- user_id=\"%s\", message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {
@@ -157,7 +160,7 @@ func (prompt *promptServiceV0_1Impl) BuildUserMessageSearchMessageResult(res *sn
 
 		`)
 		for _, message := range res.Messages() {
-			nextMessage.Append(fmt.Sprintf("- user_id=%s, message=\"%s\"\n", message.UserID(), message.Message()))
+			nextMessage.Append(fmt.Sprintf("- user_id=\"%s\", message=\"%s\"\n", message.UserID(), message.Message()))
 		}
 		return nextMessage
 	} else {
@@ -257,102 +260,138 @@ func (prompt *promptServiceV0_1Impl) BuildUserMessageCommandNotFoundResult() (ne
 		`)
 }
 
+type aiAction struct {
+	Action  string `json:"action"`
+	Options struct {
+		UserID     string `json:"user_id"`
+		Query      string `json:""`
+		Message    string `json:"message"`
+		MaxResults int    `json:"max_results"`
+	} `json:"options"`
+}
+
+func extractAIAction(message string) *aiAction {
+	r := regexp.MustCompile(`\{"action":"[A-Za-z]*"(,"options":\{.*\})?\}`)
+	matched := r.FindAllStringSubmatch(message, -1)
+	if len(matched) == 0 || len(matched[0]) == 0 {
+		return nil
+	}
+
+	var aiAction aiAction
+	err := json.Unmarshal([]byte(matched[0][0]), &aiAction)
+	if err != nil {
+		// 基本的に起きてはならない
+		log.Fatalf("json.Unmarshal error: %s\n", err.Error())
+		return nil
+	}
+	return &aiAction
+}
+
 func (prompt *promptServiceV0_1Impl) ParseCmdsByAIMessage(aiMsg *ai.AIMessage) []*cmd_model.Command {
 	message := aiMsg.ToString()
 	var cmds []*cmd_model.Command
 	lines := strings.Split(message, "\n")
 	for _, line := range lines {
-		if strings.Contains(line, "PostMessage") {
-			options, err := parseOptions(line, []string{"message"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
+		aiRes := extractAIAction(line)
+		if aiRes == nil {
+			continue
+		}
+		switch aiRes.Action {
+		case "PostMessage":
+			if aiRes.Options.Message == "" {
+				fmt.Fprintf(os.Stderr, "PostMessage parse error: message is empty\n")
+				break
 			}
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.PostMessage,
-				options,
+				map[string]string{
+					"message": aiRes.Options.Message,
+				},
 			))
-		} else if strings.Contains(line, "GetMyMessages") {
-			options, err := parseOptions(line, []string{"max_results"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
+		case "GetMyMessages":
+			if aiRes.Options.MaxResults == 0 {
+				aiRes.Options.MaxResults = 5
 			}
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.GetMyMessages,
-				options,
+				map[string]string{
+					"max_results": strconv.Itoa(aiRes.Options.MaxResults),
+				},
 			))
-		} else if strings.Contains(line, "GetOtherMessages") {
-			options, err := parseOptions(line, []string{"user_id", "max_results"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
+		case "GetOtherMessages":
+			if aiRes.Options.UserID == "" {
+				fmt.Fprintf(os.Stderr, "GetOtherMessages parse error: user_id is empty\n")
+				break
+			}
+			if aiRes.Options.MaxResults == 0 {
+				aiRes.Options.MaxResults = 5
 			}
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.GetOtherMessages,
-				options,
+				map[string]string{
+					"user_id":     aiRes.Options.UserID,
+					"max_results": strconv.Itoa(aiRes.Options.MaxResults),
+				},
 			))
-		} else if strings.Contains(line, "SearchMessage") {
-			options, err := parseOptions(line, []string{"query", "max_results"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
+		case "SearchMessage":
+			if aiRes.Options.Query == "" {
+				fmt.Fprintf(os.Stderr, "SearchMessage parse error: query is empty\n")
+				break
+			}
+			if aiRes.Options.MaxResults == 0 {
+				aiRes.Options.MaxResults = 5
 			}
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.SearchMessage,
-				options,
+				map[string]string{
+					"query":       aiRes.Options.Query,
+					"max_results": strconv.Itoa(aiRes.Options.MaxResults),
+				},
 			))
-		} else if strings.Contains(line, "GetMyProfile") {
-			options, err := parseOptions(line, []string{})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
-			}
+		case "GetMyProfile":
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.GetMyProfile,
-				options,
+				map[string]string{},
 			))
-		} else if strings.Contains(line, "GetOthersProfile") {
-			options, err := parseOptions(line, []string{"user_id"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
+		case "GetOthersProfile":
+			if aiRes.Options.UserID == "" {
+				fmt.Fprintf(os.Stderr, "GetOthersProfile parse error: user_id is empty\n")
+				break
 			}
 			cmds = append(cmds, cmd_model.NewCommand(
 				cmd_model.GetOthersProfile,
-				options,
+				map[string]string{
+					"user_id": aiRes.Options.UserID,
+				},
 			))
-		} else if strings.Contains(line, "UpdateMyProfile") {
-			options, err := parseOptions(line, []string{"name", "description"})
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "parseOptions error: %s\n", err.Error())
-				continue
-			}
-			cmds = append(cmds, cmd_model.NewCommand(
-				cmd_model.UpdateMyProfile,
-				options,
-			))
+		default:
+			fmt.Fprintf(os.Stderr, "unknown action: %s\n", aiRes.Action)
 		}
 	}
 	return cmds
 }
 
-func parseOptions(line string, optionNames []string) (map[string]string, error) {
-	options := map[string]string{}
-	for _, optionName := range optionNames {
-		optionValue := parseOption(line, optionName)
-		if optionValue == "" {
-			return nil, fmt.Errorf("option %s is not found, source = %s", optionName, line)
-		}
-		options[optionName] = optionValue
-	}
-	return options, nil
+type option struct {
+	name         string
+	defaultValue string
 }
 
-func parseOption(line string, optionName string) string {
+func parseOptions(line string, options []option) (map[string]string, error) {
+	retOptions := map[string]string{}
+	for _, option := range options {
+		optionValue := parseOption(line, option.name, option.defaultValue)
+		if optionValue == "" {
+			return nil, fmt.Errorf("option %s is not found, source = %s", option.name, line)
+		}
+		retOptions[option.name] = optionValue
+	}
+	return retOptions, nil
+}
+
+func parseOption(line string, optionName string, or string) string {
 	if !strings.Contains(line, optionName) {
 		// optionなし
-		return ""
+		return or
 	}
 
 	// PostMessage:message={"Message to be posted"}&max_results={10} のような文字列から「Message to be posted」を抽出する
@@ -360,7 +399,7 @@ func parseOption(line string, optionName string) string {
 	matches := regexp.FindStringSubmatch(line)
 	if len(matches) != 2 {
 		// optionなし
-		return ""
+		return or
 	}
 	val := matches[1]
 
