@@ -24,7 +24,7 @@ import (
 
 const modelName = "gpt-3.5-turbo"
 const tokenLimit = 4000 // 実際は4096だが、回答も含めて4096なので4000にしておく
-const temperature = "0.7"
+const temperature = "1.0"
 
 var _ ai.Service = (*aiServiceChatGPT3_5TurboImpl)(nil)
 

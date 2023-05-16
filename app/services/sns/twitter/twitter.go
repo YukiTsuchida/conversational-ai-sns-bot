@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"regexp"
 	"strconv"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
@@ -155,6 +156,10 @@ type getMyMessagesResponse struct {
 }
 
 func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetMyMessagesCommand) (*sns_model.GetMyMessagesResponse, error) {
+	maxResults := cmd.MaxResults()
+	if maxResults < 5 || 10 < maxResults {
+		maxResults = 5
+	}
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
@@ -171,7 +176,7 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, a
 	}
 
 	q := u.Query()
-	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults())) //min:5, max: 100
+	q.Add("max_results", fmt.Sprintf("%d", maxResults)) //min:5, max: 100
 	q.Add("exclude", "retweets,replies")
 	u.RawQuery = q.Encode()
 
@@ -223,6 +228,13 @@ type getOtherMessagesResponse struct {
 }
 
 func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetOtherMessagesCommand) (*sns_model.GetOtherMessagesResponse, error) {
+	if !validateUserID(cmd.UserID()) {
+		return sns_model.NewGetOtherMessagesResponse(nil, "Request error: user_id must consists of digits only"), nil
+	}
+	maxResults := cmd.MaxResults()
+	if maxResults < 5 || 10 < maxResults {
+		maxResults = 5
+	}
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
@@ -237,7 +249,7 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context
 	}
 
 	q := u.Query()
-	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults())) //min:5, max: 100
+	q.Add("max_results", fmt.Sprintf("%d", maxResults)) //min:5, max: 100
 	q.Add("exclude", "retweets,replies")
 	u.RawQuery = q.Encode()
 
@@ -295,6 +307,10 @@ type searchMessagesResponse struct {
 }
 
 func (sns *snsServiceTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.SearchMessageCommand) (*sns_model.SearchMessageResponse, error) {
+	maxResults := cmd.MaxResults()
+	if maxResults < 10 || 20 < maxResults {
+		maxResults = 10
+	}
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
@@ -307,7 +323,7 @@ func (sns *snsServiceTwitterImpl) ExecuteSearchMessageCmd(ctx context.Context, a
 
 	q := u.Query()
 	q.Add("query", fmt.Sprintf("%s -is:retweet", cmd.Query()))
-	q.Add("max_results", fmt.Sprintf("%d", cmd.MaxResults()))
+	q.Add("max_results", fmt.Sprintf("%d", maxResults))
 	q.Add("tweet.fields", "author_id")
 	u.RawQuery = q.Encode()
 
@@ -419,6 +435,9 @@ type getOthersProfileResponse struct {
 }
 
 func (sns *snsServiceTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context, accountID *sns_model.AccountID, cmd *cmd.GetOthersProfileCommand) (*sns_model.GetOthersProfileResponse, error) {
+	if !validateUserID(cmd.UserID()) {
+		return sns_model.NewGetOthersProfileResponse("", "", "", "Request error: user_id must consists of digits only"), nil
+	}
 	account, err := sns.db.TwitterAccounts.Query().Where(twitteraccounts.TwitterAccountIDEQ(accountID.ToString())).First(ctx)
 	if err != nil {
 		return nil, err
@@ -456,6 +475,9 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOthersProfileCmd(ctx context.Context
 			fmt.Println(err)
 		} else {
 			fmt.Println(string(b))
+		}
+		if resp.StatusCode == http.StatusBadRequest {
+			return sns_model.NewGetOthersProfileResponse("", "", "", "One or more parameters to your request was invalid."), nil
 		}
 		return sns_model.NewGetOthersProfileResponse("", "", "", fmt.Sprintf("userID (%s) not found", cmd.UserID())), fmt.Errorf("get other twitter account failed")
 	}
@@ -517,6 +539,12 @@ func (sns *snsServiceTwitterImpl) getUserIDByAccessToken(ctx context.Context, ac
 	}
 
 	return j.Data.ID, nil
+}
+
+func validateUserID(userID string) bool {
+	// userIDが数字だけで構成されていることを確認する
+	r := regexp.MustCompile(`^[0-9]+$`)
+	return r.MatchString(userID)
 }
 
 func NewSNSServiceTwitterImpl(db *ent.Client) sns.Service {
