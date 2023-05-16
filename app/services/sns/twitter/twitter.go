@@ -241,8 +241,8 @@ func (sns *snsServiceTwitterImpl) ExecuteGetMyMessagesCmd(ctx context.Context, a
 
 type getOtherMessagesResponse struct {
 	Data []struct {
-		ID   string `json:"id"`
-		Text string `json:"text"`
+		AuthorID string `json:"author_id"`
+		Text     string `json:"text"`
 	} `json:"data"`
 }
 
@@ -270,6 +270,7 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context
 	q := u.Query()
 	q.Add("max_results", fmt.Sprintf("%d", maxResults)) //min:5, max: 100
 	q.Add("exclude", "retweets,replies")
+	q.Add("tweet.fields", "author_id")
 	u.RawQuery = q.Encode()
 
 	newReq, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -312,7 +313,7 @@ func (sns *snsServiceTwitterImpl) ExecuteGetOtherMessagesCmd(ctx context.Context
 
 	var messages []sns_model.GetOtherMessagesMessage
 	for _, m := range j.Data {
-		messages = append(messages, sns_model.NewGetOtherMessagesMessage(m.ID, m.Text))
+		messages = append(messages, sns_model.NewGetOtherMessagesMessage(m.AuthorID, m.Text))
 	}
 
 	return sns_model.NewGetOtherMessagesResponse(messages, ""), nil
