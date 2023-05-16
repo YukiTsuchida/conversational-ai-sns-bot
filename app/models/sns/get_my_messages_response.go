@@ -10,7 +10,7 @@ func NewGetMyMessagesResponse(messages []string, errReason string) *GetMyMessage
 }
 
 func (response *GetMyMessagesResponse) AppendMessage(message string) {
-	response.messages = append(response.messages, message)
+	response.messages = append([]string{message}, response.messages...)
 }
 
 func (response *GetMyMessagesResponse) Messages() []string {
