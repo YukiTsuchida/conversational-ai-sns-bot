@@ -38,6 +38,11 @@ services:
     volumes:
       - ./:/app
     environment:
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db
       CHATGPT_API_KEY: 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 # ToDo: credentialをSecretManagerに上げる #28
   gcloud-tasks-emulator:
     image: ghcr.io/aertje/cloud-tasks-emulator:latest

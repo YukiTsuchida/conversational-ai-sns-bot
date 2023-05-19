@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	SendRequest(ctx context.Context, conversationID *conversation.ID) error // 責務デカすぎる、実際にsendする部分はAIに依存しないので切り出す必要がある
+	SendRequest(ctx context.Context, conversationID *conversation.ID) (*ai_model.Response, error)
 	AppendSystemMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.SystemMessage) error
 	AppendUserMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.UserMessage) error
 	AppendAIMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.AIMessage, purpose string) error
