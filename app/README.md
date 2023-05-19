@@ -45,7 +45,16 @@
 
 ## ローカルで起動する
 
-普通に起動する。hotreloadに[air](https://github.com/cosmtrek/air)を使っているので初回起動に時間がかかります。
+ローカルで動かすためには、外部サービスのAPIを叩くために必要なクレデンシャルを`.env`に入力する必要があります。
+
+権限を持っている開発者はSecretManagerからクレデンシャルを取得してください。
+
+```sh
+gcloud secrets versions access latest --secret=dev-secrets > .env
+```
+
+`.env`が用意できたらdocker-composeで一式起動してください。
+hotreloadに[air](https://github.com/cosmtrek/air)を使っているので初回起動に時間がかかります。
 
 ```sh
 docker-compose up -d
