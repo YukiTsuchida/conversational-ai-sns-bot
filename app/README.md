@@ -50,7 +50,7 @@
 権限を持っている開発者はSecretManagerからクレデンシャルを取得してください。
 
 ```sh
-gcloud secrets versions access latest --secret=dev-secrets > .env
+gcloud secrets versions access latest --secret=dev-secrets --project=conversational-ai-sns-bot > .env
 ```
 
 `.env`が用意できたらdocker-composeで一式起動してください。
