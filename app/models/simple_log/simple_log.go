@@ -3,15 +3,23 @@ package simple_log
 import "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 
 type SimpleLog struct {
-	ConversationID string
-	Pages          []int
-	Logs           []*conversation.ConversationLog
+	PageIndex    int
+	Size         int
+	Sort         string
+	Timezone     string
+	Pages        []int
+	Conversation *conversation.Conversation
+	Logs         []*conversation.ConversationLog
 }
 
-func NewSimpleLog(id conversation.ID, pages []int, logs []*conversation.ConversationLog) *SimpleLog {
+func NewSimpleLog(pageIndex int, size int, sort string, timezone string, pages []int, conversation *conversation.Conversation, logs []*conversation.ConversationLog) *SimpleLog {
 	return &SimpleLog{
-		ConversationID: id.ToString(),
-		Pages:          pages,
-		Logs:           logs,
+		PageIndex:    pageIndex,
+		Size:         size,
+		Sort:         sort,
+		Timezone:     timezone,
+		Pages:        pages,
+		Conversation: conversation,
+		Logs:         logs,
 	}
 }

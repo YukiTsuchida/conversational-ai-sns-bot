@@ -4,28 +4,34 @@
     <title>Simple Log Viewer</title>
     <meta charset="UTF-8">
 </head>
+{{ $conversationId := .Conversation.ID.ToString }}
+{{ $size := .Size }}
+{{ $sort := .Sort }}
+{{ $timezone := .Timezone }}
 
 <body>
-    {{ $conversationId := .ConversationID }}
     <div class="log-section">
         <h3>
-            conversation_id: <span>{{ $conversationId }}</span>
+            Simple Log Viewer
         </h3>
+        <ul>
+            <li>ConversationID: {{ $conversationId }}</li>
+            <li>AiModel: {{ .Conversation.AIModel }}</li>
+            <li>SnsType: {{ .Conversation.SNSType }}</li>
+            <li>CmdVersion: {{ .Conversation.CmdVersion }}</li>
+            <li>IsAborted: {{ .Conversation.IsAborted }}</li>
+        </ul>
 
         {{ $pageLen := len .Pages }}
         {{ if ge $pageLen 1 }}
         <div class="pagination">
-            <div class="pagination-item">
-                <a class="pagination-item-divnk" href="?id={{ $conversationId  }}&page=0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="pagination-item-divnk-Icon" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-divnecap="round" stroke-divnejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                    </svg>
-                </a>
+            <div>
+                Page:
             </div>
             {{ range $i, $v := .Pages }}
             <div class="pagination-item">
-                <a class="pagination-item-divnk" href="?id={{ $conversationId }}&page={{ $v }}">
+                <a class="pagination-item-divnk"
+                    href="?id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
                     <span>{{ $v }}</span>
                 </a>
             </div>
@@ -35,7 +41,7 @@
 
         <table>
             <tr>
-                <th class="column-no">No</th>
+                <th class="column-no">#</th>
                 <th class="column-id">log_id</th>
                 <th>message</th>
                 <th class="column-purpose">purpose</th>
@@ -53,6 +59,22 @@
             </tr>
             {{ end }}
         </table>
+        {{ if ge $pageLen 1 }}
+        <div class="pagination">
+            <div>
+                Page:
+            </div>
+            {{ range $i, $v := .Pages }}
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>{{ $v }}</span>
+                </a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+
     </div>
 
 </body>
@@ -79,7 +101,7 @@
     }
 
     td {
-        margin: 5px;
+        padding: 5px;
     }
 
     .column-no {
@@ -87,7 +109,7 @@
     }
 
     .column-id {
-        width: 25%;
+        width: 5%;
     }
 
     .column-purpose {
@@ -99,7 +121,7 @@
     }
 
     .column-created-at {
-        width: 15%;
+        width: 13%;
     }
 
     .column-body-message {

@@ -36,8 +36,12 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 	}
 
 	return simple_log.NewSimpleLog(
-		conversation.ID,
+		page,
+		size,
+		sort,
+		timezone,
 		pages,
+		conversation,
 		logs,
 	), nil
 }

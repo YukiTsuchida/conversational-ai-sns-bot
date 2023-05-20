@@ -61,5 +61,5 @@ func (c *ConversationLog) CreatedAt() string {
 	if err != nil {
 		panic(err)
 	}
-	return c.createdAt.In(jst).Format("2006-01-02 15:04:05 JST")
+	return c.createdAt.In(jst).Format("2006-01-02 15:04:05 -07:00")
 }

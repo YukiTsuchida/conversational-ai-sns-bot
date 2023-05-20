@@ -18,7 +18,7 @@ type ViewConversationLogRequest struct {
 	Page     int    `in:"query=page;default=0"`
 	Size     int    `in:"query=size;default=10"`
 	Sort     string `in:"query=sort;default=asc"`
-	Timezone string `in:"query=timezone;default=JST"`
+	Timezone string `in:"query=timezone;default=Asia/Tokyo"`
 }
 
 func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
