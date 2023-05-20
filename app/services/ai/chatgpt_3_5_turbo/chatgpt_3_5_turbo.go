@@ -226,6 +226,44 @@ func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, con
 	return nil
 }
 
+func (log *aiServiceChatGPT3_5TurboImpl) CountMessageLog(ctx context.Context, conversationID *conversation.ID) (int, error) {
+	conversationIDInt, err := conversationID.ToInt()
+	if err != nil {
+		return -1, err
+	}
+	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Count(ctx)
+}
+
+func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort string) ([]*conversation.ConversationLog, error) {
+	conversationIDInt, err := conversationID.ToInt()
+	if err != nil {
+		return nil, err
+	}
+
+	orderOpt := ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)
+	if sort == "desc" {
+		orderOpt = ent.Desc(chatgpt35turboconversationlog.FieldCreatedAt)
+	}
+
+	queryResult, err := log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Limit(size).Offset(page * size).Order(orderOpt).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var logs []*conversation.ConversationLog
+	for _, v := range queryResult {
+		logs = append(logs, conversation.NewConversationLog(
+			fmt.Sprint(v.ID),
+			v.Message,
+			v.Purpose,
+			v.Role.String(),
+			v.CreatedAt,
+		))
+	}
+
+	return logs, nil
+}
+
 func NewAIServiceChatGPT3_5TurboImpl(db *ent.Client) ai.Service {
 	return &aiServiceChatGPT3_5TurboImpl{db}
 }

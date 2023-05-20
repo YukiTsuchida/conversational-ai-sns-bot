@@ -6,11 +6,11 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/log"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 )
 
 type ViewConversation struct {
-	logSvc           log.Service
+	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
 }
 
@@ -21,12 +21,12 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 		return nil, err
 	}
 
-	logCount, err := uc.logSvc.CountMessageLog(ctx, conversationId)
+	logCount, err := uc.aiSvc.CountMessageLog(ctx, conversationId)
 	if err != nil {
 		return nil, err
 	}
 
-	logs, err := uc.logSvc.FetchMessageLogs(ctx, conversationId, page, size, sort)
+	logs, err := uc.aiSvc.FetchMessageLogs(ctx, conversationId, page, size, sort)
 	if err != nil {
 		return nil, err
 	}
@@ -47,6 +47,6 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 	), nil
 }
 
-func NewViewConversationLog(logSvc log.Service, conversationRepo repositories.Conversation) *ViewConversation {
+func NewViewConversationLog(logSvc ai.Service, conversationRepo repositories.Conversation) *ViewConversation {
 	return &ViewConversation{logSvc, conversationRepo}
 }

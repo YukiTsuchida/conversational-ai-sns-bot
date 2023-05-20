@@ -9,8 +9,8 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/log"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/log/chatgpt_3_5_turbo"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
 	"github.com/ggicci/httpin"
 )
@@ -42,7 +42,7 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 
 		// DI
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
-		var logSvc log.Service = chatgpt_3_5_turbo.NewLogServiceImpl(db)
+		var logSvc ai.Service = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
 		var viewConversationLogUsecase = usecases.NewViewConversationLog(logSvc, conversationRepo)
 
 		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, req.Sort, req.Timezone)
