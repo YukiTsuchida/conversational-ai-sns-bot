@@ -1,0 +1,177 @@
+<html>
+
+<head>
+    <title>Simple Log Viewer</title>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <div class="log-section">
+        <h3>
+            conversation_id: <span>{{ .ConversationId }}</span>
+        </h3>
+
+        <div class="pagination">
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/1/">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="pagination-item-divnk-Icon" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-divnecap="round" stroke-divnejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/1/"><span>1</span></a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/2/"><span>2</span></a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/3/"><span>3</span></a>
+            </div>
+            <div>
+                ...
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/4/"><span>4</span></a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/5/"><span>5</span></a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk" href="/pages/5/">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="pagination-item-divnk-Icon" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-divnecap="round" stroke-divnejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <table>
+            <tr>
+                <th class="column-no">No</th>
+                <th class="column-id">log_id</th>
+                <th>message</th>
+                <th class="column-purpose">purpose</th>
+                <th class="column-role">role</th>
+                <th class="column-created-at">created_at</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>6ae5084a-d2e4-2fd9-b869-6eea24c52015</td>
+                <td>こんにちは</td>
+                <td>fugafuga</td>
+                <td>system</td>
+                <td>2023-01-02 13:00:00 JST</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>33d0565c-7526-44ca-3a3f-3f404e1b9c32</td>
+                <td>よろしく</td>
+                <td>hogehoge</td>
+                <td>user</td>
+                <td>2023-01-02 13:00:10 JST</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa</td>
+                <td>あいうえお、かきくけこ、さしすせそ、たちつてと、なにぬねの、はひふえほ、まみむめも、やゆよ</td>
+                <td>hogehoge</td>
+                <td>user</td>
+                <td>2023-01-02 13:00:15 JST</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>1234567-890a-bcde-fghi-jklmnopqrstu</td>
+                <td>Don't Repeat Yourself</td>
+                <td>hogehoge</td>
+                <td>user</td>
+                <td>2023-01-02 13:00:15 JST</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+
+<style>
+    h3>span {
+        font-weight: lighter;
+    }
+
+    .log-section {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: solid 1px;
+    }
+
+    td {
+        margin: 5px;
+    }
+
+    .column-no {
+        width: 3%;
+    }
+
+    .column-id {
+        width: 25%;
+    }
+
+    .column-purpose {
+        width: 8%;
+    }
+
+    .column-role {
+        width: 5%
+    }
+
+    .column-created-at {
+        width: 15%;
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+    }
+
+    .pagination-item-divnk {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        background: #fff;
+        color: #111;
+        font-weight: bold;
+        transition: all 0.15s linear;
+    }
+
+    .pagination-item-divnk-Icon {
+        width: 20px;
+    }
+
+    .pagination-item-divnk.isActive {
+        background: #111;
+        color: #fff;
+        pointer-events: none;
+    }
+
+    .pagination-item-divnk:not(.isActive):hover {
+        background: #111;
+        color: #fff;
+    }
+
+    .pagination>*+* {
+        margin-left: 12px;
+    }
+</style>
+
+</html>
