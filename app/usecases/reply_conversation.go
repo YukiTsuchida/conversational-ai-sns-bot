@@ -184,7 +184,7 @@ func (uc *ReplyConversation) Execute(ctx context.Context, conversationID *conver
 	time.Sleep(time.Duration(config.SLEEP_TIME_FOR_REPLY_SECONDS()) * time.Second)
 
 	// 対話型AIにリクエストを送信するためにqueueにリクエストを積む、queueはconversationID単位でレートリミットをしてくれる
-	err = uc.queueSvc.Push(ctx, conversationID)
+	err = uc.queueSvc.Enqueue(ctx, conversationID)
 	if err != nil {
 		return err
 	}

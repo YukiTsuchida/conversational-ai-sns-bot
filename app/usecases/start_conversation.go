@@ -55,7 +55,7 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID *sns_model.A
 	}
 
 	// 対話型AIにリクエストを送信するためにqueueにリクエストを積む、queueはconversationID単位でレートリミットをしてくれる
-	err = uc.queueSvc.Push(ctx, conversationID)
+	err = uc.queueSvc.Enqueue(ctx, conversationID)
 	if err != nil {
 		return err
 	}

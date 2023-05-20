@@ -7,5 +7,5 @@ import (
 )
 
 type Service interface {
-	Push(ctx context.Context, conversationID *conversation.ID) error
+	Enqueue(ctx context.Context, conversationID *conversation.ID) error
 }

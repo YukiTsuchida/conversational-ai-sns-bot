@@ -26,7 +26,7 @@ type SendConversationRequest struct {
 	CallBackUrl string `json:"call_back_url"`
 }
 
-func (q *queueCloudTasksImpl) Push(ctx context.Context, conversationID *conversation.ID) error {
+func (q *queueCloudTasksImpl) Enqueue(ctx context.Context, conversationID *conversation.ID) error {
 	cloudTasksHost := config.CLOUDTASKS_HOST()     // local環境ではエミュレータを使うので環境変数からhostを指定する
 	cloudtasksParent := config.CLOUDTASKS_PARENT() // 「projects/%s/locations/%s」の部分
 	cloudtasksChild := "/queues/" + conversationID.ToString()
