@@ -30,9 +30,14 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 		return nil, err
 	}
 
+	var pages []int
+	for i := 0; i <= logCount/size; i++ {
+		pages = append(pages, i)
+	}
+
 	return simple_log.NewSimpleLog(
 		conversation.ID,
-		logCount/size,
+		pages,
 		logs,
 	), nil
 }

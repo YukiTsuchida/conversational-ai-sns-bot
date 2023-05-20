@@ -6,6 +6,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/chatgpt35turboconversationlog"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/log"
 )
@@ -16,16 +17,12 @@ type logServiceImpl struct {
 	db *ent.Client
 }
 
-func NewLogServiceImpl(db *ent.Client) log.Service {
-	return &logServiceImpl{db}
-}
-
 func (log *logServiceImpl) CountMessageLog(ctx context.Context, conversationID *conversation.ID) (int, error) {
 	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return -1, err
 	}
-	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.IDEQ(conversationIDInt)).Count(ctx)
+	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Count(ctx)
 }
 
 func (log *logServiceImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort string) ([]*conversation.ConversationLog, error) {
@@ -39,7 +36,7 @@ func (log *logServiceImpl) FetchMessageLogs(ctx context.Context, conversationID 
 		orderOpt = ent.Desc(chatgpt35turboconversationlog.FieldCreatedAt)
 	}
 
-	queryResult, err := log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.IDEQ(conversationIDInt)).Limit(size).Offset(page * size).Order(orderOpt).All(ctx)
+	queryResult, err := log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Limit(size).Offset(page * size).Order(orderOpt).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -56,4 +53,8 @@ func (log *logServiceImpl) FetchMessageLogs(ctx context.Context, conversationID 
 	}
 
 	return logs, nil
+}
+
+func NewLogServiceImpl(db *ent.Client) log.Service {
+	return &logServiceImpl{db}
 }

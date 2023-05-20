@@ -4,14 +4,14 @@ import "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversatio
 
 type SimpleLog struct {
 	ConversationID string
-	Page           int
+	Pages          []int
 	Logs           []*conversation.ConversationLog
 }
 
-func NewSimpleLog(id conversation.ID, page int, logs []*conversation.ConversationLog) *SimpleLog {
+func NewSimpleLog(id conversation.ID, pages []int, logs []*conversation.ConversationLog) *SimpleLog {
 	return &SimpleLog{
 		ConversationID: id.ToString(),
-		Page:           page,
+		Pages:          pages,
 		Logs:           logs,
 	}
 }

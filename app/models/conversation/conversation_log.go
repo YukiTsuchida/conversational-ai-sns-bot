@@ -39,3 +39,27 @@ func NewConversationLog(logId string, message string, purpose string, role strin
 		createdAt: createdAt,
 	}
 }
+
+func (c *ConversationLog) LogIDStr() string {
+	return c.LogID.ToString()
+}
+
+func (c *ConversationLog) Message() string {
+	return c.message
+}
+
+func (c *ConversationLog) Purpose() string {
+	return c.purpose
+}
+
+func (c *ConversationLog) Role() string {
+	return string(c.role)
+}
+
+func (c *ConversationLog) CreatedAt() string {
+	jst, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		panic(err)
+	}
+	return c.createdAt.In(jst).Format("2006-01-02 15:04:05 JST")
+}
