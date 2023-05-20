@@ -31,7 +31,7 @@
             {{ range $i, $v := .Pages }}
             <div class="pagination-item">
                 <a class="pagination-item-divnk"
-                    href="?id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
+                    href="?conversation_id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
                     <span>{{ $v }}</span>
                 </a>
             </div>
@@ -67,7 +67,7 @@
             {{ range $i, $v := .Pages }}
             <div class="pagination-item">
                 <a class="pagination-item-divnk"
-                    href="?id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
+                    href="?conversation_id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
                     <span>{{ $v }}</span>
                 </a>
             </div>

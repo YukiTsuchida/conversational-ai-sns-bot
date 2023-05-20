@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
@@ -15,11 +16,11 @@ import (
 )
 
 type ViewConversationLogRequest struct {
-	Id       string `in:"query=id;required"`
-	Page     int    `in:"query=page;default=0"`
-	Size     int    `in:"query=size;default=10"`
-	Sort     string `in:"query=sort;default=asc"`
-	Timezone string `in:"query=timezone;default=Asia/Tokyo"`
+	ConversationID string `in:"query=conversation_id;required"`
+	Page           int    `in:"query=page;default=0"`
+	Size           int    `in:"query=size;default=10"`
+	Sort           string `in:"query=sort;default=asc"`
+	Timezone       string `in:"query=timezone;default=Asia/Tokyo"`
 }
 
 func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Request) {
@@ -34,23 +35,26 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 
 		t, err := template.ParseFiles("/app/http/template/simple_conversation_log_viewer.html")
 		if err != nil {
-			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
+			internalViewConversationLogError(err)
+			http.Error(w, "failed to parse template: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		// DI
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
 		var logSvc log.Service = chatgpt_3_5_turbo.NewLogServiceImpl(db)
-		var viewConversationLog = usecases.NewViewConversationLog(logSvc, conversationRepo)
+		var viewConversationLogUsecase = usecases.NewViewConversationLog(logSvc, conversationRepo)
 
-		data, err := viewConversationLog.Execute(r.Context(), conversation.NewID(req.Id), req.Page, req.Size, req.Sort, req.Timezone)
+		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, req.Sort, req.Timezone)
 		if err != nil {
+			internalViewConversationLogError(err)
 			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if err := t.Execute(w, data); err != nil {
-			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
+			internalViewConversationLogError(err)
+			http.Error(w, "failed to bind data to the template: "+err.Error(), http.StatusInternalServerError)
 		}
 
 	}
@@ -70,4 +74,8 @@ func (req *ViewConversationLogRequest) validateParameter() error {
 	}
 
 	return nil
+}
+
+func internalViewConversationLogError(err error) {
+	fmt.Fprintf(os.Stderr, "[ERROR] ViewConversationLogHandler() error: %s\n", err.Error())
 }
