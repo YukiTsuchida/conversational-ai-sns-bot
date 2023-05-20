@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -25,6 +26,12 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := r.Context().Value(httpin.Input).(*ViewConversationLogRequest)
 
+		err := req.validateParameter()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		t, err := template.ParseFiles("/app/http/template/simple_conversation_log_viewer.html")
 		if err != nil {
 			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
@@ -47,4 +54,20 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 		}
 
 	}
+}
+
+func (req *ViewConversationLogRequest) validateParameter() error {
+	if req.Page < 0 {
+		return fmt.Errorf("a negative value was specified for 'page'. Please specify a non-negative integer.: %d", req.Page)
+	}
+
+	if req.Size < 1 || 500 < req.Size {
+		return fmt.Errorf("an inappropriate value was specified for 'size'. Please specify an integer between 1 and 500.: %d", req.Page)
+	}
+
+	if req.Sort != "asc" && req.Sort != "desc" {
+		return fmt.Errorf("an inappropriate value was specified for 'sort'. Please specify either 'asc' or 'desc'.: %s", req.Sort)
+	}
+
+	return nil
 }

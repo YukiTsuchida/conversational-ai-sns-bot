@@ -17,6 +17,7 @@ type ViewConversation struct {
 func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort string, timezone string) (*simple_log.SimpleLog, error) {
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationId)
 	if err != nil {
+		// TODO: IDで見つからない場合もエラーを返してしまう
 		return nil, err
 	}
 
