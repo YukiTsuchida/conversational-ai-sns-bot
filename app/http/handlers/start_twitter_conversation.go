@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/queue"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/queue/cloud_tasks"
+
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/usecases"
@@ -50,6 +53,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 		}
 
 		// DIは一旦ここでやる
+		var queueSvc queue.Service = cloud_tasks.NewQueueServiceCloudTasksImpl()
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
 		var snsSvc sns.Service = twitter.NewSNSServiceTwitterImpl(db)
 		var aiSvc ai.Service
@@ -67,7 +71,7 @@ func StartTwitterConversationHandler(db *ent.Client) func(w http.ResponseWriter,
 			return
 		}
 
-		startConvarsationUsecase := usecases.NewStartConversation(snsSvc, promptSvc, aiSvc, conversationRepo)
+		startConvarsationUsecase := usecases.NewStartConversation(snsSvc, promptSvc, aiSvc, queueSvc, conversationRepo)
 
 		err = startConvarsationUsecase.Execute(r.Context(), sns_model.NewAccountID(req.TwitterID), req.AIModel, "twitter", req.CmdVersion)
 		if err != nil {

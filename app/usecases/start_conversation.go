@@ -6,6 +6,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/prompt"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/queue"
 
 	sns_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/sns"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
@@ -16,6 +17,7 @@ type StartConversation struct {
 	snsSvc           sns.Service
 	promptSvc        prompt.Service
 	aiSvc            ai.Service
+	queueSvc         queue.Service
 	conversationRepo repositories.Conversation
 }
 
@@ -52,8 +54,8 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID *sns_model.A
 		return err
 	}
 
-	// 会話履歴を結合して対話型AI用のリクエストを生成して送信する
-	err = uc.aiSvc.SendRequest(ctx, conversationID)
+	// 対話型AIにリクエストを送信するためにqueueにリクエストを積む、queueはconversationID単位でレートリミットをしてくれる
+	err = uc.queueSvc.Enqueue(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -61,6 +63,6 @@ func (uc *StartConversation) Execute(ctx context.Context, accountID *sns_model.A
 	return nil
 }
 
-func NewStartConversation(snsSvc sns.Service, promptSvc prompt.Service, aiSvc ai.Service, conversationRepo repositories.Conversation) *StartConversation {
-	return &StartConversation{snsSvc, promptSvc, aiSvc, conversationRepo}
+func NewStartConversation(snsSvc sns.Service, promptSvc prompt.Service, aiSvc ai.Service, queueSvc queue.Service, conversationRepo repositories.Conversation) *StartConversation {
+	return &StartConversation{snsSvc, promptSvc, aiSvc, queueSvc, conversationRepo}
 }

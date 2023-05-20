@@ -38,6 +38,11 @@ services:
     volumes:
       - ./:/app
     environment:
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db
       CHATGPT_API_KEY: $CHATGPT_API_KEY
   gcloud-tasks-emulator:
     image: ghcr.io/aertje/cloud-tasks-emulator:latest
