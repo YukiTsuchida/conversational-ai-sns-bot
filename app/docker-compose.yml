@@ -19,13 +19,13 @@ services:
       POSTGRES_DB: db
       CLOUDTASKS_HOST: gcloud-tasks-emulator
       CLOUDTASKS_PARENT: projects/dev/locations/here
-      CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する
-      SLEEP_TIME_FOR_REPLY_SECONDS: 60 # ローカル環境だと↑の理由によりbotが高速に回ってしまうので、適度にsleepさせる
+      CONVERSATION_RATE_PER_SECOND: 1.0 # emulatorだと1より小さい値にするとpanicが起きるので1に設定する、emulatorのバグなので修正PR投げたほうがいいかも
+      SLEEP_TIME_FOR_REPLY_SECONDS: 60 # ローカル環境だと↑の理由によりbotが高速に回ってしまうので、適度にsleepさせる。本番では不要
       SELF_HOST: http://controller:8080
       REQUESTOR_HOST: http://ai-requestor:8080
       TWITTER_CALLBACK_URL: http://localhost:8080/accounts/twitter_callback
-      TWITTER_CLIENT_ID: NjluVXRqWnJaTmxybHV1cm9uTWs6MTpjaQ # ToDo: credentialをSecretManagerに上げる #28
-      TWITTER_CLIENT_SECRET: S8-QhnuJH69FiOY2A9oy1XARmTBzklODnog5qt16hY-cKYXJAo # ToDo: credentialをSecretManagerに上げる #28
+      TWITTER_CLIENT_ID: $TWITTER_CLIENT_ID
+      TWITTER_CLIENT_SECRET: $TWITTER_CLIENT_SECRET
       ENVIRONMENT: develop
   ai-requestor:
     build:
@@ -43,7 +43,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db
-      CHATGPT_API_KEY: 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 # ToDo: credentialをSecretManagerに上げる #28
+      CHATGPT_API_KEY: $CHATGPT_API_KEY
   gcloud-tasks-emulator:
     image: ghcr.io/aertje/cloud-tasks-emulator:latest
     command: -host 0.0.0.0 -port 8123 -queue "projects/dev/locations/here/queues/anotherq"
