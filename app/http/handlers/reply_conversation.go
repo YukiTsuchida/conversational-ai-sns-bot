@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/queue"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/queue/cloud_tasks"
+
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
@@ -55,6 +58,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 		}
 
 		// DIは一旦ここでやる
+		var queueSvc queue.Service = cloud_tasks.NewQueueServiceCloudTasksImpl()
 		var snsSvc sns.Service
 		var aiSvc ai.Service
 		var promptSvc prompt.Service
@@ -75,7 +79,7 @@ func ReplyConversationHandler(db *ent.Client) func(w http.ResponseWriter, r *htt
 			http.Error(w, "invalid ai_model: "+conversation.CmdVersion(), http.StatusBadRequest)
 			return
 		}
-		replyConversationUsecase := usecases.NewReplyConversation(snsSvc, promptSvc, aiSvc, conversationRepo)
+		replyConversationUsecase := usecases.NewReplyConversation(snsSvc, promptSvc, aiSvc, queueSvc, conversationRepo)
 		abortConversationUsecase := usecases.NewAbortConversation(snsSvc, conversationRepo)
 
 		// エラーがあればconversationをabortする
