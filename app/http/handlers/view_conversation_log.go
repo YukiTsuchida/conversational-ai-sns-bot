@@ -5,9 +5,11 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
@@ -27,7 +29,7 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := r.Context().Value(httpin.Input).(*ViewConversationLogRequest)
 
-		err := req.validateParameter()
+		timezone, err := req.convertParameter()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -45,7 +47,7 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 		var logSvc ai.Service = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
 		var viewConversationLogUsecase = usecases.NewViewConversationLog(logSvc, conversationRepo)
 
-		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, req.Sort, req.Timezone)
+		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, simple_log.Sort(req.Sort), timezone)
 		if err != nil {
 			internalViewConversationLogError(err)
 			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
@@ -60,20 +62,25 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (req *ViewConversationLogRequest) validateParameter() error {
+func (req *ViewConversationLogRequest) convertParameter() (*time.Location, error) {
 	if req.Page < 0 {
-		return fmt.Errorf("a negative value was specified for 'page'. Please specify a non-negative integer.: %d", req.Page)
+		return nil, fmt.Errorf("a negative value was specified for 'page'. Please specify a non-negative integer.: %d", req.Page)
 	}
 
 	if req.Size < 1 || 500 < req.Size {
-		return fmt.Errorf("an inappropriate value was specified for 'size'. Please specify an integer between 1 and 500.: %d", req.Page)
+		return nil, fmt.Errorf("an inappropriate value was specified for 'size'. Please specify an integer between 1 and 500.: %d", req.Page)
 	}
 
-	if req.Sort != "asc" && req.Sort != "desc" {
-		return fmt.Errorf("an inappropriate value was specified for 'sort'. Please specify either 'asc' or 'desc'.: %s", req.Sort)
+	if req.Sort != string(simple_log.SortAsc) && req.Sort != string(simple_log.SortDesc) {
+		return nil, fmt.Errorf("an inappropriate value was specified for 'sort'. Please specify either 'asc' or 'desc'.: %s", req.Sort)
 	}
 
-	return nil
+	timezone, err := time.LoadLocation(req.Timezone)
+	if err != nil {
+		return nil, fmt.Errorf("an inappropriate value was specified for the timeZone parameter.: %s", req.Timezone)
+	}
+
+	return timezone, nil
 }
 
 func internalViewConversationLogError(err error) {

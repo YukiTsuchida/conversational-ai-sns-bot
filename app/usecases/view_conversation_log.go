@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"time"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
@@ -14,10 +15,10 @@ type ViewConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort string, timezone string) (*simple_log.SimpleLog, error) {
+func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort simple_log.Sort, timezone *time.Location) (*simple_log.SimpleLog, error) {
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationId)
 	if err != nil {
-		// TODO: IDで見つからない場合もエラーを返してしまう
+		// TODO: 検索結果がない場合もエラーを返してしまう
 		return nil, err
 	}
 
@@ -29,6 +30,9 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 	logs, err := uc.aiSvc.FetchMessageLogs(ctx, conversationId, page, size, sort)
 	if err != nil {
 		return nil, err
+	}
+	for _, log := range logs {
+		log.SetTimezone(timezone)
 	}
 
 	var pages []int

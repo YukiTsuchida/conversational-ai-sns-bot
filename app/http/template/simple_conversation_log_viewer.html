@@ -7,7 +7,7 @@
 {{ $conversationId := .Conversation.ID.ToString }}
 {{ $size := .Size }}
 {{ $sort := .Sort }}
-{{ $timezone := .Timezone }}
+{{ $timezone := .TimezoneStr }}
 
 <body>
     <div class="log-section">
@@ -52,10 +52,10 @@
             <tr>
                 <td>{{ $i }}</td>
                 <td>{{ $log.LogIDStr }}</td>
-                <td class="column-body-message">{{ $log.Message }}</td>
+                <td class="column-body-message">{{ $log.MessageStr }}</td>
                 <td>{{ $log.Purpose }}</td>
                 <td>{{ $log.Role }}</td>
-                <td>{{ $log.CreatedAt }}</td>
+                <td>{{ $log.CreatedAtStr }}</td>
             </tr>
             {{ end }}
         </table>

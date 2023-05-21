@@ -8,10 +8,12 @@ import (
 	"os"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/go-resty/resty/v2"
 
@@ -234,14 +236,16 @@ func (log *aiServiceChatGPT3_5TurboImpl) CountMessageLog(ctx context.Context, co
 	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Count(ctx)
 }
 
-func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort string) ([]*conversation.ConversationLog, error) {
+func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort simple_log.Sort) ([]*conversation.ConversationLog, error) {
 	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return nil, err
 	}
 
-	orderOpt := ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)
-	if sort == "desc" {
+	var orderOpt func(*sql.Selector)
+	if sort == simple_log.SortAsc {
+		orderOpt = ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)
+	} else if sort == simple_log.SortDesc {
 		orderOpt = ent.Desc(chatgpt35turboconversationlog.FieldCreatedAt)
 	}
 
@@ -252,12 +256,17 @@ func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, c
 
 	var logs []*conversation.ConversationLog
 	for _, v := range queryResult {
+		role, err := ai_model.NewRole(v.Role.String())
+		if err != nil {
+			return nil, err
+		}
+
 		logs = append(logs, conversation.NewConversationLog(
 			fmt.Sprint(v.ID),
-			v.Message,
+			ai_model.NewMessage(v.Message),
 			v.Purpose,
-			v.Role.String(),
-			v.CreatedAt,
+			role,
+			&v.CreatedAt,
 		))
 	}
 
