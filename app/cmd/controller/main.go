@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/control"
+	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
+
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/http/handlers"
 
@@ -18,6 +21,10 @@ import (
 func main() {
 	db := newEntClient()
 
+	controller := control.ConversationController{
+		ConversationRepo: repositories.NewConversation(db),
+	} // TODO 初期化を丁寧に
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +32,7 @@ func main() {
 	})
 	r.Post("/conversations/twitter", handlers.StartTwitterConversationHandler(db))
 	r.Delete("/conversations/twitter", handlers.AbortTwitterConversationHandler(db))
-	r.Post("/conversations/{id}/reply", handlers.ReplyConversationHandler(db))
+	r.Post("/conversations/{id}/reply", controller.ReplyConversationHandler)
 
 	// twitter auth
 	r.Get("/accounts/twitter_login", handlers.LoginTwitterAccountHandler())
