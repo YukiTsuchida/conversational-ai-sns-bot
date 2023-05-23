@@ -10,12 +10,12 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 )
 
-type ViewConversation struct {
+type GenerateSimpleConversationLogHtml struct {
 	aiSvc            ai.Service
 	conversationRepo repositories.Conversation
 }
 
-func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort conversation.Sort, timezone *time.Location) (*simple_log.SimpleLog, error) {
+func (uc *GenerateSimpleConversationLogHtml) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort conversation.Sort, timezone *time.Location) ([]byte, error) {
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationId)
 	if err != nil {
 		// TODO: 検索結果がない場合もエラーを返してしまう
@@ -40,7 +40,7 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 		pages = append(pages, i)
 	}
 
-	return simple_log.NewSimpleLog(
+	simpleLog := simple_log.NewSimpleLog(
 		page,
 		size,
 		sort,
@@ -48,9 +48,11 @@ func (uc *ViewConversation) Execute(ctx context.Context, conversationId *convers
 		pages,
 		conversation,
 		logs,
-	), nil
+	)
+
+	return simpleLog.GenerateHtml()
 }
 
-func NewViewConversationLog(logSvc ai.Service, conversationRepo repositories.Conversation) *ViewConversation {
-	return &ViewConversation{logSvc, conversationRepo}
+func NewGenerateSimpleConversationLogHtml(logSvc ai.Service, conversationRepo repositories.Conversation) *GenerateSimpleConversationLogHtml {
+	return &GenerateSimpleConversationLogHtml{logSvc, conversationRepo}
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"time"
@@ -34,30 +33,19 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		t, err := template.ParseFiles("/app/http/template/simple_conversation_log_viewer.html")
-		if err != nil {
-			internalViewConversationLogError(err)
-			http.Error(w, "failed to parse template: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		// DI
 		var conversationRepo repositories.Conversation = repositories.NewConversation(db)
 		var logSvc ai.Service = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
-		var viewConversationLogUsecase = usecases.NewViewConversationLog(logSvc, conversationRepo)
+		var generateSimpleConversationLogHtml = usecases.NewGenerateSimpleConversationLogHtml(logSvc, conversationRepo)
 
-		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, conversation.Sort(req.Sort), timezone)
+		htmlStr, err := generateSimpleConversationLogHtml.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, conversation.Sort(req.Sort), timezone)
 		if err != nil {
 			internalViewConversationLogError(err)
 			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err := t.Execute(w, data); err != nil {
-			internalViewConversationLogError(err)
-			http.Error(w, "failed to bind data to the template: "+err.Error(), http.StatusInternalServerError)
-		}
-
+		w.Write([]byte(htmlStr))
 	}
 }
 
