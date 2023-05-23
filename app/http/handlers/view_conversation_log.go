@@ -9,7 +9,6 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/repositories"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai/chatgpt_3_5_turbo"
@@ -47,7 +46,7 @@ func ViewConversationLog(db *ent.Client) func(w http.ResponseWriter, r *http.Req
 		var logSvc ai.Service = chatgpt_3_5_turbo.NewAIServiceChatGPT3_5TurboImpl(db)
 		var viewConversationLogUsecase = usecases.NewViewConversationLog(logSvc, conversationRepo)
 
-		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, simple_log.Sort(req.Sort), timezone)
+		data, err := viewConversationLogUsecase.Execute(r.Context(), conversation.NewID(req.ConversationID), req.Page, req.Size, conversation.Sort(req.Sort), timezone)
 		if err != nil {
 			internalViewConversationLogError(err)
 			http.Error(w, "failed to view_conversation_log: "+err.Error(), http.StatusInternalServerError)
@@ -71,7 +70,7 @@ func (req *ViewConversationLogRequest) convertParameter() (*time.Location, error
 		return nil, fmt.Errorf("an inappropriate value was specified for 'size'. Please specify an integer between 1 and 500.: %d", req.Page)
 	}
 
-	if req.Sort != string(simple_log.SortAsc) && req.Sort != string(simple_log.SortDesc) {
+	if req.Sort != string(conversation.SortAsc) && req.Sort != string(conversation.SortDesc) {
 		return nil, fmt.Errorf("an inappropriate value was specified for 'sort'. Please specify either 'asc' or 'desc'.: %s", req.Sort)
 	}
 

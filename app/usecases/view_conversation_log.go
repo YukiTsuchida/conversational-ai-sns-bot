@@ -15,7 +15,7 @@ type ViewConversation struct {
 	conversationRepo repositories.Conversation
 }
 
-func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort simple_log.Sort, timezone *time.Location) (*simple_log.SimpleLog, error) {
+func (uc *ViewConversation) Execute(ctx context.Context, conversationId *conversation.ID, page int, size int, sort conversation.Sort, timezone *time.Location) (*simple_log.SimpleLog, error) {
 	conversation, err := uc.conversationRepo.FetchByID(ctx, conversationId)
 	if err != nil {
 		// TODO: 検索結果がない場合もエラーを返してしまう

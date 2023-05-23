@@ -18,6 +18,13 @@ func (id *LogID) ToString() string {
 	return id.id
 }
 
+type Sort string
+
+const (
+	SortAsc  Sort = "asc"
+	SortDesc Sort = "desc"
+)
+
 type ConversationLog struct {
 	LogID
 	message   ai.Message

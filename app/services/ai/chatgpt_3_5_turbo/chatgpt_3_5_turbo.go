@@ -13,7 +13,6 @@ import (
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/services/ai"
 	"github.com/go-resty/resty/v2"
 
@@ -236,16 +235,16 @@ func (log *aiServiceChatGPT3_5TurboImpl) CountMessageLog(ctx context.Context, co
 	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Count(ctx)
 }
 
-func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort simple_log.Sort) ([]*conversation.ConversationLog, error) {
+func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort conversation.Sort) ([]*conversation.ConversationLog, error) {
 	conversationIDInt, err := conversationID.ToInt()
 	if err != nil {
 		return nil, err
 	}
 
 	var orderOpt func(*sql.Selector)
-	if sort == simple_log.SortAsc {
+	if sort == conversation.SortAsc {
 		orderOpt = ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)
-	} else if sort == simple_log.SortDesc {
+	} else if sort == conversation.SortDesc {
 		orderOpt = ent.Desc(chatgpt35turboconversationlog.FieldCreatedAt)
 	}
 

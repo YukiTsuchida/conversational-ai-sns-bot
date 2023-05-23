@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
-	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/simple_log"
 
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
 )
@@ -15,5 +14,5 @@ type Service interface {
 	AppendUserMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.UserMessage) error
 	AppendAIMessage(ctx context.Context, conversationID *conversation.ID, message *ai_model.AIMessage, purpose string) error
 	CountMessageLog(ctx context.Context, conversationID *conversation.ID) (int, error)
-	FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort simple_log.Sort) ([]*conversation.ConversationLog, error)
+	FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort conversation.Sort) ([]*conversation.ConversationLog, error)
 }
