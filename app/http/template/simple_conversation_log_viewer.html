@@ -41,7 +41,6 @@
 
         <table>
             <tr>
-                <th class="column-no">#</th>
                 <th class="column-id">log_id</th>
                 <th>message</th>
                 <th class="column-purpose">purpose</th>
@@ -50,7 +49,6 @@
             </tr>
             {{ range $i, $log := .Logs }}
             <tr>
-                <td>{{ $i }}</td>
                 <td>{{ $log.LogIDStr }}</td>
                 <td class="column-body-message">{{ $log.MessageStr }}</td>
                 <td>{{ $log.Purpose }}</td>
@@ -102,10 +100,6 @@
 
     td {
         padding: 5px;
-    }
-
-    .column-no {
-        width: 3%;
     }
 
     .column-id {
