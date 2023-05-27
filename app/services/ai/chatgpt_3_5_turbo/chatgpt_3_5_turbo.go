@@ -255,7 +255,7 @@ func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, c
 
 	var logs []*conversation.ConversationLog
 	for _, v := range queryResult {
-		role, err := ai_model.NewRole(v.Role.String())
+		role, err := convertRole(v.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -270,6 +270,19 @@ func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, c
 	}
 
 	return logs, nil
+}
+
+func convertRole(role chatgpt35turboconversationlog.Role) (ai_model.Role, error) {
+	switch role {
+	case chatgpt35turboconversationlog.RoleSystem:
+		return ai_model.RoleSystem, nil
+	case chatgpt35turboconversationlog.RoleUser:
+		return ai_model.RoleUser, nil
+	case chatgpt35turboconversationlog.RoleAssistant:
+		return ai_model.RoleAI, nil
+	default:
+		return "", fmt.Errorf("%s is an undefined value for Role", role)
+	}
 }
 
 func NewAIServiceChatGPT3_5TurboImpl(db *ent.Client) ai.Service {

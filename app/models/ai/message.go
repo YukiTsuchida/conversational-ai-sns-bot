@@ -1,7 +1,5 @@
 package ai
 
-import "fmt"
-
 type Message struct {
 	message string
 }
@@ -25,19 +23,6 @@ const (
 	RoleUser   Role = "user"
 	RoleAI     Role = "ai"
 )
-
-func NewRole(role string) (Role, error) {
-	switch role {
-	case "system":
-		return RoleSystem, nil
-	case "user":
-		return RoleUser, nil
-	case "assistant":
-		return RoleAI, nil
-	default:
-		return "", fmt.Errorf("%s is an undefined value for Role", role)
-	}
-}
 
 type SystemMessage struct {
 	Message

@@ -2,13 +2,13 @@ package simple_log
 
 import (
 	"bytes"
-	"text/template"
+	"html/template"
 	"time"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/conversation"
 )
 
-const templateDir = "/app/http/template/simple_conversation_log_viewer.html"
+const templateDir = "/app/models/simple_log/template/simple_conversation_log_viewer.html"
 
 type SimpleLog struct {
 	PageIndex    int
