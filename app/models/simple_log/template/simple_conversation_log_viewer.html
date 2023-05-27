@@ -4,7 +4,10 @@
     <title>Simple Log Viewer</title>
     <meta charset="UTF-8">
 </head>
+
+{{/* スコープの関係で"."参照できない場所があるため、変数に展開しておく */}}
 {{ $conversationId := .Conversation.ID.ToString }}
+{{ $pageIndex := .PageIndex}}
 {{ $size := .Size }}
 {{ $sort := .Sort }}
 {{ $timezone := .TimezoneStr }}
@@ -22,6 +25,16 @@
             <li>IsAborted: {{ .Conversation.IsAborted }}</li>
         </ul>
 
+        <form class="conversation-id-form" method="get">
+            ConversationId:
+            <input type="text" name="conversation_id" value="{{ $conversationId }}">
+            <input type="text" name="page" value="{{ $pageIndex }}" hidden>
+            <input type="text" name="size" value="{{ $size }}" hidden>
+            <input type="text" name="sort" value="{{ $sort }}" hidden>
+            <input type="text" name="timezone" value="{{ $timezone }}" hidden>
+            <input type="submit" hidden>
+        </form>
+
         {{ $pageLen := len .Pages }}
         {{ if ge $pageLen 1 }}
         <div class="pagination">
@@ -38,6 +51,54 @@
             {{ end }}
         </div>
         {{ end }}
+
+        <div class="pagination">
+            <div>
+                Size:
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=10&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>10</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=50&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>50</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=100&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>100</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=500&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>500</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <div>
+                Sort:
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size={{ $size }}&sort=asc&timezone={{ $timezone }}">
+                    <span>Asc</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size={{ $size }}&sort=desc&timezone={{ $timezone }}">
+                    <span>Desc</span>
+                </a>
+            </div>
+        </div>
 
         <table>
             <tr>
@@ -87,6 +148,9 @@
         margin: 0 auto;
     }
 
+    .conversation-id-form {
+        margin: 0;
+    }
 
     table {
         width: 100%;
