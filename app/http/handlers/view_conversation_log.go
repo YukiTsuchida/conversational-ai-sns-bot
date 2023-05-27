@@ -16,7 +16,7 @@ import (
 )
 
 type ViewConversationLogRequest struct {
-	ConversationID string `in:"query=conversation_id;required"`
+	ConversationID string `in:"query=conversation_id"`
 	Page           int    `in:"query=page;default=0"`
 	Size           int    `in:"query=size;default=10"`
 	Sort           string `in:"query=sort;default=asc"`
