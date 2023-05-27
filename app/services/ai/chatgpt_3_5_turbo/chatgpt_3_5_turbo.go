@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent/conversations"
 	ai_model "github.com/YukiTsuchida/conversational-ai-sns-bot/app/models/ai"
@@ -224,6 +225,64 @@ func (ai *aiServiceChatGPT3_5TurboImpl) AppendAIMessage(ctx context.Context, con
 		return err
 	}
 	return nil
+}
+
+func (log *aiServiceChatGPT3_5TurboImpl) CountMessageLog(ctx context.Context, conversationID *conversation.ID) (int, error) {
+	conversationIDInt, err := conversationID.ToInt()
+	if err != nil {
+		return -1, err
+	}
+	return log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Count(ctx)
+}
+
+func (log *aiServiceChatGPT3_5TurboImpl) FetchMessageLogs(ctx context.Context, conversationID *conversation.ID, page int, size int, sort conversation.Sort) ([]*conversation.ConversationLog, error) {
+	conversationIDInt, err := conversationID.ToInt()
+	if err != nil {
+		return nil, err
+	}
+
+	var orderOpt func(*sql.Selector)
+	if sort == conversation.SortAsc {
+		orderOpt = ent.Asc(chatgpt35turboconversationlog.FieldCreatedAt)
+	} else if sort == conversation.SortDesc {
+		orderOpt = ent.Desc(chatgpt35turboconversationlog.FieldCreatedAt)
+	}
+
+	queryResult, err := log.db.Chatgpt35TurboConversationLog.Query().Where(chatgpt35turboconversationlog.HasConversationWith(conversations.ID(conversationIDInt))).Limit(size).Offset(page * size).Order(orderOpt).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var logs []*conversation.ConversationLog
+	for _, v := range queryResult {
+		role, err := convertRole(v.Role)
+		if err != nil {
+			return nil, err
+		}
+
+		logs = append(logs, conversation.NewConversationLog(
+			fmt.Sprint(v.ID),
+			ai_model.NewMessage(v.Message),
+			v.Purpose,
+			role,
+			&v.CreatedAt,
+		))
+	}
+
+	return logs, nil
+}
+
+func convertRole(role chatgpt35turboconversationlog.Role) (ai_model.Role, error) {
+	switch role {
+	case chatgpt35turboconversationlog.RoleSystem:
+		return ai_model.RoleSystem, nil
+	case chatgpt35turboconversationlog.RoleUser:
+		return ai_model.RoleUser, nil
+	case chatgpt35turboconversationlog.RoleAssistant:
+		return ai_model.RoleAI, nil
+	default:
+		return "", fmt.Errorf("%s is an undefined value for Role", role)
+	}
 }
 
 func NewAIServiceChatGPT3_5TurboImpl(db *ent.Client) ai.Service {

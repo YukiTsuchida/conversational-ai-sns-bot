@@ -6,6 +6,7 @@ import (
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/config"
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/http/handlers"
+	"github.com/ggicci/httpin"
 
 	"github.com/YukiTsuchida/conversational-ai-sns-bot/app/ent"
 
@@ -30,6 +31,9 @@ func main() {
 	// twitter auth
 	r.Get("/accounts/twitter_login", handlers.LoginTwitterAccountHandler())
 	r.Get("/accounts/twitter_callback", handlers.CallbackTwitterAccountHandler(db))
+
+	// log viewer
+	r.With(httpin.NewInput(handlers.ViewConversationLogRequest{})).Get("/simple-conversation-log-viewer", handlers.ViewConversationLog(db))
 
 	http.ListenAndServe(":8080", r)
 }

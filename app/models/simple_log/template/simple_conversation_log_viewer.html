@@ -1,0 +1,225 @@
+<html>
+
+<head>
+    <title>Simple Log Viewer</title>
+    <meta charset="UTF-8">
+</head>
+
+{{/* スコープの関係で"."参照できない場所があるため、変数に展開しておく */}}
+{{ $conversationId := .Conversation.ID.ToString }}
+{{ $pageIndex := .PageIndex}}
+{{ $size := .Size }}
+{{ $sort := .Sort }}
+{{ $timezone := .TimezoneStr }}
+
+<body>
+    <div class="log-section">
+        <h3>
+            Simple Log Viewer
+        </h3>
+        <ul>
+            <li>ConversationID: {{ $conversationId }}</li>
+            <li>AiModel: {{ .Conversation.AIModel }}</li>
+            <li>SnsType: {{ .Conversation.SNSType }}</li>
+            <li>CmdVersion: {{ .Conversation.CmdVersion }}</li>
+            <li>IsAborted: {{ .Conversation.IsAborted }}</li>
+        </ul>
+
+        <form class="conversation-id-form" method="get">
+            ConversationId:
+            <input type="text" name="conversation_id" value="{{ $conversationId }}" placeholder="Confirm with 'Enter'">
+            <input type="text" name="page" value="{{ $pageIndex }}" hidden>
+            <input type="text" name="size" value="{{ $size }}" hidden>
+            <input type="text" name="sort" value="{{ $sort }}" hidden>
+            <input type="text" name="timezone" value="{{ $timezone }}" hidden>
+            <input type="submit" hidden>
+        </form>
+
+        {{ $pageLen := len .Pages }}
+        {{ if ge $pageLen 1 }}
+        <div class="pagination">
+            <div>
+                Page:
+            </div>
+            {{ range $i, $v := .Pages }}
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>{{ $v }}</span>
+                </a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+
+        <div class="pagination">
+            <div>
+                Size:
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=10&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>10</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=50&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>50</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=100&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>100</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size=500&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>500</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <div>
+                Sort:
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size={{ $size }}&sort=asc&timezone={{ $timezone }}">
+                    <span>Asc</span>
+                </a>
+            </div>
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $pageIndex }}&size={{ $size }}&sort=desc&timezone={{ $timezone }}">
+                    <span>Desc</span>
+                </a>
+            </div>
+        </div>
+
+        <table>
+            <tr>
+                <th class="column-id">log_id</th>
+                <th>message</th>
+                <th class="column-purpose">purpose</th>
+                <th class="column-role">role</th>
+                <th class="column-created-at">created_at</th>
+            </tr>
+            {{ range $i, $log := .Logs }}
+            <tr>
+                <td>{{ $log.LogIDStr }}</td>
+                <td class="column-body-message">{{ $log.MessageStr }}</td>
+                <td>{{ $log.Purpose }}</td>
+                <td>{{ $log.Role }}</td>
+                <td>{{ $log.CreatedAtStr }}</td>
+            </tr>
+            {{ end }}
+        </table>
+        {{ if ge $pageLen 1 }}
+        <div class="pagination">
+            <div>
+                Page:
+            </div>
+            {{ range $i, $v := .Pages }}
+            <div class="pagination-item">
+                <a class="pagination-item-divnk"
+                    href="?conversation_id={{ $conversationId  }}&page={{ $v }}&size={{ $size }}&sort={{ $sort }}&timezone={{ $timezone }}">
+                    <span>{{ $v }}</span>
+                </a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+
+    </div>
+
+</body>
+
+<style>
+    h3>span {
+        font-weight: lighter;
+    }
+
+    .log-section {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .conversation-id-form {
+        margin: 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: solid 1px;
+    }
+
+    td {
+        padding: 5px;
+    }
+
+    .column-id {
+        width: 5%;
+    }
+
+    .column-purpose {
+        width: 8%;
+    }
+
+    .column-role {
+        width: 5%
+    }
+
+    .column-created-at {
+        width: 13%;
+    }
+
+    .column-body-message {
+        white-space: pre-wrap;
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+    }
+
+    .pagination-item-divnk {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        background: #fff;
+        color: #111;
+        font-weight: bold;
+        transition: all 0.15s linear;
+    }
+
+    .pagination-item-divnk-Icon {
+        width: 20px;
+    }
+
+    .pagination-item-divnk.isActive {
+        background: #111;
+        color: #fff;
+        pointer-events: none;
+    }
+
+    .pagination-item-divnk:not(.isActive):hover {
+        background: #111;
+        color: #fff;
+    }
+
+    .pagination>*+* {
+        margin-left: 12px;
+    }
+</style>
+
+</html>

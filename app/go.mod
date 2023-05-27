@@ -20,6 +20,7 @@ require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect
+	github.com/ggicci/httpin v0.10.1 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
